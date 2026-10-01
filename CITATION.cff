@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: >-
   If you use this formalization, please cite it as below. Status: candidate proof,
   AI-generated and AI-reviewed; a Lean 4 proof of the formal-conjectures statement
-  Erdos184.erdos_184 passes the project's acceptance checks [[PUBLIC-RELEASE-RUN]]; not yet
+  Erdos184.erdos_184 passes the project's acceptance checks (release run 36795612102 of https://github.com/steelwheel01/erdos-gallai-lean, tag release-2026-10-01, all three jobs green; offline check of TRUST.md §4.2 passed); not yet
   reviewed by human experts.
 title: >-
   A Lean 4 formalization of a candidate proof of the Erdős–Gallai cycle
@@ -13,8 +13,8 @@ authors:
     given-names: "Ryan"
     affiliation: "Yale University"
 version: "1.0.0"
-date-released: "[YYYY-MM-DD]"
-commit: "[FULL 40-HEX COMMIT OF THE RELEASE]"
+date-released: "2026-10-01"
+commit: "a11bb45847101e0d1595089bc390c59f82ad1135"
 repository-code: "https://github.com/steelwheel01/erdos-gallai-lean"
 license: Apache-2.0
 keywords:
@@ -31,7 +31,7 @@ abstract: >-
   The proof formalizes a candidate manuscript. Both the manuscript and the formalization were
   written and reviewed by AI systems (Anthropic Claude models via Claude Code). Axioms: propext,
   Classical.choice, Quot.sound. Status: passes the project's acceptance checks
-  [[PUBLIC-RELEASE-RUN]]; not yet reviewed by human experts; see README.md for the trust model
+  (release run 36795612102 of https://github.com/steelwheel01/erdos-gallai-lean, tag release-2026-10-01, all three jobs green; offline check of TRUST.md §4.2 passed); not yet reviewed by human experts; see README.md for the trust model
   and the verification record.
 references:
   - type: software
@@ -67,10 +67,3 @@ references:
     year: 2024
     notes: "Article 109434; arXiv:2211.07689"
     url: "https://arxiv.org/abs/2211.07689"
-  - type: article
-    title: "[TITLE OF THE ARXIV PAPER OF THE CANDIDATE PROOF]"
-    authors:
-      - family-names: "Coffey"
-        given-names: "Ryan"
-    year: "[YEAR]"
-    notes: "arXiv:[ARXIV ID]"

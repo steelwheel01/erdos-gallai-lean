@@ -1,6 +1,6 @@
 # A Lean 4 proof of `Erdos184.erdos_184` (Erdős–Gallai cycle decomposition): candidate, AI-generated
 
-> **Status: candidate proof, AI-generated and AI-reviewed; a Lean 4 proof of the formal-conjectures statement Erdos184.erdos_184 passes the project's acceptance checks (GitHub release run 36767721300, 2026-09-30: comparator in release mode, strict FinalCheck and three kernel replays all passed); not yet reviewed by human experts.**
+> **Status: candidate proof, AI-generated and AI-reviewed; a Lean 4 proof of the formal-conjectures statement Erdos184.erdos_184 passes the project's acceptance checks (release run 36795612102 of this repository, 2026-10-01: comparator in release mode, strict FinalCheck and three kernel replays all passed; offline check of formal/TRUST.md §4.2 passed); not yet reviewed by human experts.**
 
 
 This repository holds a Lean 4 formalization of a *candidate* proof of the Erdős–Gallai cycle
@@ -260,8 +260,7 @@ every file that could run code before the checks. If you prefer not to run the g
 `git diff T R` on those paths yourself (it must be empty apart from
 `formal/comparator/Solution.lean`) and run the three `git ls-files` checks of `formal/TRUST.md` §4.2.
 
-For the published record: T = [trust commit of this repository: *to be recorded after the public
-release run*] and R = [release commit: *to be recorded after the public release run*]. In the
+For the published record: T = R = `a11bb45847101e0d1595089bc390c59f82ad1135` (the initial commit of this repository; release run 36795612102). In the
 private development repository steelwheel01/Erdos-Proof, release run 2 tested
 `R = T = f7398e12758c1898ca60614263a2455a9f1dc78f`.
 That commit is not the tree of this repository, whose trusted zone differs from it (see
@@ -550,7 +549,7 @@ steelwheel01/Erdos-Proof, from which this repository was exported. That reposito
 runners are GitHub's private-repository runners, `formal/work/p3/ACCEPT.md`), so **those links are
 not publicly inspectable**: they work only for its collaborators. The detailed record of each of
 those runs is `formal/work/p3/ACCEPT.md`. The public evidence for this repository is its own release
-run and offline check (the last two rows, *to be recorded after the public release run*). Archived logs of the
+run and offline check (the last two rows). Archived logs of the
 development runs may be attached to the GitHub release, labelled as coming from a private
 repository.
 
@@ -561,8 +560,8 @@ repository.
 | 2026-09-30 | formal-release run 1, 36758690862 (`https://github.com/steelwheel01/Erdos-Proof/actions/runs/36758690862`, private, not publicly inspectable), tag `release-2026-09-30` | `d249d5f5387bc871519427190dc942b4f93b5ffb` (= `EG_TRUST_REF`) | **comparator job: SUCCESS**. Release mode, run as an unprivileged systemd unit; axioms `propext`, `Quot.sound`, `Classical.choice` only; "Lean default kernel accepts the solution" / "Your solution is okay!". build job: SUCCESS. verify job: stopped at the memory preflight (7 GiB runner), before any check; an infrastructure stop, not a proof failure |
 | 2026-09-30 | formal-release run 2, 36767721300 (`https://github.com/steelwheel01/Erdos-Proof/actions/runs/36767721300`, private, not publicly inspectable), tag `release-2026-09-30b` | `f7398e12758c1898ca60614263a2455a9f1dc78f` (= `EG_TRUST_REF`; gate SHA-256 `99f1f34f03a9f56bd036d12b7523b3dffc4c15820b4c6209363dfbb99a0f234c`) | **comparator job: SUCCESS**: release mode, unprivileged systemd unit, "Lean default kernel accepts the solution" / "Your solution is okay!". build job: SUCCESS. verify job: SUCCESS (7 GiB runner, swap-backed preflight): trusted gate PRISTINE: PASS; pins; release lint; checker red-team (14 cases); upstream statement rebuilt from pinned sources; STATEMENT.md regenerated without diff; statement lock; axiom scan (11,057 constants under `EG`/`EGTest`/`EGCheck`, 0 `sorryAx`); sorry ratchet; **strict FinalCheck: PASS** (0 failures, 0 warnings; kernel replay of 10,085 project declarations, both pins match); **`leanchecker EG`: exit 0** (13 min 25 s); **`leanchecker EGTest`: exit 0** (1 min 7 s); **`leanchecker --fresh EGCheck.Final`: exit 0 (36 min 48 s)**. All three jobs: SUCCESS |
 | 2026-09-30 | offline check of `formal/TRUST.md` §4.2 for release run 2 (`formal/work/p3/ACCEPT.md`, "TRUST.md §4.2 offline check for release run 2") | T = R = `f7398e12758c1898ca60614263a2455a9f1dc78f` | **PRISTINE: PASS**: the gate of T (SHA-256 `99f1f34f…`, equal to the tree copy), run with `--trust-ref T` in a fresh clone checked out at R, checked 1264 files, trusted zone 100/100 matching pins; `git diff T R` is empty and the three `git ls-files` checks print nothing; the gate steps of the jobs log `HEAD` = `EG_TRUST_REF` = f7398e1. Release run 2 therefore counts as evidence for `f7398e1` (`formal/TRUST.md` §4.3) |
-| *to be recorded after the public release run* | release run in this (public) repository | *to be recorded after the public release run* | *to be recorded after the public release run* |
-| *to be recorded after the public release run* | offline check of `formal/TRUST.md` §4.2 for the public release run | T, R: *to be recorded after the public release run* | *to be recorded after the public release run* |
+| 2026-10-01 | formal-release run 36795612102 of this repository (https://github.com/steelwheel01/erdos-gallai-lean/actions/runs/36795612102), tag `release-2026-10-01` | `a11bb45847101e0d1595089bc390c59f82ad1135` (= `EG_TRUST_REF`; gate SHA-256 `e8e10825a36148c00db43e5110937782ee2cf5553675e6a8e689f2252ca5051a`) | **All three jobs: SUCCESS.** comparator: release mode, unprivileged systemd unit, "Your solution is okay!". build: SUCCESS. verify (7 GiB runner, swap-backed preflight): trusted gate PRISTINE: PASS (logged `HEAD` = `EG_TRUST_REF`); pins; release lint; checker red-team; upstream statement rebuilt from pinned sources (statement-sha256 `4cb2cd56…`, closure-sha256 `39d6e8c3…`); STATEMENT.md; statement lock (1234 constants / 277 files, 0 violations); axiom scan (11,057 constants, 0 `sorryAx`, 0 violations); sorry ratchet (frontier 0); **strict FinalCheck: PASS** (0 failures, 0 warnings; statement `Expr.equal` to `Erdos184.erdos_184`; axioms exactly `propext`, `Classical.choice`, `Quot.sound`; both pins match); **`leanchecker EG`: exit 0** (11 min 8 s); **`leanchecker EGTest`: exit 0** (55 s); **`leanchecker --fresh EGCheck.Final`: exit 0** (33 min 19 s) |
+| 2026-10-01 | offline check of `formal/TRUST.md` §4.2 for run 36795612102 | T = R = `a11bb45847101e0d1595089bc390c59f82ad1135` | **PRISTINE: PASS**: the gate of T (SHA-256 `e8e10825…`), run with `--trust-ref T` in a fresh clone checked out at R, checked 993 files, trusted zone 100/100 matching pins; `git diff T R` is empty; the three `git ls-files` checks print nothing. Run 36795612102 therefore counts as evidence for `a11bb45` (`formal/TRUST.md` §4.3). Record: `formal/APPROVALS/2026-10-01-public-release-run.md` |
 
 
 A run is evidence only together with the offline check of §4.2. A modified workflow can skip the
