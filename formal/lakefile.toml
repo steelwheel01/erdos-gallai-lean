@@ -1,0 +1,47 @@
+# Erdős–Gallai (Erdős Problem #184) formalization project.
+# Toolchain and Mathlib are pinned to the versions used by google-deepmind/formal-conjectures.
+# DO NOT bump the toolchain, Mathlib, or the formal_conjectures pin during bulk proving
+# (PLAN_FORMALIZATION.md §3; changes to the formal_conjectures pin are a trusted-boundary change, §9).
+
+name = "eg"
+defaultTargets = ["EG", "EGTest"]
+
+[leanOptions]
+pp.unicode.fun = true
+autoImplicit = false
+relaxedAutoImplicit = false
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.33.1"
+
+# Pinned by SHA. Only the EGCheck library may import it (enforced by scripts/lint.py).
+[[require]]
+name = "formal_conjectures"
+git = "https://github.com/google-deepmind/formal-conjectures"
+rev = "2424bb480c590237ffbb2cc831ae4cb8977e045a"
+
+# The proof. Imports Mathlib only.
+[[lean_lib]]
+name = "EG"
+
+# Unit tests, non-vacuity, multigraph falsity (plan §8 Q1, Q4).
+[[lean_lib]]
+name = "EGTest"
+
+# Bridge and final check against Erdos184.erdos_184. The only library importing formal_conjectures.
+[[lean_lib]]
+name = "EGCheck"
+
+# Comparator (leanprover/comparator) challenge and solution: TRUST.md "How to check",
+# comparator/README.md. Not default targets; only comparator builds them (scripts/comparator.sh).
+# comparator/Challenge.lean is a byte-identical copy of the pinned upstream 184.lean.
+[[lean_lib]]
+name = "Challenge"
+srcDir = "comparator"
+
+[[lean_lib]]
+name = "Solution"
+srcDir = "comparator"

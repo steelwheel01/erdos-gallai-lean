@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(/formal/TRUST.md)",
+      "Edit(/formal/STATEMENT.md)",
+      "Edit(/formal/LOCK.json)",
+      "Edit(/formal/lean-toolchain)",
+      "Edit(/formal/lakefile.toml)",
+      "Edit(/formal/lakefile.lean)",
+      "Edit(/formal/lake-manifest.json)",
+      "Edit(/formal/EGCheck/Final.lean)",
+      "Edit(/formal/comparator/Challenge.lean)",
+      "Edit(/formal/comparator/config.json)",
+      "Edit(/formal/comparator/patches/**)",
+      "Edit(/.claude/**)"
+    ]
+  }
+}

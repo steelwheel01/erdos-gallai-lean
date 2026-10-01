@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=Hijack only #print axioms; statement stays the honest upstream type; proof is sorryAx. (fable A3) Distinct import shape from A.

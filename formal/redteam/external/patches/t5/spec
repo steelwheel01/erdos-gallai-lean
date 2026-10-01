@@ -1,0 +1,3 @@
+MODE=evasion
+TARGET=EGCheck.RTEvade
+DESC=sorryAx spelled out (not matched by \bsorry\b)

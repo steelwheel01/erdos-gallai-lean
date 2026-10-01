@@ -1,0 +1,867 @@
+\section{Chaining in standalone parts: HCC-P and JS-LC; hub concentration; the MIX-C assembly}\label{s6:sec}
+
+This section contains the part of the \candidate{} proof that treats the standalone pre-parts of a valid $\HBtp$ run. It has four parts.
+\begin{itemize}
+\item A purely combinatorial \emph{routing engine}: Lemma GATE, clusters, Lemma MED, Lemma EQ-LPT, Lemma PAR and Lemma HCC-P. HCC-P closes layered systems of clusters into few cycles through junction paths.
+\item The \emph{hub-concentration} bounds CONC and CONC-L. For every valid $\HBtp$ run and every designation they give $\sum_{(Y,l)}m_{Y,l}\le\epsCONC(\Dstar)\,n$.
+\item The stage-2 \emph{lending statuses}, and Lemma JS-LC, which chains the beads of all standalone parts of one round through lent classes of ancestors two or more rounds back. The single edges left over form the \emph{J-set} $J_l$, whose interface is Lemma J$^+$.
+\item The \emph{MIX-C assembly}. For every J-consumer (a rule that disposes of the J-set, defined in the last subsection) it turns all of this into a decomposition of $E(G)$ with an explicit cost.
+\end{itemize}
+There are no VX-parts ($\mathcal V=\emptyset$): every standalone pre-part is chained. The status of the whole manuscript is described in Remark~\ref{s1:remStatus}.
+
+Throughout, $G$ is the input graph (Convention~\ref{s1:convGraphs}). Orientations, directed paths and directed cycles are those of digraphs obtained by orienting edges of $G$; each edge receives exactly one direction. A digraph is \emph{acyclic} if it has no directed cycle.
+
+\subsection{The routing engine: GATE, clusters, MED, EQ-LPT, PAR, HCC-P}
+
+\begin{lemma}[Lemma GATE, forward direction]\label{s6:lemGATE}
+Let $F\subseteq E(G)$ and let $\vec F$ be an orientation of $F$ with $d^+_{\vec F}(v)=d^-_{\vec F}(v)$ at every vertex $v$. Let $\mathcal W$ be a set of arcs of $\vec F$ such that $\vec F-\mathcal W$ is acyclic. Then $F$ decomposes into at most $|\mathcal W|$ cycles of $G$. More precisely, $\vec F$ is the arc-disjoint union of directed cycles, each of length at least $3$, each the orientation of a cycle of $G$, and each containing an arc of $\mathcal W$; there are at most $|\mathcal W|$ of them.
+\deps{\ref{s1:defObject}}
+\end{lemma}
+
+\begin{proof}
+We first show that $\vec F$ is an arc-disjoint union of directed cycles of length at least $3$, by induction on the number of arcs. If $\vec F$ has no arc there is nothing to prove.
+
+Otherwise let $v_0\to v_1\to\dots\to v_k$ ($k\ge1$) be a directed path in $\vec F$ with pairwise distinct vertices and with $k$ maximal. The vertex $v_k$ has in-degree at least $1$, so by balance it has an out-arc $v_k\to x$. By maximality of the path, $x=v_i$ for some $i\le k$. Since $G$ has no loops, $i\neq k$. So $C:=v_i\to v_{i+1}\to\dots\to v_k\to v_i$ is a directed cycle with distinct vertices, of length $k-i+1\ge2$.
+
+Suppose the length were $2$. Then $i=k-1$, and $\vec F$ would contain the arcs $v_{k-1}\to v_k$ and $v_k\to v_{k-1}$. These arcs come from two distinct edges of $F$ with the same ends, which is impossible since $G$ is simple. So $C$ has length at least $3$, and its underlying edge set is a cycle of $G$.
+
+Deleting the arcs of $C$ lowers in- and out-degree by $1$ at every vertex of $C$ and changes nothing elsewhere. So the remaining digraph is still balanced, and the induction hypothesis applies to it.
+
+Let $C_1,\dots,C_p$ be the directed cycles obtained. Their underlying cycles partition $F$, so they form a decomposition of $F$ into cycles in the sense of Definition~\ref{s1:defObject}. Each $C_i$ contains an arc of $\mathcal W$, since otherwise $C_i$ would be a directed cycle of $\vec F-\mathcal W$. The $C_i$ are arc-disjoint, so $p\le|\mathcal W|$.
+\end{proof}
+
+\begin{definition}[clusters]\label{s6:defCluster}
+A \emph{cluster} is a triple $\clu=(A_\clu,U_\clu,B_\clu)$ with the following parts.
+\begin{itemize}
+\item $A_\clu$ (the \emph{hubs} of $\clu$) and $U_\clu$ (the \emph{ports} of $\clu$) are disjoint vertex sets. Put $V(\clu):=A_\clu\cup U_\clu$.
+\item $B_\clu\subseteq E(G[A_\clu\cup U_\clu])$ is the set of \emph{beads}. No bead has both ends in $A_\clu$.
+\end{itemize}
+The \emph{bead count} is $b(\clu):=\sum_{h\in A_\clu}\deg_{B_\clu}(h)/2+e(B_\clu[U_\clu])$. The cluster $\clu$ is \emph{parity-clean} if every hub has even $B_\clu$-degree.
+
+An \emph{admissible orientation} of $\clu$ is an acyclic orientation of $B_\clu$ in which every hub $h$ has $d^+(h)=d^-(h)$. Given an admissible orientation, put for every port $u$
+\[
+\exc(u):=d^+(u)-d^-(u),\qquad \exc(u)^+:=\max(\exc(u),0),\qquad \exc(u)^-:=\max(-\exc(u),0),
+\]
+and define the \emph{load} $\Phi(\clu):=\sum_{u\in U_\clu}\exc(u)^+$.
+
+Let $\clu$ be parity-clean and let $\prec$ be a linear order on $U_\clu$. The \emph{median orientation} $\MED(\prec)$ orients $B_\clu$ as follows.
+\begin{itemize}
+\item At a hub $h$ with $B_\clu$-neighbours $u_1\prec u_2\prec\dots\prec u_{2d}$, it orients $u_i\to h$ for $i\le d$ and $h\to u_i$ for $i>d$. These neighbours are ports, since no bead joins two hubs.
+\item A port--port bead $uv$ with $u\prec v$ is oriented $u\to v$ ($\prec$-upwards).
+\end{itemize}
+Every bead is oriented exactly once: a bead at a hub has its other end at a port, so it is oriented by the rule at that hub only.
+\deps{none}
+\end{definition}
+
+\begin{lemma}[Lemma MED]\label{s6:lemMED}
+Let $\clu$ be a parity-clean cluster and $\prec$ a linear order on $U_\clu$.
+\begin{enumerate}
+\item[(a)] $\MED(\prec)$ is an admissible orientation. There is a function $\pot:A_\clu\cup U_\clu\to(0,1)$ that strictly increases along every arc of $\MED(\prec)$.
+\item[(b)] For every admissible orientation of $\clu$, in particular for $\MED(\prec)$, and every port $u$: $|\exc(u)|\le\deg_{B_\clu}(u)$ and $\exc(u)\equiv\deg_{B_\clu}(u)\pmod 2$. Moreover $\sum_{u\in U_\clu}\exc(u)=0$ and $\Phi(\clu)\le b(\clu)$.
+\end{enumerate}
+\deps{\ref{s6:defCluster}}
+\end{lemma}
+
+\begin{proof}
+(a) Let $\mathrm{rk}:U_\clu\to\{1,\dots,|U_\clu|\}$ be the bijection realising $\prec$, and put $\pot(u):=\mathrm{rk}(u)/(|U_\clu|+1)$ for ports.
+
+For a hub $h$ with $2d\ge2$ neighbours $u_1\prec\dots\prec u_{2d}$, put $\pot(h):=(\mathrm{rk}(u_d)+\tfrac12)/(|U_\clu|+1)$. Since $\mathrm{rk}(u_d)\le|U_\clu|-1$, this lies in $(0,1)$. A hub without beads gets $\pot(h):=\tfrac12$.
+
+Check the arcs.
+\begin{itemize}
+\item An arc $u_i\to h$ ($i\le d$) has $\mathrm{rk}(u_i)\le\mathrm{rk}(u_d)<\mathrm{rk}(u_d)+\tfrac12$.
+\item An arc $h\to u_i$ ($i>d$) has $\mathrm{rk}(u_i)\ge\mathrm{rk}(u_{d+1})\ge\mathrm{rk}(u_d)+1$, because ranks are distinct integers.
+\item Port--port arcs go up in rank.
+\end{itemize}
+So $\pot$ strictly increases along every arc, and $\MED(\prec)$ has no directed cycle. Every hub of degree $2d$ has exactly $d$ in-arcs and $d$ out-arcs. Hence $\MED(\prec)$ is admissible.
+
+(b) Fix an admissible orientation. $\exc(u)$ is a sum of $\pm1$ over the $\deg_{B_\clu}(u)$ beads at $u$, which gives the bound $|\exc(u)|\le\deg_{B_\clu}(u)$ and the parity claim.
+
+Every arc contributes $+1$ to $d^+-d^-$ at its tail and $-1$ at its head, so $\sum_{v\in V(\clu)}(d^+(v)-d^-(v))=0$. Hubs contribute $0$, hence $\sum_{u\in U_\clu}\exc(u)=0$.
+
+Finally,
+\begin{align*}
+\Phi(\clu)=\sum_u\exc(u)^+&\le\sum_{u\in U_\clu}d^+(u)=\#\{\text{arcs port}\to\text{hub}\}+e(B_\clu[U_\clu])\\
+&=\sum_{h\in A_\clu}d^-(h)+e(B_\clu[U_\clu])=b(\clu).
+\end{align*}
+Here we used that every arc with tail at a port ends at a hub or at a port, and that $d^-(h)=\deg_{B_\clu}(h)/2$ at every hub.
+\end{proof}
+
+\begin{lemma}[Lemma EQ-LPT]\label{s6:lemEQLPT}
+Let $\Phi_1\ge\Phi_2\ge\dots\ge\Phi_m\ge0$ be loads of $m$ items, and let $1\le k\le m$. Place the items in the order $1,2,\dots,m$ into $k$ initially empty layers. Each item goes to a layer of currently minimum load, and to an empty layer whenever one exists (``greedy longest-processing-time placement''). Then all $k$ layers are non-empty, and the final layer loads satisfy $\max_j\Phi^{\mathrm{lay}}_j-\min_j\Phi^{\mathrm{lay}}_j\le\Phi_1$.
+\deps{none}
+\end{lemma}
+
+\begin{proof}
+An empty layer has load $0$, which is minimum. So the rule is consistent, and the first $k$ items go to the $k$ distinct empty layers. Since $k\le m$, every layer is non-empty.
+
+Let $j^*$ be a layer of maximum final load and $x$ the last item placed in it. When $x$ was placed, the load of $j^*$ was at most the load of every layer at that moment. That is at most the final load of every layer, because loads only grow. Hence
+\[
+\max_j\Phi^{\mathrm{lay}}_j=(\text{load of }j^*\text{ before }x)+\Phi_x\le\min_j\Phi^{\mathrm{lay}}_j+\Phi_1.
+\qedhere
+\]
+\end{proof}
+
+\begin{lemma}[Lemma PAR, port--port parity]\label{s6:lemPAR}
+Let $E_{ab}$ be a bipartite graph with sides $V_a,V_b$, and let $V(E_{ab})$ be the set of vertices incident with an edge of $E_{ab}$. Call a connected component of $E_{ab}$ \emph{odd} if it has an odd number of edges. In each odd component choose one edge that is either a non-bridge or a pendant edge (an edge with an end of degree $1$) of that component; such an edge exists. Let $J'$ be the set of chosen edges. Then, for \emph{every} such choice,
+\[
+|J'|\le\#\{\text{odd components}\}\le|V(E_{ab})|/2,
+\]
+and there is a partition $E_{ab}\setminus J'=S_a\sqcup S_b$ such that every vertex of $V_b$ has even $S_a$-degree and every vertex of $V_a$ has even $S_b$-degree.
+\deps{\ref{s1:citEuler}}
+\end{lemma}
+
+\begin{proof}
+\emph{Existence of the edge.} Let $C$ be a component with at least one edge. If $C$ contains a cycle, every edge of that cycle is a non-bridge. Otherwise $C$ is a tree with at least one edge; it has a leaf, and the edge at the leaf is pendant.
+
+\emph{The count.} Every odd component has at least one edge, hence at least two vertices of $V(E_{ab})$. Components are vertex-disjoint, so there are at most $|V(E_{ab})|/2$ of them.
+
+\emph{Even components after deletion.} Let $C$ be odd with chosen edge $e$.
+\begin{itemize}
+\item If $e$ is a non-bridge, $C-e$ is connected and has $|E(C)|-1$ edges, an even number.
+\item If $e$ is pendant, $C-e$ consists of an isolated vertex and a connected graph with $|E(C)|-1$ edges.
+\end{itemize}
+Hence every component $C'$ of $E_{ab}\setminus J'$ that has an edge has an even number of edges.
+
+\emph{The partition.} Fix such a component $C'$. Prescribe parities $p(v):=0$ for $v\in V_b\cap V(C')$ and $p(u):=\deg_{C'}(u)\bmod2$ for $u\in V_a\cap V(C')$. Every edge of $C'$ has exactly one end in $V_a$, so
+\[
+\sum_{w\in V(C')}p(w)\equiv\sum_{u\in V_a\cap V(C')}\deg_{C'}(u)=|E(C')|\equiv0\pmod2.
+\]
+So $T:=\{w:p(w)=1\}$ has even size. By Cited result~\ref{s1:citEuler}, a spanning tree of the connected graph $C'$ contains a $T$-join $S(C')$: an edge set with $\deg_{S(C')}(w)$ odd exactly for $w\in T$.
+
+Put $S_a:=\bigcup_{C'}S(C')$ and $S_b:=(E_{ab}\setminus J')\setminus S_a$. Then:
+\begin{itemize}
+\item every $v\in V_b$ has even $S_a$-degree;
+\item every $u\in V_a$ has $\deg_{S_b}(u)=\deg_{E_{ab}\setminus J'}(u)-\deg_{S_a}(u)\equiv\deg_{C'}(u)-p(u)\equiv0\pmod 2$, where $C'$ is the component of $u$.
+\end{itemize}
+Isolated vertices have degree $0$ in both.
+\end{proof}
+
+\begin{lemma}[Lemma HCC-P, layered hub-cluster chaining with path junctions]\label{s6:lemHCCP}
+Let $k\ge1$, and suppose the following data are given.
+\begin{itemize}
+\item \emph{Layers} $\mathcal K_0,\dots,\mathcal K_{k-1}$: finite families of clusters, each cluster with a fixed admissible orientation. Put $\LayP_j:=\bigcup_{\clu\in\mathcal K_j}U_\clu$.
+\item \emph{Junction sets} $T_0,\dots,T_{k-1}$: pairwise disjoint vertex sets.
+\item A \emph{padding} $\pad:\bigcup_j\LayP_j\to\mathbb Z_{\ge0}$, with $\pad\equiv0$ if $k=1$.
+\end{itemize}
+Define the demands $\dem^-(u):=\exc(u)^-+\pad(u)$ and $\dem^+(u):=\exc(u)^++\pad(u)$, and the padded loads $\Phi_j:=\sum_{u\in\LayP_j}\dem^+(u)$. For $k=1$ put $X^{\mathrm{out}}:=\{u\in\LayP_0:\exc(u)<0\}$ and $X^{\mathrm{in}}:=\{u\in\LayP_0:\exc(u)>0\}$. Indices of layers and junction sets are taken modulo $k$. Assume:
+\begin{itemize}
+\item[(D)] the sets $A_\clu$ and $U_\clu$ (over all clusters of all layers) and $T_0,\dots,T_{k-1}$ are pairwise disjoint;
+\item[(P)] every cluster is parity-clean;
+\item[(JC-P)] for each $j$ there is a family $\mathcal P_j$ of pairwise edge-disjoint paths of $G$ with the following properties.
+  \begin{itemize}
+  \item Each path runs from a vertex of $\LayP_j$ to a vertex of $\LayP_{j+1}$; for $k=1$, from $X^{\mathrm{out}}$ to $X^{\mathrm{in}}$.
+  \item All interior vertices of each path lie in $T_j$.
+  \item Every $u\in\LayP_j$ is the first vertex of exactly $\dem^-(u)$ paths of $\mathcal P_j$, and every $v\in\LayP_{j+1}$ is the last vertex of exactly $\dem^+(v)$ paths of $\mathcal P_j$. For $k=1$ this reads: $u\in X^{\mathrm{out}}$ starts exactly $\exc(u)^-$ paths and $v\in X^{\mathrm{in}}$ ends exactly $\exc(v)^+$ paths.
+  \end{itemize}
+  The edge sets $E(\mathcal P_0),\dots,E(\mathcal P_{k-1})$ and all bead sets $B_\clu$ are pairwise disjoint.
+\end{itemize}
+Then:
+\begin{enumerate}
+\item[(i)] all $\Phi_j$ are equal to a common value $\Phi$, and $\Phi=|\mathcal P_j|$ for every $j$;
+\item[(ii)] there are sets $F_j\subseteq E(\mathcal P_j)$ with $E(\mathcal P_j)\setminus F_j\subseteq E(G[T_j])$ such that $\bigcup_\clu B_\clu\cup\bigcup_jF_j$ decomposes into at most $\Phi$ cycles of $G$, each of length at least $\max(3,k)$.
+\end{enumerate}
+The edges of $E(\mathcal P_j)\setminus F_j$ are called \emph{returned}; they are not used.
+\deps{\ref{s6:lemGATE}, \ref{s6:lemMED}, \ref{s6:defCluster}}
+\end{lemma}
+
+\begin{proof}
+We treat $k\ge2$ and $k=1$ together. For $k=1$, read ``$\LayP_j$ as first vertices'' as $X^{\mathrm{out}}$ and ``$\LayP_{j+1}$ as last vertices'' as $X^{\mathrm{in}}$.
+
+\emph{Step 0: the loads.} Each cluster has an admissible orientation, so $\sum_{u\in U_\clu}\exc(u)=0$ by Lemma~\ref{s6:lemMED}(b). Hence $\sum_{u\in\LayP_j}\exc(u)^-=\sum_{u\in\LayP_j}\exc(u)^+$ for every $j$. Counting first vertices and last vertices of paths gives
+\[
+|\mathcal P_j|=\sum_{u\in\LayP_j}\dem^-(u)=\sum_{u\in\LayP_j}(\exc(u)^++\pad(u))=\Phi_j,
+\qquad
+|\mathcal P_j|=\sum_{v\in\LayP_{j+1}}\dem^+(v)=\Phi_{j+1}.
+\]
+Hence $\Phi_j=\Phi_{j+1}$ for all $j$ modulo $k$, and all padded loads equal $\Phi:=|\mathcal P_j|$. For $k=1$ the same count gives $|\mathcal P_0|=\sum\exc^-=\sum\exc^+=\Phi_0$. This proves (i).
+
+\emph{Step 1: orient and cancel.} Orient every path of $\mathcal P_j$ from its first to its last vertex, and let $D_j$ be the resulting set of arcs. The paths are edge-disjoint, so every edge of $E(\mathcal P_j)$ receives exactly one direction. We record three facts.
+\begin{itemize}
+\item No vertex of $\LayP_j$ is an interior vertex of a path of $\mathcal P_j$ (interiors lie in $T_j$, which avoids all ports by (D)). No vertex of $\LayP_j$ is a last vertex: last vertices lie in $\LayP_{j+1}$, which is disjoint from $\LayP_j$ by (D) when $k\ge2$ (the clusters of different layers are different clusters, and for $k=2$ the layers $j+1$ and $j-1$ coincide but differ from $j$); for $k=1$, $X^{\mathrm{out}}\cap X^{\mathrm{in}}=\emptyset$. Symmetrically, no vertex of $\LayP_{j+1}$ is a first or interior vertex.
+\item Hence in $D_j$ every $u\in\LayP_j$ has out-degree $\dem^-(u)$ and in-degree $0$, and every $v\in\LayP_{j+1}$ has in-degree $\dem^+(v)$ and out-degree $0$.
+\item Every $y\in T_j$ is never a first or last vertex (these are ports), and each path through $y$ contributes one in-arc and one out-arc at $y$. So $d^+_{D_j}(y)=d^-_{D_j}(y)$. All vertices of $D_j$ lie in $\LayP_j\cup T_j\cup\LayP_{j+1}$.
+\end{itemize}
+A directed cycle of $D_j$ cannot pass through a port, since ports are sources or sinks of $D_j$. So every directed cycle of $D_j$ has all its vertices in $T_j$.
+
+Delete directed cycles from $D_j$ one at a time until no directed cycle remains. Call the result $D'_j$ and let $F_j$ be its underlying edge set. Each deletion lowers in- and out-degree by one at the vertices of a cycle inside $T_j$ and touches no arc at a port. So the three facts above hold for $D'_j$, $D'_j$ is acyclic, and $E(\mathcal P_j)\setminus F_j\subseteq E(G[T_j])$.
+
+\emph{Step 2: the Eulerian digraph.} Let $\vec F$ consist of the arcs of the fixed admissible orientations of all clusters together with $D'_0,\dots,D'_{k-1}$. Its underlying edge set is $F:=\bigcup_\clu B_\clu\cup\bigcup_jF_j$.
+\begin{itemize}
+\item These are distinct edges of $G$. The clusters are vertex-disjoint by (D), so their bead sets are disjoint; the remaining disjointness is part of (JC-P).
+\item Every hub is balanced. A hub is not a port and lies in no $T_j$, so it meets only arcs of its own cluster, which are balanced at hubs by admissibility.
+\item Every $y\in T_j$ is balanced. By (D), $y$ lies in no cluster and in no $T_i$ with $i\neq j$. The arcs of $D'_i$ have both ends in $\LayP_i\cup T_i\cup\LayP_{i+1}$, so $y$ meets only arcs of $D'_j$, which are balanced at $y$.
+\item Every port is balanced. Let $u$ be a port of a cluster of layer $j$, with $k\ge2$. By (D) and the fact just recalled, $u$ meets arcs of its own cluster, out-arcs of $D'_j$ (as a vertex of $\LayP_j$) and in-arcs of $D'_{j-1}$ (as a vertex of $\LayP_{(j-1)+1}$), and no others; $j-1\neq j$ modulo $k$. Hence
+\[
+d^+_{\vec F}(u)-d^-_{\vec F}(u)=\exc(u)+\dem^-(u)-\dem^+(u)=\exc(u)+\exc(u)^--\exc(u)^+=0.
+\]
+For $k=1$: a port with $\exc(u)<0$ has $\exc(u)^-=-\exc(u)$ out-arcs in $D'_0$; a port with $\exc(u)>0$ has $\exc(u)$ in-arcs; a port with $\exc(u)=0$ has none. In each case the port is balanced.
+\end{itemize}
+
+\emph{Step 3: a potential.} For each cluster $\clu$ fix a function $\pot_\clu:V(\clu)\to(0,1)$ that strictly increases along the arcs of its admissible orientation. One exists because the orientation is acyclic: take the position in a topological order divided by $|V(\clu)|+1$ (for $\MED$ one may use Lemma~\ref{s6:lemMED}(a)). For each $j$ fix a numbering $\mathrm{tp}_j:T_j\to\{1,\dots,|T_j|\}$ that increases along the arcs of the acyclic digraph $D'_j[T_j]$. Define
+\[
+\Psi(v):=3j+\pot_\clu(v)\ \ (v\in V(\clu),\ \clu\in\mathcal K_j),\qquad
+\Psi(y):=3j+1+\frac{\mathrm{tp}_j(y)}{|T_j|+1}\ \ (y\in T_j).
+\]
+This is well defined by (D). Moreover $\Psi(v)\in(3j,3j+1)$ on layer $j$, and $\Psi(y)\in(3j+1,3j+2)$ on $T_j$. Now check the arcs.
+\begin{itemize}
+\item Bead arcs increase $\Psi$.
+\item An arc of $D'_j$ from $u\in\LayP_j$ to $y\in T_j$ has $\Psi(u)<3j+1<\Psi(y)$. An arc inside $T_j$ increases $\mathrm{tp}_j$.
+\item For $j\le k-2$, an arc of $D'_j$ with head $v\in\LayP_{j+1}$ has tail in $T_j\cup\LayP_j$, and $\Psi(\text{tail})<3j+2<3j+3<\Psi(v)$.
+\end{itemize}
+Let $\mathcal W$ be the set of arcs of $D'_{k-1}$ whose head lies in $\LayP_0$ (for $k=1$: the arcs of $D'_0$ whose head is a port). Every arc outside $\mathcal W$ increases $\Psi$, so $\vec F-\mathcal W$ is acyclic.
+
+An arc of $D'_{k-1}$ whose head is a port is the last arc of its path, because interior vertices lie in $T_{k-1}$. Each path of $\mathcal P_{k-1}$ has exactly one last arc, which ends at a port and is never deleted by the cancellation of Step 1. Hence $|\mathcal W|=|\mathcal P_{k-1}|=\Phi$.
+
+\emph{Step 4: count and length.} By Lemma~\ref{s6:lemGATE}, $F$ decomposes into at most $|\mathcal W|=\Phi$ cycles of $G$. Each of them is the orientation of a directed cycle $C$ of $\vec F$ of length at least $3$ containing an arc of $\mathcal W$.
+
+For the bound $k$ on the length, call $[3j,3j+3)$ the $j$-th block. Every arc of $\vec F-\mathcal W$ either has both ends in the same block, or is an arc of some $D'_j$ ($j\le k-2$) from block $j$ to block $j+1$ with head in $\LayP_{j+1}$. Take a maximal subpath of $C$ that contains no arc of $\mathcal W$. It starts at the head of a $\mathcal W$-arc, a vertex of $\LayP_0$ (block $0$), and ends at the tail of a $\mathcal W$-arc, a vertex of $T_{k-1}\cup\LayP_{k-1}$ (block $k-1$). Along it $\Psi$ increases, so it contains at least $k-1$ block-crossing arcs. Together with the $\mathcal W$-arc that follows it, $C$ has at least $k$ arcs. This proves (ii).
+\end{proof}
+
+\begin{lemma}[union of systems]\label{s6:lemHCCglob}
+Let $E_1,\dots,E_q\subseteq E(G)$ be pairwise disjoint, and suppose each $E_i$ decomposes into $a_i$ objects. Then $E_1\cup\dots\cup E_q$ decomposes into $\sum_ia_i$ objects.
+
+In particular, suppose several systems satisfy the hypotheses of Lemma~\ref{s6:lemHCCP} separately, each with its own layers, junction sets and path families, and the edge sets they decompose (their beads together with their sets $F_j$) are pairwise disjoint. Then the union of these edge sets decomposes into at most the sum of their values $\Phi$. No vertex-disjointness across systems is needed: a vertex may be a hub, a port or a junction vertex in several systems. Hypothesis (D) is used only inside one system, through the potential $\Psi$ of that system.
+\deps{\ref{s1:factAdd}, \ref{s6:lemHCCP}}
+\end{lemma}
+
+\begin{proof}
+The union of the given decompositions is a family of objects whose edge sets partition $\bigcup_iE_i$, because the $E_i$ are pairwise disjoint. This is the argument of the proof of Fact~\ref{s1:factAdd}(b) (concatenation of decompositions of disjoint edge sets), applied $q-1$ times; the statement of Fact~\ref{s1:factAdd}(b) itself is the corresponding bound on $\f$.
+
+For the second statement, apply Lemma~\ref{s6:lemHCCP} to each system separately. Its proof uses (D) only for the vertices of that system and of its own junction sets.
+\end{proof}
+
+\subsection{Designations and hub concentration: CONC and CONC-L}
+
+From here on a valid $\HBtp$ run on $G$ is fixed (Definition~\ref{s2:defHBtp}), with the notation of Definition~\ref{s2:defAncestors}. For an ancestor $Y$ we write $r=r(Y)$ for its round. All logarithms are to base $2$.
+
+\begin{definition}[designation and class data; $\mathcal V=\emptyset$]\label{s6:defDesign}
+A \emph{designation} $\delta$ assigns, for every round $l\ge3$, to every standalone pre-part $Z\in\Std_l$ and every classed port $u\in Q_Z$ an ancestor $Y(u)\in\anc_l(u)$, the \emph{class} of $u$. Here $\delta$ is any deterministic function of the run. There are no VX-parts: every $Z\in\Std_l$ is treated as a MIX-part. Every classed port $u$ of round $l$ lies in $Q_Z$ for exactly one $Z\in\Std_l$ (port sets of one round are disjoint), and we write $Z_u$ for that part. Since $Y(u)\in\anc_l(u)$, we have $u\in V(Y(u))$ and $r(Y(u))\le l-2$.
+
+For $l\ge3$, an ancestor $Y$ of round $r$ and any vertex $h$, define:
+\begin{itemize}
+\item the \emph{class-$Y$ degree} $d_{Y,l}(h):=\#\{hu\in E_l(Z):\ Z\in\Std_l,\ u\in Q_Z,\ Y(u)=Y\}$, and $m_{Y,l}:=\max_hd_{Y,l}(h)$, the maximum over all vertices $h$ of $G$;
+\item $d^*_{Y,l}:=\#\{u:\ u\text{ a classed port of round }l,\ Y(u)=Y,\ u\in\Dups_{r}\}$;
+\item for light $Y$, the \emph{guest core degree}
+\[
+\alpha_{Y,l}:=\max_{x\in S_Y}\#\{u\in Y\setminus\Dups_r:\ u\text{ a classed port of round }l,\ Y(u)=Y,\ xu\in E_l(Z_u)\},
+\]
+with $\alpha_{Y,l}:=0$ if $S_Y=\emptyset$;
+\item the \emph{deterministic bead graph}
+\[
+\Bead_{Y,l}:=\{hu\in E_l(Z):\ Z\in\Std_l,\ u\in Q_Z,\ Y(u)=Y,\ \text{and }h\notin Q_Z\text{ or }Y(h)\neq Y\};
+\]
+\item $\gamma_l:=\lfloor P_{l-2}/M_l\rfloor$; the pair $(Y,l)$ is \emph{giant} iff some connected component of $\Bead_{Y,l}$ has more than $2\gamma_l$ edges;
+\item the \emph{class counts} $\cagg_{h,l}:=\#\{Y:\ d_{Y,l}(h)\ge1\}$; for $Z\in\Std_l$ and a fresh port $x\in F_Z$, $c_x(Z):=\#\{Y(u):\ u\in Q_Z,\ xu\in E_l(Z)\}$; and for $u\in Q_Z$, $\cpp(u):=\#\{Y(v):\ v\in Q_Z,\ uv\in E_l(Z)\}$.
+\end{itemize}
+For $l\le2$ there are no classed ports ($\anc_l(x)=\emptyset$), and all these quantities vanish. All of them are deterministic functions of the run and $\delta$.
+\deps{\ref{s2:defAncestors}, \ref{s2:defHBtp}}
+\fixes{\RTa{M10} (the giant threshold is $2\gamma_l$; $\tau$ is reserved for $\tau_r$)}
+\end{definition}
+
+The following elementary facts about $\logs$ are used in the proofs of the next two theorems. Put $\mathsf T_0:=1$ and $\mathsf T_{i+1}:=2^{\mathsf T_i}$. For $x\ge1$ and an integer $k\ge0$, $\logs x\le k$ iff $x\le\mathsf T_k$. For $x>1$, $\logs x=1+\logs(\log x)$. And $\logs x\le1+\log x$ for all $x\ge1$: this holds for $x\le4$ by inspection, and for $x>4$ by induction, since $2+\log\log x\le1+\log x$ when $x\ge4$.
+
+Put $k_*:=\logs\Dstar$. By \ref{s1:condG1}(a) at $\mu=\log\log\Dstar$, $\log\log\Dstar\ge2^8>16$, so $\Dstar>2^{65536}=\mathsf T_5$ and $k_*\ge6$.
+
+For $d\ge\Dstar$ put
+\[
+\mathsf a(d):=\frac{2\logs d+2}{\log d},\qquad \mathsf b(d):=\frac{2\logs d+1}{\log\log d},\qquad \mathsf c(d):=\frac{2\logs d+1}{(\log d)^{1/2}}.
+\]
+We use two facts. First, for every valid run and every $r<R$,
+\begin{equation}\label{s6:eqTowerHalf}
+\mathsf a(d_r)\le\tfrac12\mathsf a(d_{r+1}),\qquad \mathsf b(d_r)\le\tfrac12\mathsf b(d_{r+1}),\qquad \mathsf c(d_r)\le\tfrac12\mathsf c(d_{r+1}).
+\end{equation}
+Second, for every $d\ge\Dstar$,
+\begin{equation}\label{s6:eqTowerEnd}
+\mathsf a(d)\le\frac{2k_*+4}{\log\Dstar},\qquad \mathsf b(d)\le\frac{2k_*+3}{\log\log\Dstar},\qquad \mathsf c(d)\le\frac{2k_*+3}{(\log\Dstar)^{1/2}}.
+\end{equation}
+
+\begin{proof}[Proof of \eqref{s6:eqTowerHalf} and \eqref{s6:eqTowerEnd}]
+For \eqref{s6:eqTowerHalf}, put $x:=\lambda_r=\log d_r$ and $y:=\lambda_{r+1}$. Then $y\ge\log\Dstar$, so $v\defeq\log y\ge\log\log\Dstar$, and \ref{s1:condG1}(a),(b) at $v$ give $v\ge2^8$ and $y=2^v\ge2^{14}\Aexp v^3$. Moreover $x\ge d_{r+1}^{1/\Aexp}=2^{y/\Aexp}$ by Lemma~\ref{s2:lemTower}(a). Also $\logs d_r=1+\logs x\le2+\log x$, and $\logs d_r=2+\logs(\log x)\le3+\log\log x$.
+
+The functions $t\mapsto(2\log t+6)/t$, $t\mapsto(7+2\log t)/t$ and $t\mapsto(2\log t+5)/t^{1/2}$ are decreasing for $t\ge4$. Hence:
+\begin{itemize}
+\item $\mathsf a(d_r)\le(2\log x+6)/x\le(2y/\Aexp+6)/2^{y/\Aexp}\le1/y\le\mathsf a(d_{r+1})/2$;
+\item with $\mu:=\log x\ge y/\Aexp$: $\mathsf b(d_r)\le(7+2\log\mu)/\mu\le\Aexp(7+2\log y)/y\le1/(2\log y)\le\mathsf b(d_{r+1})/2$;
+\item $\mathsf c(d_r)\le(2\log x+5)/x^{1/2}\le(2y/\Aexp+5)/2^{y/(2\Aexp)}\le1/(2y^{1/2})\le\mathsf c(d_{r+1})/2$.
+\end{itemize}
+The middle inequalities hold because $y/(2\Aexp)\ge2^{13}v^3\ge4+2v$ and $y\ge2^{14}\Aexp v^3\ge2\Aexp v(7+2v)$. The first gives $2^{y/(2\Aexp)}\ge2^{4+2v}=16y^2$, hence $y(2y/\Aexp+6)\le8y^2\le2^{y/\Aexp}$ and $2y^{1/2}(2y/\Aexp+5)\le14y^{3/2}\le2^{y/(2\Aexp)}$; the second is $\Aexp(7+2\log y)/y\le1/(2\log y)$.
+
+For \eqref{s6:eqTowerEnd}, note $\Dstar\le\mathsf T_{k_*}$. There are two cases.
+\begin{itemize}
+\item If $\log d\le\mathsf T_{k_*}$, then $d\le\mathsf T_{k_*+1}$, so $\logs d\le k_*+1$, while $\log d\ge\log\Dstar$ and $\log\log d\ge\log\log\Dstar$. The three bounds follow.
+\item If $\log d>\mathsf T_{k_*}\ge\Dstar$, put $x:=\log d>\Dstar$. Then $\logs d\le2+\log x$ and $\logs d\le3+\log\log x$. Hence $\mathsf a(d)\le(2\log x+6)/x\le(2\log\Dstar+6)/\Dstar\le1/\log\Dstar$; similarly $\mathsf b(d)\le(7+2\log\log x)/\log x\le(7+2\log\log\Dstar)/\log\Dstar\le1/\log\log\Dstar$, and $\mathsf c(d)\le(2\log\Dstar+5)/\Dstar^{1/2}\le(\log\Dstar)^{-1/2}$. The last inequality of each of the three chains holds because \ref{s1:condG1}(a),(b), applied at $\mu=\log\Dstar$ and at $\mu=\log\log\Dstar$ (both at least $\log\log\Dstar$), give $t\ge2^8$ and $2^t\ge2^{14}\Aexp t^3$ for $t\in\{\log\Dstar,\log\log\Dstar\}$; hence, as $t\ge1$, $t(2t+6)\le t(2t+7)\le9t^2\le2^t$ for both values of $t$, and $t(2t+5)^2\le49t^3\le2^t$ for $t=\log\Dstar$.\qedhere
+\end{itemize}
+\end{proof}
+
+\begin{theorem}[Theorem CONC, standalone ancestors]\label{s6:thmCONC}
+For every valid $\HBtp$ run and every designation $\delta$:
+\begin{enumerate}
+\item[(i)] for every $Y\in\Std_r$, every $l\ge r+1$ and every vertex $h$: $\#\{u\in Y^0\setminus\Dups_r:\ hu\in E(G_l)\}\le\tau_r-1$;
+\item[(ii)] $m_{Y,l}\le\tau_r-1+d^*_{Y,l}$ for every $Y\in\Std_r$ and every $l$;
+\item[(iii)] $\displaystyle\sum_{(Y,l):\ Y\text{ standalone}}m_{Y,l}\le2^{\sigma+14}\,n\,\frac{\logs\Dstar}{\log\Dstar}+100\,\eps\,n\,\frac{\logs\Dstar}{\Cp\log\log\Dstar}$;
+\item[(iv)] (i)--(iii) hold for every designation, including designations that mix light and standalone classes: (i) bounds, for every vertex $h$, the number of $G_l$-edges from $h$ into $Y^0\setminus\Dups_r$, whatever the classes of the ports involved.
+\end{enumerate}
+\deps{\ref{s2:propOrigin}, \ref{s2:lemTower}, \ref{s2:propOV}, \ref{s2:lemLacunary}, \ref{s6:defDesign}, \ref{s2:defHBtp}, \ref{s1:condG1}}
+\fixes{\RTb{I6} ($R-r\le2\logs d_r+2$)}
+\end{theorem}
+
+\begin{proof}
+(i) By \ref{s2:R1} and \ref{s2:R5} of Definition~\ref{s2:defHBtp}, $G_{l}\subseteq G_{r+1}$ for $l\ge r+1$. By Proposition~\ref{s2:propOrigin}(a), a standalone $Y$ has no edges of type $(\alpha)$. So every $G_{r+1}$-edge $hu$ with $u\in Y^0\setminus\Dups_r$ is of type $(\beta)$; in particular $h\notin Y^0$. By Proposition~\ref{s2:propOrigin}(b) there are at most $\tau_r-1$ of them in $G_l$.
+
+(ii) Fix $h$. Every edge counted in $d_{Y,l}(h)$ is an edge $hu\in E_l(Z)\subseteq E(G_l)$ with $Y(u)=Y$, hence $u\in V(Y)=Y^0$. Those with $u\notin\Dups_r$ number at most $\tau_r-1$ by (i). Those with $u\in\Dups_r$ go to distinct ports $u$ ($G$ is simple) counted by $d^*_{Y,l}$. Taking the maximum over $h$ gives (ii).
+
+(iii) \emph{The $\tau$-term.} $m_{Y,l}=0$ unless $3\le l$ and $r+2\le l\le R$, so at most $R-r-1$ values of $l$ occur for each $Y$ of round $r$. We use the looser bound $R-r-1<R-r\le2\logs d_r+2$ (Lemma~\ref{s2:lemTower}(a)), which matches the numerator of $\mathsf a$; the sharper count is not needed. By Proposition~\ref{s2:propOV}(K1), $|\Std_r|\le1.37n/P_r$. By Lemma~\ref{s2:lemTower}(c), $\tau_r/P_r\le2^{\sigma+11}/\lambda_r$. Hence
+\[
+\sum_{(Y,l),\ Y\in\Std}(\tau_r-1)\le\sum_{r\le R}1.37\,\frac{n}{P_r}(2\logs d_r+2)\tau_r\le1.37\cdot2^{\sigma+11}\,n\sum_{r\le R}\mathsf a(d_r).
+\]
+By \eqref{s6:eqTowerHalf} and Lemma~\ref{s2:lemLacunary}(i), $\sum_r\mathsf a(d_r)\le2\mathsf a(d_R)$. By \eqref{s6:eqTowerEnd} and $k_*\ge6$, $\mathsf a(d_R)\le(2k_*+4)/\log\Dstar\le\tfrac83k_*/\log\Dstar$. So the $\tau$-term is at most $1.37\cdot\tfrac{16}{3}\cdot2^{\sigma+11}k_*n/\log\Dstar\le2^{\sigma+14}n\logs\Dstar/\log\Dstar$, since $1.37\cdot16/3<8$.
+
+\emph{The $d^*$-term.} Fix $l$. A classed port $u$ of round $l$ is counted in $d^*_{Y,l}$ only for $Y=Y(u)$, and then $u\in V(Y)\cap\Dups_{r(Y)}\subseteq Y^0\cap\Dups_{r(Y)}$. The map $u\mapsto(Y(u),u)$ is injective. Hence
+\[
+\sum_Yd^*_{Y,l}\le\sum_{r\le l-2}\ \sum_{Y^0\text{ a pre-part of round }r}|Y^0\cap\Dups_r|\le\sum_{r\le l-2}\frac{16\eps n}{\log P_r},
+\]
+by Proposition~\ref{s2:propOV}(K3). Here distinct ancestors of round $r$ have distinct pre-parts, and a standalone ancestor is its own pre-part.
+
+Summing over $l$, each $r$ occurs for at most $R-r-1\le2\logs d_r+1$ values of $l$. Moreover $\log P_r\ge\Cp\log\lambda_r=\Cp\log\log d_r$. Hence
+\[
+\sum_{(Y,l)}d^*_{Y,l}\le\frac{16\eps n}{\Cp}\sum_{r\le R}\mathsf b(d_r)\le\frac{32\eps n}{\Cp}\mathsf b(d_R)\le\frac{32\eps n(2k_*+3)}{\Cp\log\log\Dstar}\le\frac{80\,\eps\,n\,\logs\Dstar}{\Cp\log\log\Dstar},
+\]
+by \eqref{s6:eqTowerHalf}, \eqref{s6:eqTowerEnd} and Lemma~\ref{s2:lemLacunary}(i), using $2k_*+3\le2.5k_*$ for $k_*\ge6$. Adding the two terms, via (ii), proves (iii); the constant $100$ in (iii) is deliberately looser than the $80$ proved here.
+
+(iv) Nothing in (i)--(iii) used how $\delta$ chooses among the ancestors in $\anc_l(u)$. The bound (i) is a statement about $G_l$ and $Y^0$ alone. The bound (ii) holds for every $Y\in\Std_r$ whatever other ports have other classes. The sum in (iii) runs over the pairs $(Y,l)$ with $Y$ standalone, however the light classes are chosen.
+\end{proof}
+
+\begin{theorem}[Theorem CONC-L]\label{s6:thmCONCL}
+Let $Y$ be a light part of round $r$ of a valid $\HBtp$ run, let $l\ge r+1$, and let $h$ be a vertex.
+\begin{enumerate}
+\item[(i)] If $h\notin S_Y$: $\#\{u\in Y\setminus\Dups_r:\ hu\in E(G_l)\}\le\tau_r-1$, and there are no such $u$ if $h\in Y$.
+\item[(ii)] If $h\in S_Y$: every such $hu$ is an edge of $X^0_Y$, and their number is at most $e_{X^0_Y}(h,Y)$.
+\item[(iii)] For every designation, $m_{Y,l}\le\max(\tau_r-1,\alpha_{Y,l})+d^*_{Y,l}$.
+\item[(iv)] $\alpha_{Y,l}<\thGC_r(Y^0)$. For every valid run and every designation, summing over \emph{all} ancestors (light and standalone, GC-parts included),
+\[
+\sum_{(Y,l)}m_{Y,l}\le\epsCONC(\Dstar)\,n,
+\]
+where
+\[
+\epsCONC(\Dstar):=2^{\sigma+15}\frac{\logs\Dstar}{\log\Dstar}+200\,\eps\,\frac{\logs\Dstar}{\Cp\log\log\Dstar}+\frac{4(2\logs\Dstar+2)}{(\log\Dstar)^{1/2}}.
+\]
+$\epsCONC$ depends only on $\Dstar$ (and on $\sigma,\Cp,\eps$), and $\epsCONC(\Dstar)\to0$ as $\Dstar\to\infty$.
+\end{enumerate}
+\deps{\ref{s2:propOrigin}, \ref{s2:lemSEP}, \ref{s2:lemThinCut}, \ref{s2:lemGC}, \ref{s2:lemEL}, \ref{s2:lemTower}, \ref{s2:lemLacunary}, \ref{s6:thmCONC}, \ref{s2:propOV}, \ref{s2:defHBtp}, \ref{s6:defDesign}, \ref{s1:condG1}}
+\end{theorem}
+
+\begin{proof}
+Recall $Y^0=Y\sqcup S_Y$ and $V(Y)=Y$. Let $u\in Y\setminus\Dups_r$ and let $hu\in E(G_l)\subseteq E(G_{r+1})$. By Proposition~\ref{s2:propOrigin}(a) (which rests on Lemmas~\ref{s2:lemSEP} and~\ref{s2:lemThinCut}), $hu$ is of exactly one of two types: $(\beta)$, with $h\notin Y^0$; or $(\alpha)$, with $h\in S_Y$ and $hu\in E(X^0_Y)$. The three cases $h\notin Y^0$, $h\in Y$ and $h\in S_Y$ are exhaustive.
+
+(i) If $h\notin Y^0$, all such edges are of type $(\beta)$, and Proposition~\ref{s2:propOrigin}(b) bounds their number by $\tau_r-1$. If $h\in Y$, the edge $hu$ would be an edge of $G_l$ ($l>r$) with both ends in $V(Y)$, which Lemma~\ref{s2:lemEL} forbids.
+
+(ii) If $h\in S_Y\subseteq Y^0$, the edge cannot be of type $(\beta)$, so it is of type $(\alpha)$ and lies in $E(X^0_Y)$. Distinct $u$ give distinct $X^0_Y$-edges from $h$ into $Y$, so their number is at most $e_{X^0_Y}(h,Y)$.
+
+(iii) Fix $h$. A port $u$ with $Y(u)=Y$ lies in $V(Y)=Y$. The ports in $\Dups_r$ contribute at most $d^*_{Y,l}$, as in the proof of Theorem~\ref{s6:thmCONC}(ii). The others contribute at most $\tau_r-1$ if $h\notin Y^0$, nothing if $h\in Y$, and at most $\alpha_{Y,l}$ if $h\in S_Y$ (by definition of $\alpha_{Y,l}$, since the counted edges $hu$ lie in $E_l(Z_u)$). Exactly one case applies to $h$.
+
+(iv) The edges counted in $\alpha_{Y,l}$ at $x\in S_Y$ are distinct $X^0_Y$-edges from $x$ into $Y=Y^0\setminus S_Y$, by (ii). By rule (GC) and Lemma~\ref{s2:lemGC}(ii), $e_{X^0_Y}(x,Y)<\thGC_r(Y^0)$. Hence $\alpha_{Y,l}<\thGC_r(Y^0)$, and by (iii),
+\[
+m_{Y,l}\le(\tau_r-1)+(\thGC_r(Y^0)-1)+d^*_{Y,l}\quad(Y\text{ light}),\qquad m_{Y,l}\le\tau_r-1+d^*_{Y,l}\quad(Y\text{ standalone}),
+\]
+the latter by Theorem~\ref{s6:thmCONC}(ii); GC-parts are standalone (Lemma~\ref{s2:lemGC}(iii)). We sum the three kinds of terms over all pairs $(Y,l)$ with $r(Y)+2\le l\le R$ (for other $l$, $m_{Y,l}=0$).
+
+\emph{$\tau$-terms.} The number of ancestors of round $r$ (light and standalone) is at most $1.37n/P_r$ (Proposition~\ref{s2:propOV}(K1)). The computation in the proof of Theorem~\ref{s6:thmCONC}(iii) applies verbatim and gives at most $2^{\sigma+14}n\logs\Dstar/\log\Dstar$.
+
+\emph{$d^*$-terms.} The injectivity argument in the proof of Theorem~\ref{s6:thmCONC}(iii) used only $u\in V(Y(u))\subseteq Y(u)^0$ and Proposition~\ref{s2:propOV}(K3), which sums over all pre-parts of round $r$. So it applies to all ancestors together and gives at most $80\eps n\logs\Dstar/(\Cp\log\log\Dstar)$.
+
+\emph{$\thGC$-terms.} For light $Y$ of round $r$, $\thGC_r(Y^0)\le|Y^0|\lambda_r^{-1/2}+1$. The pre-parts $Y^0$ of distinct light parts of round $r$ are distinct, so by Proposition~\ref{s2:propOV}(K1)
+\[
+\sum_{Y\text{ light, round }r}\thGC_r(Y^0)\le1.37\,n\,\lambda_r^{-1/2}+1.37\,\frac n{P_r}\le1.38\,n\,\lambda_r^{-1/2},
+\]
+using $P_r\ge\lambda_r^{\Cp}$. Each $Y$ occurs for at most $R-r-1\le2\logs d_r+1$ values of $l$ (Lemma~\ref{s2:lemTower}(a)). By \eqref{s6:eqTowerHalf}, \eqref{s6:eqTowerEnd} and Lemma~\ref{s2:lemLacunary}(i),
+\[
+\sum_{(Y,l),\ Y\text{ light}}\thGC_r(Y^0)\le1.38\,n\sum_{r\le R}\mathsf c(d_r)\le2.76\,n\,\mathsf c(d_R)\le\frac{2.76\,n(2k_*+3)}{(\log\Dstar)^{1/2}}\le\frac{4n(2\logs\Dstar+2)}{(\log\Dstar)^{1/2}}.
+\]
+The last step holds because $2.76(2k+3)\le4(2k+2)$ for all $k\ge1$.
+
+Adding the three sums gives $\sum_{(Y,l)}m_{Y,l}\le\epsCONC(\Dstar)n$. In fact the first two terms of $\epsCONC$ carry a spare factor $2$.
+
+Each term of $\epsCONC$ tends to $0$ as $\Dstar\to\infty$, because $\logs x$ grows more slowly than every iterate of $\log$. The bound uses nothing about $\delta$ beyond $u\in V(Y(u))$, so it holds for every designation.
+\end{proof}
+
+\subsection{Lending statuses and lost ports}
+
+\begin{definition}[stage-2 lending statuses, retirement sets and the functional $\XU$]\label{s6:defLending}
+Fix a valid run, a designation $\delta$ and a stage-1 outcome: the colourings and JS labels of Definition~\ref{s3:defCOL}, and the zones of Definition~\ref{s5:defZones}.
+\begin{itemize}
+\item An ancestor $Y$ is \emph{lend-bad} iff $Y$ is a demoted light part (Definition~\ref{s5:defStages}), or an event of Lemma~\ref{s3:lemCOL}(a) fails for $Y$, or an event of Lemma~\ref{s3:lemCOL}(b) fails for $Y$. Otherwise $Y$ is \emph{lend-good}. Thus for a lend-good $Y$ the classes $\Own_Y$, $\Lend_Y$ and all lent classes are the expanders of Lemma~\ref{s3:lemCOL}(a), and every $\LJS_{Y,l,j}$ is $(2^{12}L_Y^4,\tJS_l)$-path connected through $T_j(Y,l)$.
+\item For $l\ge3$ and $Z\in\Std_l$, the set of \emph{lost} ports is
+\[
+\Lost_Z:=\{u\in Q_Z:\ Y(u)\text{ is lend-bad, or }\lab_{Y(u),l}(u)\neq*\}.
+\]
+Put $\Ret_Z:=A_Z\cup F_Z\cup\Lost_Z$ (the \emph{retirement set} of $Z$ for Lemma~\ref{s4:lemTPV}) and $\Qs_Z:=Q_Z\setminus\Lost_Z$. For $l\le2$ put $\Lost_Z:=\emptyset$, $\Ret_Z:=A_Z\cup F_Z=Z^0$ and $\Qs_Z:=\emptyset$.
+
+Since $A_Z=Z^0\cap D_l$ and $U_Z=Z^0\setminus D_l=F_Z\sqcup Q_Z$, we have $Z^0=\Ret_Z\sqcup\Qs_Z$, and $A_Z,F_Z,\Lost_Z$ are pairwise disjoint.
+\item $O_Z:=\Own_Z$ if the ancestor $Z$ is lend-good, and $O_Z:=X^0_Z$ otherwise.
+\item $\Lost_l:=\bigcup_{Z\in\Std_l}\Lost_Z$.
+\item $\XU:=80\,\mathrm{dem}+369\,\mathrm{lp}+\sum_l(169+M_l)|\Lost_l|$, with $\mathrm{dem}$ and $\mathrm{lp}$ as in Definition~\ref{s5:defStages}.
+\end{itemize}
+All of these are deterministic functions of the run, $\delta$ and the stage-1 outcome. For every classed port $u\in\Qs_Z$, the class $Y(u)$ is lend-good and $u\notin\bigcup_jT_j(Y(u),l)$.
+\deps{\ref{s3:defCOL}, \ref{s3:lemCOL}, \ref{s5:defStages}, \ref{s6:defDesign}, \ref{s5:defZones}}
+\end{definition}
+
+\begin{lemma}[lost ports; the constant (K6)]\label{s6:lemLost}
+Fix a valid run and a designation $\delta$. Probabilities and expectations are over the stage-1 outcome.
+\begin{enumerate}
+\item[(i)] for every classed port $u$ of round $l\ge3$,
+\[
+\Prob(u\in\Lost)\le\KJS_l\rho_l+\Prob(Y(u)\text{ lend-bad})\le M_l^{-2}+2|V(Y(u))|^{-2}\le2M_l^{-2};
+\]
+\item[\textup{(K6)}]\namedlabel{s6:K6}{\textup{(K6)}} $\Ex|\Lost_l|\le2n/M_l^2$ for every round $l$;
+\item[(iii)] $\Ex\XU\le\epsU(\Dstar)\,n+\sum_l2n(169+M_l)/M_l^2\le\epsU(\Dstar)\,n+5.5\,n/\Dstar$.
+\end{enumerate}
+\deps{\ref{s6:defLending}, \ref{s3:lemCOL}, \ref{s5:lemE1}, \ref{s5:lemExpect}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s3:defCOL}}
+\fixes{\RTa{M5}, with a correction by red team~2: $2n/M_l^2$ is correct, because there are at most $n$ classed ports per round; the looser $2.74n/M_l^2$ is also valid but not needed}
+\end{lemma}
+
+\begin{proof}
+(i) Let $Y:=Y(u)$, of round $r\le l-2$. The designation is deterministic, so $Y$ is fixed.
+
+\emph{The label.} By Definition~\ref{s3:defCOL}(iv), $\lab_{Y,l}(u)\neq*$ has probability $\KJS_l\rho_l=M_l^2\cdot M_l^{-4}=M_l^{-2}$.
+
+\emph{Lend-bad.} By the union bound, $\Prob(Y\text{ lend-bad})$ is at most the probability that an event of Lemma~\ref{s3:lemCOL}(a) or~(b) fails, plus, for light $Y$, the probability that $Y$ is demoted. The first is at most $|V(Y)|^{-2}/2\le|V(Y)|^{-2}$ by Lemma~\ref{s3:lemCOL}. The second is at most $|Y|^{-2}/2$ by Lemma~\ref{s5:lemE1}. Hence $\Prob(Y\text{ lend-bad})\le2|V(Y)|^{-2}$.
+
+\emph{Size of $V(Y)$.} By Proposition~\ref{s2:propStructure}(iv), $|V(Y)|\ge P_r/2$. By Lemma~\ref{s2:lemTower}(b), $P_r\ge P_{l-2}$ (as $P_r\ge2P_{r+1}$) and $P_{l-2}\ge M_l^{13}$. Hence $2|V(Y)|^{-2}\le8M_l^{-26}\le M_l^{-2}$.
+
+(K6) The port sets $U_Z$ of distinct $Z\in\Std_l$ are pairwise disjoint (Proposition~\ref{s2:propStructure}(iv)), so round $l$ has at most $n$ classed ports. By (i) and linearity of expectation, $\Ex|\Lost_l|\le2n/M_l^2$.
+
+(iii) By Lemma~\ref{s5:lemExpect}, $\Ex[80\,\mathrm{dem}+369\,\mathrm{lp}]\le\epsU(\Dstar)n$. By (K6),
+\[
+\Ex\sum_l(169+M_l)|\Lost_l|\le\sum_l\Big(\frac{338n}{M_l^2}+\frac{2n}{M_l}\Big)\le\Big(2+\frac{338}{2^{40}}\Big)n\sum_l\frac1{M_l}\le\Big(2+\frac{338}{2^{40}}\Big)\frac{2n}{\Dstar}\le\frac{5.5\,n}{\Dstar},
+\]
+using $M_l\ge2^{40}$ and $\sum_l1/M_l\le2/\Dstar$ (Lemma~\ref{s2:lemTower}(b)).
+\end{proof}
+
+\subsection{Junction synchronization: Lemma JS-LC and the J-interface}
+
+\begin{lemma}[Lemma JS-LC; one round $l\ge3$; cherry split for giant pairs]\label{s6:lemJSLC}
+Fix a valid run, a designation $\delta$, a stage-1 outcome with its stage-2 data (Definition~\ref{s6:defLending}), and a round $3\le l\le R$. For every $Z\in\Std_l$ let $B_Z\subseteq E_l(Z)$ be a set of edges, each of which has an end in $\Qs_Z$. (In the assembly $B_Z:=\EQ(Z)$, which has this property by \ref{s4:T1} of Lemma~\ref{s4:lemTPV}.)
+
+Hypothesis: no edge of any class $\LJS_{Y,l,j}$ ($0\le j<\KJS_l$, $Y$ a lend-good ancestor of a round $\le l-2$) has been used.
+
+Then there are a set $J_l\subseteq\bigcup_ZB_Z$ and a set $\LentJS_l\subseteq\bigcup_{Y,j}\LJS_{Y,l,j}$ such that $\bigcup_ZB_Z\cup\LentJS_l$ is partitioned into the single edges of $J_l$ and at most
+\[
+126\,\frac n{M_l}+1.5\sum_{(Y,l)\text{ giant}}m_{Y,l}\quad\text{cycles}.
+\]
+Here the sum is over the ancestors $Y$ for which the pair $(Y,l)$ is giant (Definition~\ref{s6:defDesign}), and $m_{Y,l}$ is the maximal class-$Y$ degree of Definition~\ref{s6:defDesign}. The proof gives the constant $15$ in place of $126$; the looser $126$ is kept because it is the value used downstream (see the end of Step~8). Each cycle consists of edges of $\bigcup_ZB_Z$ and edges of $\bigcup_j\LJS_{Y,l,j}$ for a single ancestor $Y$. Moreover
+\begin{equation}\label{s6:eqJbound}
+|J_l|\le\sum_{h\in D_l}\cagg_{h,l}+\sum_{Z\in\Std_l}\Big[\sum_{x\in F_Z}c_x(Z)+(M_l-1)|\Lost_Z|+\frac12\sum_{u\in Q_Z}\cpp(u)\Big].
+\end{equation}
+The right side of \eqref{s6:eqJbound} is computed from the sets $E_l(Z)$, not from the $B_Z$. The bound \eqref{s6:eqJbound} is recorded for completeness and is not used later: Section~\ref{s7:sec} bounds $J_l$ through \Jp{1} and \Jp{2} of Lemma~\ref{s6:lemJplus}. The edges of $\bigcup_{Y,j}\LJS_{Y,l,j}$ outside $\LentJS_l$, among them the returned edges inside the graphs $G[T_j(Y,l)]$, are not used; they are junk for their owner $Y$.
+\deps{\ref{s6:lemPAR}, \ref{s6:lemMED}, \ref{s6:lemEQLPT}, \ref{s6:lemHCCP}, \ref{s6:lemHCCglob}, \ref{s6:defDesign}, \ref{s6:defLending}, \ref{s3:lemCOL}, \ref{s3:lemMonotone}, \ref{s2:lemEL}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:defHBtp}, \ref{s2:propStructure}, \ref{s3:defCOL}, \ref{s1:citDef7}}
+\fixes{\RTb{J1} (the cherry split is the only option for giant pairs), \RTb{I2} (the hypothesis concerns the classes of round $l$ only)}
+\end{lemma}
+
+The hypothesis refers only to the classes indexed by the current round $l$. Classes $\LJS_{Y,l',j}$ with $l'>l$ of the same ancestors have already been used at earlier steps of the order $R,R-1,\dots$, and that is allowed.
+
+\begin{proof}
+Write $\KJS:=\KJS_l=M_l^2$ and $t:=\tJS_l=2M_l+2$. Recall two facts. For $u\in\Qs_Z$, the class $Y(u)$ is lend-good and $\lab_{Y(u),l}(u)=*$ (Definition~\ref{s6:defLending}). Every vertex has degree at most $M_l-1$ in every $E_l(Z)$ (Lemma~\ref{s2:lemCap}(ii)).
+
+\emph{Step 1: types.} Let $e\in B_Z$. By hypothesis $e$ has an end $u\in\Qs_Z$. Both ends lie in $Z^0$, since $E_l(Z)\subseteq E(G[Z^0])$ by \ref{s2:R5}. Since $Z^0=\Ret_Z\sqcup\Qs_Z$, there are two cases for the other end $v$:
+\begin{itemize}
+\item $v\in\Ret_Z=A_Z\sqcup F_Z\sqcup\Lost_Z$. Then $e$ is a \emph{centre--port edge} with centre $v$.
+\item $v\in\Qs_Z$. Then $e$ is a \emph{port--port edge}, and $Y(v)\neq Y(u)$: otherwise both ends of $e\in E(G_l)$ would lie in $V(Y(u))$ with $l>r(Y(u))$, contrary to Lemma~\ref{s2:lemEL}.
+\end{itemize}
+By the same lemma, for every edge $hu\in E_l(Z)$ with $u\in Q_Z$ and $Y(u)=Y$, the vertex $h$ lies outside $V(Y)$. In particular $h\notin T_j(Y,l)$, since $T_j(Y,l)\subseteq V(Y)$.
+
+\emph{Step 2: parity; the set $J_l$.}
+
+(2a) For each $Z\in\Std_l$ and each unordered pair $\{a,b\}$ of distinct classes, let $E_{ab}(Z)$ be the set of port--port edges of $B_Z$ joining a class-$a$ port of $\Qs_Z$ to a class-$b$ port of $\Qs_Z$. It is bipartite with sides $V_a$ (class-$a$ ports) and $V_b$ (class-$b$ ports). Apply Lemma~\ref{s6:lemPAR} with any admissible choice of the deleted edges. This gives $J'_{ab}(Z)$ and $E_{ab}(Z)\setminus J'_{ab}(Z)=S_a\sqcup S_b$. The edges of $S_a$ are \emph{assigned to class $a$}: in them the class-$b$ end is a \emph{pseudo-hub}, of even $S_a$-degree. Symmetrically, $S_b$ is assigned to class $b$.
+
+(2b) For each class $Y$ let $R^0_Y$ consist of all centre--port edges $hu\in B_Z$ ($Z\in\Std_l$) with $Y(u)=Y$, together with all port--port edges assigned to $Y$ in (2a). Every edge of $R^0_Y$ has exactly one end that is a class-$Y$ port of some $\Qs_Z$, its \emph{port}; its other end is its \emph{centre}. A centre lies in $\Ret_Z$ or is a port of $\Qs_Z$ of a class $\neq Y$. By Step~1, centres of class-$Y$ edges lie outside $V(Y)$, while ports lie in $V(Y)$; so no vertex is both a port and a centre of class $Y$.
+
+For each $Y$ and each vertex $h$ that is the centre of an odd number of edges of $R^0_Y$, move one such edge (any one) into $J_l$. Let $R_Y$ be the rest: the \emph{realized class-$Y$ beads}. Finally, $J_l$ consists of all edges $J'_{ab}(Z)$ and all moved edges.
+
+\emph{Only centres in $\Ret_Z$ are ever odd.} A pseudo-hub $v\in\Qs_Z$ of class $b$ lies in exactly one part (it is not in $D_l$). It is a centre of class-$Y$ edges only through the edges of $E_{Yb}(Z)$ assigned to $Y$, and it has even degree in those by Lemma~\ref{s6:lemPAR}. A moved edge $hu$ changes the class-$Y$ centre degree of $h$ only: its other end $u$ is a port, which carries no parity constraint. So after the moves every centre has even degree in every $R_Y$.
+
+\emph{Counting $J_l$.}
+\begin{itemize}
+\item PAR deletions: $\sum_{\{a,b\}}|J'_{ab}(Z)|\le\frac12\sum_{\{a,b\}}|V(E_{ab}(Z))|$. A port $u\in\Qs_Z$ lies in $V(E_{ab}(Z))$ only for $\{a,b\}=\{Y(u),Y(v)\}$ with $uv\in B_Z\subseteq E_l(Z)$ and $v\in Q_Z$. This happens for at most $\cpp(u)$ pairs, so the PAR deletions number at most $\frac12\sum_{u\in Q_Z}\cpp(u)$.
+\item Moves at a hub $h\in D_l$: at most one per class $Y$ for which $h$ is the centre of an edge $hu\in E_l(Z)$ with $u\in Q_Z$ and $Y(u)=Y$, i.e.\ with $d_{Y,l}(h)\ge1$. So at most $\cagg_{h,l}$ moves, summed over all parts containing $h$.
+\item Moves at a fresh centre $x\in F_Z$: $x\notin D_l$ lies in one part only, so at most $c_x(Z)$ moves.
+\item Moves at a lost centre $v\in\Lost_Z$: at most the number of edges of $E_l(Z)$ at $v$, which is at most $M_l-1$.
+\end{itemize}
+This proves \eqref{s6:eqJbound}. Every quantity on its right is defined from the sets $E_l(Z)$.
+
+\emph{Step 3: realized components.} Fix an ancestor $Y$ with $R_Y\neq\emptyset$. Then $Y$ is the class of a port in some $\Qs_Z$, so $Y$ is lend-good and $r(Y)\le l-2$.
+
+Every edge $hu\in R_Y$ lies in $\Bead_{Y,l}$: $hu\in E_l(Z)$, $u\in\Qs_Z\subseteq Q_Z$, $Y(u)=Y$, and $h$ is not a class-$Y$ port of $Q_Z$ (a class-$Y$ vertex of $Q_Z$ lies in $V(Y)$, and $h\notin V(Y)$). Hence every connected component of the graph $R_Y$ lies inside a component of $\Bead_{Y,l}$ and has at most as many edges. Call a component of $R_Y$ \emph{giant} if it has more than $2\gamma_l$ edges. Giant components exist only if $(Y,l)$ is giant; whether $(Y,l)$ is giant is decided by the deterministic graph $\Bead_{Y,l}$.
+
+Every edge of $R_Y$ joins a port (a class-$Y$ port $u$ of some $\Qs_Z$, with $u\in V(Y)\setminus\bigcup_jT_j(Y,l)$) to a centre (a vertex outside $V(Y)$). The degree of a centre $h$ in $R_Y$ is at most $d_{Y,l}(h)\le m_{Y,l}$. The degree of a port $u$ in $R_Y$ is at most $\deg_{E_l(Z_u)}(u)\le M_l-1$. All edges of $R_Y$ at a port lie in the component of that port.
+
+\emph{Step 4: non-giant components; the system $\mathcal S_0(Y,l)$.} For every non-giant component $C$ of $R_Y$, let $\clu_C:=(\text{centres of }C,\ \text{ports of }C,\ E(C))$.
+\begin{itemize}
+\item This is a cluster: centres and ports are disjoint, and every bead joins a port to a centre. It is parity-clean by Step~2.
+\item Fix any linear order of its ports and orient $\clu_C$ by $\MED$. By Lemma~\ref{s6:lemMED}, this is admissible and $\Phi(\clu_C)\le b(\clu_C)=|E(C)|/2\le\gamma_l$; here $b(\clu_C)=|E(C)|/2$ because $\clu_C$ has no port--port beads. Also $|\exc(u)|\le M_l-1$.
+\item $\Phi(\clu_C)\ge1$: an acyclic orientation with an arc has a source, which must be a port of positive excess.
+\end{itemize}
+Let $\Sigma\Phi$ and $\Phi_{\max}$ be the sum and the maximum of these loads, and put
+\[
+k_0:=\min\bigl(\KJS,\max(1,\lfloor\Sigma\Phi/(2\Phi_{\max})\rfloor)\bigr).
+\]
+Then $k_0$ is at most the number of clusters. List the clusters in non-increasing order of $\Phi(\clu_C)$, as Lemma~\ref{s6:lemEQLPT} requires, and layer them by that lemma, with loads $\Phi(\clu_C)$, into $k_0$ non-empty layers with raw loads $\Phi^{\mathrm{raw}}_j$, where $\max_j\Phi^{\mathrm{raw}}_j-\min_j\Phi^{\mathrm{raw}}_j\le\Phi_{\max}$.
+\begin{itemize}
+\item If $k_0=1$: no padding, and the system has depth $1$ with load $\Sigma\Phi<4\Phi_{\max}$.
+\item If $k_0\ge2$: put $\Phi^*:=\max_j\Phi^{\mathrm{raw}}_j$ and $\Pi_j:=\Phi^*-\Phi^{\mathrm{raw}}_j\le\Phi_{\max}$. Since $k_0\le\Sigma\Phi/(2\Phi_{\max})$, every raw load satisfies $\Phi^{\mathrm{raw}}_j\ge\Sigma\Phi/k_0-\Phi_{\max}\ge\Phi_{\max}\ge\Pi_j$. By Lemma~\ref{s6:lemMED}(b), $\Phi^{\mathrm{raw}}_j=\frac12\sum_{u\in\LayP_j}|\exc(u)|\le\frac12(M_l-1)|\LayP_j|$. So $\Pi_j$ units of padding can be spread over the ports of layer $j$ with $\pad(u)\le\lceil(M_l-1)/2\rceil\le\lceil M_l/2\rceil$. All padded loads then equal $\Phi^*\le\Sigma\Phi/k_0+\Phi_{\max}$.
+\end{itemize}
+In all cases the common padded load of $\mathcal S_0(Y,l)$ satisfies
+\begin{equation}\label{s6:eqSzeroCost}
+\Phi(\mathcal S_0(Y,l))\le1.5\,\Sigma\Phi/\KJS+5\gamma_l.
+\end{equation}
+Indeed: if $k_0=\KJS$ then $\Phi_{\max}\le\Sigma\Phi/(2\KJS)$; if $2\le k_0<\KJS$ then $k_0\ge\Sigma\Phi/(2\Phi_{\max})-1\ge\Sigma\Phi/(4\Phi_{\max})$, so $\Phi^*\le5\Phi_{\max}$; if $k_0=1$ the load is $<4\Phi_{\max}$; and $\Phi_{\max}\le\gamma_l$.
+
+A port $u$ of layer $j$ has demand $\dem^-(u)$ at junction $j$ and $\dem^+(u)$ at junction $j-1$. Both are at most $|\exc(u)|+\pad(u)\le(M_l-1)+\lceil M_l/2\rceil$.
+
+\emph{Step 5: giant components; the cherry split.} At every centre $h$ of a giant component of $R_Y$, pair the (evenly many) edges of $R_Y$ at $h$ arbitrarily into \emph{cherries} $\{hu,hu'\}$, written $u$--$h$--$u'$. Since $G$ is simple, $u\neq u'$. Each cherry is a parity-clean cluster $(\{h\},\{u,u'\},\{hu,hu'\})$. Its orientation $u\to h\to u'$ is admissible, with $\exc(u)=+1$, $\exc(u')=-1$ and load $1$. Every edge of a giant component lies in exactly one cherry.
+
+Two cherries \emph{conflict} if they share a vertex. A centre is never an end of a cherry, because centres lie outside $V(Y)$ and ends inside. A cherry at $h$ conflicts with at most $\deg_{R_Y}(h)/2-1\le m_{Y,l}/2-1$ other cherries at $h$. Each of its two ends $u$ has at most $M_l-1$ edges in $R_Y$, each in at most one cherry, so it is an end of at most $M_l-2$ other cherries. So the conflict degree is at most $m_{Y,l}/2+2M_l-5$. Greedy colouring uses
+\[
+g_{Y,l}\le m_{Y,l}/2+2M_l-4
+\]
+colours, and each colour class $\mathcal S_i(Y,l)$ ($1\le i\le g_{Y,l}$) is a set of pairwise vertex-disjoint cherries. Let $\eta_i$ be the number of cherries in $\mathcal S_i(Y,l)$.
+
+Each class $\mathcal S_i(Y,l)$ is made into a layered system of depth
+\[
+k_i:=\min\bigl(\KJS,\max(1,\lfloor\eta_i/2\rfloor)\bigr).
+\]
+The $\max(1,\cdot)$ is needed: $\eta_i\le3$ gives $k_i=1$. Since $k_i\le\eta_i$, Lemma~\ref{s6:lemEQLPT} with unit loads (trivially in non-increasing order) gives $k_i$ non-empty layers whose loads differ by at most $1$, i.e.\ equal $\lfloor\eta_i/k_i\rfloor$ or $\lceil\eta_i/k_i\rceil$. There are three cases.
+\begin{itemize}
+\item $k_i=1$ ($\eta_i\le3$): no padding, $X^{\mathrm{out}}$ the ports of excess $-1$, $X^{\mathrm{in}}$ those of excess $+1$, and load $\Phi(\mathcal S_i)=\eta_i\le3$.
+\item $2\le k_i=\lfloor\eta_i/2\rfloor<\KJS$ ($\eta_i\ge4$): every layer of load $\lfloor\eta_i/k_i\rfloor<\lceil\eta_i/k_i\rceil$ gets padding $1$ on one of its ports. The load is $\Phi(\mathcal S_i)=\lceil\eta_i/\lfloor\eta_i/2\rfloor\rceil\le3$, since $\eta_i/\lfloor\eta_i/2\rfloor\le2\eta_i/(\eta_i-1)\le8/3$.
+\item $k_i=\KJS$: padding as in the previous case, and $\Phi(\mathcal S_i)=\lceil\eta_i/\KJS\rceil\le\eta_i/\KJS+1$.
+\end{itemize}
+So $\pad\le1$, $\Phi(\mathcal S_i)\le\eta_i/\KJS+3$, and every port of a cherry system has demand at most $2$ at each junction. Put $\sco_{Y,l}:=(3g_{Y,l}-6M_l)^+$ (a symbol local to this proof), and $g_{Y,l}:=\sco_{Y,l}:=0$ if $R_Y$ has no giant component. Summing over the classes of $(Y,l)$,
+\begin{equation}\label{s6:eqCherryCost}
+\sum_i\Phi(\mathcal S_i(Y,l))\le\frac{\#\{\text{cherries of }(Y,l)\}}{\KJS}+3g_{Y,l}\le\frac{\#\{\text{cherries of }(Y,l)\}}{\KJS}+6M_l+\sco_{Y,l},
+\end{equation}
+and $\sco_{Y,l}=(3g_{Y,l}-6M_l)^+\le(1.5m_{Y,l}-12)^+\le1.5m_{Y,l}$. If $R_Y$ has a giant component, then the component of $\Bead_{Y,l}$ containing it has more than $2\gamma_l$ edges (Step~3), so $(Y,l)$ is giant; hence $\sco_{Y,l}=0$ unless $(Y,l)$ is giant.
+
+\emph{Step 6: joint routing.} The \emph{systems of $(Y,l)$} are $\mathcal S_0(Y,l)$ (if non-empty) and the cherry classes $\mathcal S_i(Y,l)$. For a system $\mathcal S$ of depth $k_{\mathcal S}$ and a junction $j<k_{\mathcal S}$, its \emph{junction-$j$ pairs} are the pairs of a fixed bijection between two multisets:
+\begin{itemize}
+\item if $k_{\mathcal S}\ge2$: the out-units of layer $j$ ($\dem^-(u)$ copies of each $u\in\LayP_j$) and the in-units of layer $j+1$ modulo $k_{\mathcal S}$ ($\dem^+(v)$ copies of each $v\in\LayP_{j+1}$);
+\item if $k_{\mathcal S}=1$ and $j=0$: $\exc(u)^-$ copies of each $u\in X^{\mathrm{out}}$ and $\exc(v)^+$ copies of each $v\in X^{\mathrm{in}}$.
+\end{itemize}
+Let $\mathfrak P_j(Y,l)$ be the multiset union of the junction-$j$ pairs of all systems of $(Y,l)$ of depth $>j$.
+
+\begin{claim}[the joint-routing facts]
+For every lend-good $Y$ with $R_Y\neq\emptyset$ and every $j<\KJS$:
+\begin{enumerate}
+\item[(a)] The bijections exist. Every pair consists of two distinct vertices of $V(Y)\setminus\bigcup_{j'}T_{j'}(Y,l)$.
+\item[(b)] Every edge of $R_Y$ is a bead of exactly one system of $(Y,l)$. Every port of $R_Y$ is a port of $\mathcal S_0(Y,l)$ or of cherry systems, never of both. A port is an end of at most $M_l-1$ cherries, and so lies in at most $M_l-1$ cherry systems.
+\item[(c)] Every vertex lies in at most $\max\bigl(2M_l-2,\ (M_l-1)+\lceil M_l/2\rceil\bigr)=2M_l-2\le t$ pairs of $\mathfrak P_j(Y,l)$. If $M_l\ge4$, the value $2M_l-2$ can occur only at a port that has demand $2$ at junction $j$ in each of $M_l-1$ cherry systems (for $M_l\in\{2,3\}$ the bound $(M_l-1)+\lceil M_l/2\rceil$ for ports of $\mathcal S_0(Y,l)$ also equals $2M_l-2$).
+\item[(d)] There are pairwise edge-disjoint paths in $\LJS_{Y,l,j}$, one for each pair of $\mathfrak P_j(Y,l)$ and joining its two vertices. Each has length at most $2^{12}L_Y^4$ and all its interior vertices in $T_j(Y,l)$.
+\item[(e)] No port or centre of a system of $(Y,l)$ lies in any $T_{j'}(Y,l)$.
+\end{enumerate}
+\end{claim}
+Vertices of systems of \emph{other} pairs $(Y',l)$ may lie in $T_j(Y,l)$ and may be interior vertices of the paths in (d). This is harmless, because hypothesis (D) of Lemma~\ref{s6:lemHCCP} is needed only inside one system (Lemma~\ref{s6:lemHCCglob}).
+
+\begin{proof}[Proof of the claim]
+(a) In a system of depth $k\ge2$, the padded loads of all layers are equal (Steps~4 and~5). By Lemma~\ref{s6:lemMED}(b), $\sum_{\LayP_j}\exc^-=\sum_{\LayP_j}\exc^+$. So the number of out-units of layer $j$ equals its padded load, which equals the padded load of layer $j+1$, which is the number of its in-units. For depth $1$, $\sum\exc^-=\sum\exc^+$.
+
+The two vertices of a pair are distinct: for $k\ge2$, the layers $j$ and $j+1$ consist of different, pairwise vertex-disjoint clusters (for $k=2$, layer $j+1$ is layer $j-1\neq j$); for $k=1$, $X^{\mathrm{out}}\cap X^{\mathrm{in}}=\emptyset$. The vertices of pairs are class-$Y$ ports $u\in\Qs_Z$. They lie in $V(Y)$ because $Y=Y(u)\in\anc_l(u)$, and outside every $T_{j'}(Y,l)$ because $\lab_{Y,l}(u)=*$.
+
+(b) Every edge of $R_Y$ lies in exactly one component: in one cluster of $\mathcal S_0(Y,l)$ if the component is non-giant, and otherwise in exactly one cherry, which lies in exactly one class. All edges of $R_Y$ at a port $u$ lie in the component of $u$, so $u$ is a port of $\mathcal S_0(Y,l)$ or of cherries, not both. Distinct cherries with end $u$ use distinct edges of $R_Y$ at $u$, so there are at most $M_l-1$ of them. A class contains at most one of them, since its cherries are vertex-disjoint.
+
+(c) In a system of depth $k\ge2$, a port of layer $j_u$ occurs in junction-$j_u$ pairs ($\dem^-$ times) and in junction-$(j_u-1)$ pairs ($\dem^+$ times), and $j_u\neq j_u-1$ modulo $k$. In a system of depth $1$ it occurs only as a member of $X^{\mathrm{out}}$ or of $X^{\mathrm{in}}$. So at a fixed junction a port occurs in at most $\max(\dem^-,\dem^+)$ pairs of each system containing it. Centres occur in no pair.
+
+By Steps~4 and~5 and part~(b), a port occurs in at most $(M_l-1)+\lceil M_l/2\rceil$ pairs (if it belongs to $\mathcal S_0$) or at most $2(M_l-1)$ pairs (if it belongs to cherry systems). For $M_l\ge2$, $\lceil M_l/2\rceil\le M_l-1$, so both are at most $2M_l-2<t=2M_l+2$.
+
+(d) $Y$ is lend-good. By Definition~\ref{s6:defLending} and Lemma~\ref{s3:lemCOL}(b), $\LJS_{Y,l,j}$ is $(2^{12}L_Y^4,t)$-path connected through $T_j(Y,l)$, as a graph on $V(Y)$. By Cited result~\ref{s1:citDef7} (see Remark~\ref{s3:remMultiset}) this is a statement about \emph{every multiset} of pairs of distinct vertices of $V(Y)$ in which every vertex lies in at most $t$ pairs, with endpoints unrestricted. By Lemma~\ref{s3:lemMonotone}(iii), the property depends only on $(\LJS_{Y,l,j},T_j(Y,l))$, so the multiset may be chosen after the stage-1 outcome and after Steps~1--5. By the hypothesis of the lemma, no edge of $\LJS_{Y,l,j}$ has been used, so the whole class is available. Apply this to $\mathfrak P_j(Y,l)$, which is admissible by (a) and (c).
+
+(e) Ports: see (a). Centres lie outside $V(Y)\supseteq T_{j'}(Y,l)$ (Step~1).
+\end{proof}
+
+\emph{Step 7: HCC-P per system, and the union.} Fix a system $\mathcal S$ of $(Y,l)$ of depth $k=k_{\mathcal S}$. For $j<k$ let $\mathcal P_j(\mathcal S)$ be the paths of the joint-routing claim, part~(d), for the junction-$j$ pairs of $\mathcal S$, each oriented from its out-unit to its in-unit. We check the hypotheses of Lemma~\ref{s6:lemHCCP} for $\mathcal S$, with its layers, junction sets $T_j:=T_j(Y,l)$ ($j<k$) and its padding.
+\begin{itemize}
+\item[(D)] The clusters of $\mathcal S$ are pairwise vertex-disjoint: distinct components for $\mathcal S_0$, vertex-disjoint cherries for a class. Centres lie outside $V(Y)$ and ports inside, so no vertex is both. Neither meets $\bigcup_jT_j(Y,l)$, by part~(e) of the joint-routing claim. The sets $T_j(Y,l)$ are pairwise disjoint (Definition~\ref{s3:defCOL}(iv)).
+\item[(P)] Step~2 for $\mathcal S_0$; centres of cherries have degree $2$.
+\item[(JC-P)] By parts (a) and (d) of the joint-routing claim, $\mathcal P_j(\mathcal S)$ is a family of edge-disjoint paths from $\LayP_j$ to $\LayP_{j+1}$ (from $X^{\mathrm{out}}$ to $X^{\mathrm{in}}$ if $k=1$), with interiors in $T_j(Y,l)$. By the choice of the bijection, every $u$ is the first vertex of exactly $\dem^-(u)$ of them and the last vertex of exactly $\dem^+(u)$. The path families for distinct $j$ lie in distinct classes $\LJS_{Y,l,j}$, which are disjoint. All of them lie in $\Lend_Y\subseteq E(H_Y)\subseteq E_{r}(Y)$, while beads lie in $\bigcup_ZE_l(Z)$. These sets are disjoint by the partition of Proposition~\ref{s2:propStructure}(iii).
+\end{itemize}
+Lemma~\ref{s6:lemHCCP} gives sets $F_j(\mathcal S)\subseteq E(\mathcal P_j(\mathcal S))$ such that the beads of $\mathcal S$ together with $\bigcup_jF_j(\mathcal S)$ decompose into at most $\Phi(\mathcal S)$ cycles. The returned edges $E(\mathcal P_j(\mathcal S))\setminus F_j(\mathcal S)$ lie in $G[T_j(Y,l)]$.
+
+Now consider all systems of all $(Y,l)$ together. Their bead sets are pairwise disjoint (part~(b) of the joint-routing claim, and each edge of $\bigcup_ZB_Z\setminus J_l$ lies in exactly one $R_Y$). Their path edges are pairwise disjoint:
+\begin{itemize}
+\item within one $(Y,l)$ and one $j$, by the joint routing, part~(d) of the claim;
+\item for different $j$, because different classes are used;
+\item for different $Y\neq Y'$, because $E(H_Y)\cap E(H_{Y'})=\emptyset$ ($E(H_Y)\subseteq E_{r(Y)}(Y)$, and these sets are disjoint by Proposition~\ref{s2:propStructure}(iii)).
+\end{itemize}
+Path edges are disjoint from beads, as shown above. By Lemma~\ref{s6:lemHCCglob}, the union decomposes into at most $\sum_{\mathcal S}\Phi(\mathcal S)$ cycles.
+
+Put $\LentJS_l:=\bigcup_{\mathcal S}\bigcup_jF_j(\mathcal S)\subseteq\bigcup_{Y,j}\LJS_{Y,l,j}$. Since $\bigcup_ZB_Z=J_l\sqcup\bigsqcup_YR_Y$ and $\bigsqcup_YR_Y$ is the set of all beads of all systems, $\bigcup_ZB_Z\cup\LentJS_l$ is partitioned into the single edges of $J_l$ and these cycles. Each cycle lies inside one system, so it uses beads and lent edges of one ancestor $Y$ only.
+
+\emph{Step 8: the count.} Every bead has exactly one end that is a port of its class (the other end is a centre, possibly a pseudo-hub). Count beads at that end. The classed ports of round $l$ are pairwise distinct vertices, because port sets of one round are disjoint (Proposition~\ref{s2:propStructure}(iv)). Each port has at most $M_l-1$ beads. So there are at most $n(M_l-1)$ beads in total. Hence $\sum_Y\Sigma\Phi(\mathcal S_0(Y,l))\le\frac12n(M_l-1)$ (as $\Phi(\clu_C)\le|E(C)|/2$), and the total number of cherries is at most $\frac12n(M_l-1)$.
+
+The number of ancestors $Y$ of rounds $\le l-2$ is $\nu_l\le2.74n/P_{l-2}$ (Lemma~\ref{s2:lemTower}(b), which completes (K1) of Proposition~\ref{s2:propOV}). Moreover $\gamma_l\le P_{l-2}/M_l$ and $P_{l-2}\ge M_l^{13}$ (Lemma~\ref{s2:lemTower}(b)). By \eqref{s6:eqSzeroCost} and \eqref{s6:eqCherryCost}, the number of cycles is at most
+\[
+\frac{1.5\cdot\frac12n(M_l-1)}{M_l^2}+5\,\frac{P_{l-2}}{M_l}\cdot\frac{2.74n}{P_{l-2}}+\frac{\frac12n(M_l-1)}{M_l^2}+6M_l\cdot\frac{2.74n}{P_{l-2}}+\sum_{(Y,l)\text{ giant}}\sco_{Y,l}
+\le15\,\frac n{M_l}+\sum_{(Y,l)\text{ giant}}\sco_{Y,l}.
+\]
+The four terms are at most $0.75n/M_l$, $13.7n/M_l$, $0.5n/M_l$ and $16.44\,n/M_l^{12}$, and $14.95+16.44\,M_l^{-11}\le15$ because $M_l\ge2^{40}$. By Step~5, $\sco_{Y,l}\le1.5m_{Y,l}$ for every giant $(Y,l)$. Since $15\le126$, the number of cycles is at most $126n/M_l+1.5\sum_{(Y,l)\text{ giant}}m_{Y,l}$, which proves the lemma as stated.
+
+\emph{On the constant.} The proof gives the constant $15$. The lemma states the looser constant $126$ on purpose: $126$ is the value carried into Theorem~\ref{s6:thmMIXC}(c) (the term $252\,n/\Dstar$ in $\varepsilon_{\mathrm M}$) and from there into Section~7. Any absolute constant would do there, because the term is $O(n/\Dstar)$. Replacing $126$ by $15$ would only lower $252/\Dstar$ to $30/\Dstar$ in those places.
+
+\emph{The sharper bound.} Step~8 proves, as a by-product, the sharper bound of at most $15n/M_l+\sum_{(Y,l)\text{ giant}}\sco_{Y,l}$ cycles, where $\sco_{Y,l}=(3g_{Y,l}-6M_l)^+\le(1.5m_{Y,l}-12)^+$ (Step~5). This was the conclusion of the lemma in version~6, where it referred to $g_{Y,l}$, an object defined only in this proof. The stated bound follows from it, and it is the form used by the only consumer, Theorem~\ref{s6:thmMIXC}(c); nothing downstream uses the sharper bound.
+
+No cost term is paid per layer or per component. The cost of a system is its common padded load $\Phi(\mathcal S)$. Padding adds paths, not cycles, and returned edges are junk. The only per-(centre, class) costs are the single edges moved into $J_l$ in Step~2, and these are counted in \eqref{s6:eqJbound}.
+\end{proof}
+
+\begin{remark}[the star split is not used]\label{s6:remStar}
+Earlier versions of JS-LC allowed, for a giant pair $(Y,l)$, a ``star split'' with a concentration threshold $\tau'_l$ and a hub-concentration functional $\mathrm{HC}$. That option is not used in this manuscript, and neither $\tau'_l$ nor $\mathrm{HC}$ appears. Its cost is bounded only by $\frac12\mathrm{HC}_{Y,l}$, which is not controlled on this route; the cherry split costs at most $\#\{\text{cherries}\}/\KJS_l+6M_l+1.5m_{Y,l}$ by \eqref{s6:eqCherryCost}. Neither split emits single edges: all single edges of JS-LC come from Step~2, before any split. So $J_l$ does not depend on this choice, and neither does any property of $J_l$ proved below.
+\deps{\ref{s6:lemJSLC}}
+\fixes{\RTb{J1}}
+\end{remark}
+
+\begin{lemma}[Lemma J$^+$: the J-interface]\label{s6:lemJplus}
+In Lemma~\ref{s6:lemJSLC}, the set $J_l$ consists exactly of the deletions of Step~2 of its proof:
+\begin{itemize}
+\item the PAR deletions, per part and per pair of classes;
+\item then one bead per (centre, class) with odd realized class degree, where the degree at a hub is aggregated over all standalone parts of round $l$.
+\end{itemize}
+This holds for \emph{every} choice of which edges are deleted. Steps~3--8 delete nothing.
+
+Moreover $J_l=\Jlost_l\sqcup\Jhub_l\sqcup\Jfr_l\sqcup\Jpar_l$, where, for $Z\in\Std_l$:
+\begin{itemize}
+\item a $\Jpar$-edge has both ends in $\Qs_Z$, with different classes;
+\item a $\Jhub$-edge is an edge $hu$ with $h\in A_Z\subseteq D_l$ and $u\in\Qs_Z$;
+\item a $\Jfr$-edge is an edge $xu$ with $x\in F_Z$ and $u\in\Qs_Z$;
+\item a $\Jlost$-edge is an edge $vu$ with $v\in\Lost_Z$ (a lost centre) and $u\in\Qs_Z$.
+\end{itemize}
+The \emph{class} of a $\Jhub$-, $\Jfr$- or $\Jlost$-edge $hu$ is $Y(u)$. The following properties hold.
+\begin{itemize}
+\item[\Jp{1}]\namedlabel{s6:J1}{\Jp{1}} For each hub $h\in D_l$ and each class $Y$, $J_l$ contains at most one $\Jhub$-edge of class $Y$ at $h$, aggregated over all parts of round $l$. For each fresh centre $x$ and each class $Y$, $J_l$ contains at most one $\Jfr$-edge of class $Y$ at $x$. (The same holds at lost centres.)
+\item[\Jp{2}]\namedlabel{s6:J2}{\Jp{2}} Every J-edge lying in $E_l(Z)$ has an end in $\Qs_Z$. For every $Z$ and every vertex, at most $M_l-1$ J-edges at that vertex lie in $E_l(Z)$. In particular a port or a fresh centre (a vertex outside $D_l$) carries at most $M_l-1$ J-edges of round $l$. Also $|J_l|\le n(M_l-1)\le1.37n(M_l-1)$.
+\item[\Jp{3}]\namedlabel{s6:J3}{\Jp{3}} The sets $D_l$ (hubs), $\bigcup_ZF_Z$ (fresh centres) and $\bigcup_Z\Qs_Z$ (classed non-lost ports) are pairwise disjoint. Each vertex outside $D_l$ that lies in a round-$l$ pre-part lies in exactly one such pre-part, so it has one role and, if classed, one class.
+\end{itemize}
+In addition, the following interface facts hold.
+\begin{enumerate}
+\item[(i)] The types above are exhaustive and exclusive.
+\item[(ii)] (Size cap at fresh centres.) A fresh centre carries at most $M_l-1$ $\Jfr$-edges.
+\item[(iii)] (Disjointness from \ref{s2:R5}.) $E(H_Y)\subseteq E_{r}(Y)$ for every ancestor $Y$ of round $r$, and the sets $E_r(Y)$ ($Y$ light) and $E_l(Z)$ ($Z\in\Std_l$) are pairwise disjoint.
+\item[(iv)] $u\in V(Y(u))$ for every classed port $u$.
+\item[(v)] In the colourings of Definition~\ref{s3:defCOL}, colours of distinct edges are independent.
+\end{enumerate}
+\deps{\ref{s6:lemJSLC}, \ref{s6:lemPAR}, \ref{s6:defDesign}, \ref{s2:propStructure}, \ref{s2:lemEL}, \ref{s2:lemCap}, \ref{s3:defCOL}, \ref{s2:defHBtp}, \ref{s6:lemHCCP}, \ref{s6:defLending}}
+\fixes{\RTa{M9} (complete interface list (i)--(v))}
+\end{lemma}
+
+\begin{proof}
+\emph{The composition of $J_l$.} In the proof of Lemma~\ref{s6:lemJSLC}, single edges are created only in Step~2. Steps~3--8 form clusters from the sets $R_Y$, route paths and apply Lemma~\ref{s6:lemHCCP}, whose output consists of cycles only. Every bead lies in some system and is covered, and padding adds paths, not edges. Step~2 allowed any admissible choice in Lemma~\ref{s6:lemPAR} and any choice of the moved edge, and nothing below depends on these choices.
+
+\emph{Types.} A PAR deletion lies in some $E_{ab}(Z)$, so it joins two ports of $\Qs_Z$ of different classes: a $\Jpar$-edge. A moved edge is a class-$Y$ edge whose centre has odd degree in $R^0_Y$. By Step~2 of that proof this centre lies in $\Ret_Z=A_Z\sqcup F_Z\sqcup\Lost_Z$, and the port lies in $\Qs_Z$. The edge is a $\Jhub$-, $\Jfr$- or $\Jlost$-edge according as the centre lies in $A_Z=Z^0\cap D_l$, in $F_Z$ or in $\Lost_Z$. These cases are exclusive because $A_Z$, $F_Z$, $\Lost_Z$ and $\Qs_Z$ are pairwise disjoint (Definition~\ref{s6:defLending}). This proves (i).
+
+\Jp{1}: The moves are made once per pair (centre, class), with the class-$Y$ degree at a hub counted over all parts of round $l$. PAR deletions are port--port edges and never $\Jhub$- or $\Jfr$-edges. A fresh centre lies in one part only.
+
+\Jp{2}: $J_l\subseteq\bigcup_ZB_Z$, and every edge of $B_Z$ has an end in $\Qs_Z$. By Lemma~\ref{s2:lemCap}(ii), every vertex has at most $M_l-1$ edges of $E_l(Z)$ for each $Z$. A vertex outside $D_l$ lies in at most one round-$l$ pre-part, which gives the ``in particular''. For the total, charge every J-edge to an end in $\Qs_Z$. The classed ports of round $l$ are distinct vertices (Proposition~\ref{s2:propStructure}(iv)), and each receives at most $M_l-1$ charges. So $|J_l|\le n(M_l-1)$.
+
+\Jp{3}: $A_Z\subseteq D_l$, while $F_Z$ and $\Qs_Z$ are disjoint subsets of $U_Z=Z^0\setminus D_l$. The sets $U_Z$ of distinct $Z\in\Std_l$ are pairwise disjoint, and every vertex outside $D_l$ lies in at most one round-$l$ pre-part (Proposition~\ref{s2:propStructure}(iv)).
+
+(ii) is the degree bound of \Jp{2} at a fresh centre. (iii) is Proposition~\ref{s2:propStructure}(iii). (iv) holds because $Y(u)\in\anc_l(u)$ (Definition~\ref{s6:defDesign}), and $\anc_l(u)$ consists of ancestors whose vertex set contains $u$. (v) holds because every colouring in Definition~\ref{s3:defCOL} is uniform and independent over edges. By Lemma~\ref{s2:lemEL}, the two ends of a $\Jpar$-edge indeed have different classes.
+\end{proof}
+
+\begin{definition}[round-$l$ J-consumer]\label{s6:defJconsumer}
+A \emph{J-consumer} is a rule that acts at each round $3\le l\le R$. Given everything constructed at rounds $>l$, the stage-1 outcome and the set $J_l$ (and possibly fresh randomness), it outputs a family $\Obj_l$ of objects and a set $\LentJV_l$ of edges such that:
+\begin{itemize}
+\item[\JC{1}]\namedlabel{s6:JC1}{\JC{1}} $\LentJV_l\subseteq\bigcup\{\LJV_{Y,l}:\ Y\text{ a lend-good ancestor of a round}\le l-2\}$;
+\item[\JC{2}]\namedlabel{s6:JC2}{\JC{2}} the objects of $\Obj_l$ are pairwise edge-disjoint cycles and single edges of $G$, and their union is exactly $J_l\cup\LentJV_l$;
+\item[\JC{3}]\namedlabel{s6:JC3}{\JC{3}} $\Obj_l$ uses no other edge.
+\end{itemize}
+By the exclusive-consumer rule COL(g) of Definition~\ref{s3:defCOL}, the classes $\LJV_{Y,l}$ are used by nothing except the round-$l$ J-consumer. For example, the rule ``$\Obj_l:=$ the edges of $J_l$ as single edges, $\LentJV_l:=\emptyset$'' is a J-consumer. The J-consumer used for the final count is the junction-vertex round step constructed later in the manuscript. Here $J_l$ has the properties of Lemma~\ref{s6:lemJplus}.
+\deps{\ref{s3:defCOL}, \ref{s6:lemJplus}}
+\end{definition}
+
+\subsection{The MIX-C assembly}
+
+\begin{construction}[the processing order $R,R-1,\dots,1$, and the Lent sets]\label{s6:consOrder}
+\emph{Input.}
+\begin{itemize}
+\item A valid $\HBtp$ run on $G$ with $n\ge\Nzero$ and $d_1\ge\Dstar$, and a designation $\delta$.
+\item A stage-1 outcome with its stage-2 data (Definitions~\ref{s5:defStages} and~\ref{s6:defLending}).
+\item Stage-3 outcomes: labels for Lemma~\ref{s4:lemTPV} for every $Z\in\Std$; child-vortex labels (Lemma~\ref{s5:lemChild}) for every non-demoted light part; labels for Theorem~\ref{s4:thmVXp} (Lemma~\ref{s5:lemDemoted}) for every demoted light part. Each is fixed in its good event.
+\item A J-consumer (Definition~\ref{s6:defJconsumer}).
+\end{itemize}
+
+\emph{The Lent sets} are defined recursively along the construction. For an ancestor $Y$ of round $r$:
+\begin{itemize}
+\item $\LentU(Y)$: the U-lent edges of $Y$ used by Lemma~\ref{s5:lemParent} at rounds $l\ge r+2$ (light $Y$ only; $\LentU(Y):=\emptyset$ for standalone $Y$);
+\item $\LentJS(Y):=\bigcup_{l\ge r+2}\bigl(\LentJS_l\cap\bigcup_j\LJS_{Y,l,j}\bigr)$, the JS-lent edges of $Y$ on output cycles of JS-LC (returned edges are not included);
+\item $\LentJV(Y):=\bigcup_{l\ge r+2}\bigl(\LentJV_l\cap E(H_Y)\bigr)$;
+\item $\Lent(Y):=\LentU(Y)\cup\LentJS(Y)\cup\LentJV(Y)$.
+\end{itemize}
+For standalone $Y$ put $\Erem(Y):=E_r(Y)\setminus\Lent(Y)$. For light non-demoted $Y$ put $H_0(Y):=E_r(Y)\setminus\Lent(Y)$.
+
+\emph{The construction.} For $l=R,R-1,\dots,1$, in this order, do:
+\begin{enumerate}
+\item[(1)] For every $Z\in\Std_l$, the set $\Lent(Z)$ is already determined. Its edges lie in lent classes of $Z$ indexed by rounds $\ge l+2$, and by COL(g) of Definition~\ref{s3:defCOL} the only consumers of these classes act at steps of rounds $\ge l+2$, which are complete. Apply Lemma~\ref{s4:lemTPV} on its fixed good event, with vertex set $Z^0$, expander $O:=O_Z$, edge set $E:=\Erem(Z)$, $\vP:=\Ret_Z$ and $\vQ:=\Qs_Z$. This gives $\Erem(Z)=\EV(Z)\sqcup\EQ(Z)$ and a decomposition of $\EV(Z)$ into at most $169|\Ret_Z|$ objects, which are output.
+\item[(2)] Every light part $Y$ of round $l$ that is not demoted runs its child vortex (Lemma~\ref{s5:lemChild}) on $H_0(Y)$. Every demoted light part $Y$ of round $l$ runs Theorem~\ref{s4:thmVXp} on $E_l(Y)$ (Lemma~\ref{s5:lemDemoted}). If $l\ge3$, then for every phase $c\in[4]$ the U-bundle $\Bdl_{l,c}$ is chained through the U-classes of good parents of rounds $\le l-2$ (Lemma~\ref{s5:lemParent}), and the used U-lent edges are recorded. The objects are output.
+\item[(3)] If $l\ge3$: after all round-$l$ applications of Lemma~\ref{s4:lemTPV}, apply Lemma~\ref{s6:lemJSLC} with $B_Z:=\EQ(Z)$ for all $Z\in\Std_l$. Its cycles are output, and $\LentJS_l$ is recorded. This yields $J_l$.
+\item[(4)] If $l\ge3$: apply the J-consumer to $J_l$. The objects $\Obj_l$ are output, and $\LentJV_l$ is recorded.
+\end{enumerate}
+Finally, the cycles of every $\Cyc_l$ are output, and every edge of $E_0$ is output as a single edge.
+
+Rounds $1$ and $2$ have no classed ports ($\anc_l(x)=\emptyset$ for $l\le2$), so $J_2=J_1=\emptyset$ and steps (3)--(4) are void there.
+\deps{\ref{s4:lemTPV}, \ref{s5:lemChild}, \ref{s5:lemParent}, \ref{s5:lemDemoted}, \ref{s6:lemJSLC}, \ref{s6:defJconsumer}, \ref{s6:defLending}, \ref{s5:defStages}, \ref{s4:thmVXp}, \ref{s3:defCOL}}
+\fixes{\RTa{M1} and \RTb{I1} (used JV junction edges enter $\Lent$, $H_0$ and the coverage), \RTb{I4} (the round-by-round order, with the J-consumer committing its output at round $l$), \RTa{M7} (the assembly written in full)}
+\end{construction}
+
+The construction is well defined because each set $\Lent(Y)$ is determined by rounds $\ge r(Y)+2$, and these precede round $r(Y)$ in the order $R,R-1,\dots,1$. This is part~(i) of the following lemma.
+
+\begin{lemma}[Lent sets]\label{s6:lemLent}
+In Construction~\ref{s6:consOrder}, for every ancestor $Y$ of round $r$:
+\begin{enumerate}
+\item[(i)] $\Lent(Y)\subseteq\Lend_Y$, and $\Lent(Y)$ depends only on the steps at rounds $\ge r+2$. So it is final when $Y$ is processed at round $r$.
+\item[(ii)] If $Y$ is standalone and lend-bad, then $\Lent(Y)=\emptyset$: every port of class $Y$ is lost, so $Y$ has no JS system, and \JC{1} excludes its JV classes. If $Y$ is light and demoted, then $\Lent(Y)=\emptyset$.
+\item[(iii)] $\Erem(Z)\supseteq E(O_Z)$ for every $Z\in\Std$, and $H_0(Y)\supseteq\Own_Y$ for every non-demoted light $Y$.
+\item[(iv)] Put $\Lentext(Y):=\LentJS(Y)\cup\LentJV(Y)$ for light $Y$. The family $(\Lentext(Y))_Y$ satisfies the hypothesis of Lemma~\ref{s5:lemKRED}, and $H_0(Y)=E_r(Y)\setminus(\LentU(Y)\cup\Lentext(Y))$ is the set $H_0(Y)$ of that lemma. The sets $\LentU(Y)$, $\LentJS(Y)$ and $\LentJV(Y)$ are pairwise disjoint.
+\end{enumerate}
+\deps{\ref{s6:consOrder}, \ref{s6:defLending}, \ref{s6:defJconsumer}, \ref{s6:lemJSLC}, \ref{s5:lemParent}, \ref{s5:lemKRED}, \ref{s3:defCOL}, \ref{s6:lemJplus}, \ref{s5:defStages}, \ref{s4:lemTPV}, \ref{s5:lemChild}, \ref{s5:lemDemoted}, \ref{s4:thmVXp}}
+\fixes{\RTa{M1}, \RTb{I1}, \RTb{J2} ($\Lent(Z)=\emptyset$ for lend-bad standalone $Z$)}
+\end{lemma}
+
+\begin{proof}
+(i) By Lemma~\ref{s5:lemParent}(i), the used U-lent edges lie in U-classes $\LU_{Y',l,c,\uslot}$ of good parents $Y'$, so $\LentU(Y)\subseteq\bigcup\LU_{Y,l,c,\uslot}\subseteq\Lend_Y$. By definition $\LentJS(Y)\subseteq\bigcup\LJS_{Y,l,j}\subseteq\Lend_Y$.
+
+For $\LentJV(Y)$: by \JC{1}, $\LentJV_l\subseteq\bigcup_{Y'}\LJV_{Y',l}$, and $\LJV_{Y',l}\subseteq E(H_{Y'})$. For $Y'\neq Y$ the sets $E(H_{Y'})$ and $E(H_Y)$ are disjoint (Lemma~\ref{s6:lemJplus}(iii)). Hence $\LentJV_l\cap E(H_Y)\subseteq\LJV_{Y,l}\subseteq\Lend_Y$.
+
+The classes $\LU_{Y,l,\cdot,\cdot}$, $\LJS_{Y,l,\cdot}$ and $\LJV_{Y,l}$ exist only for $r+2\le l\le R$ (Definition~\ref{s3:defCOL}(ii)). By COL(g) of Definition~\ref{s3:defCOL}, each is used only by its round-$l$ consumer: the U-bundle $(l,c)$ in step~(2), the JS-LC system of $(Y,l)$ in step~(3), or the round-$l$ J-consumer in step~(4).
+
+No other step uses an edge of $E(H_Y)$ before round $r$. At a round $l'>r$:
+\begin{itemize}
+\item step~(1) uses only edges of $\Erem(Z')\subseteq E_{l'}(Z')$;
+\item the child vortices and VX$^+$ use only edges of $E_{l'}(Y')$;
+\item JS-LC uses beads in $E_{l'}(\cdot)$ and lent edges of classes $\LJS_{\cdot,l',\cdot}$;
+\item the J-consumer uses only $J_{l'}\cup\LentJV_{l'}$ (\JC{3}).
+\end{itemize}
+The sets $E_{l'}(\cdot)$ are disjoint from $E_r(Y)\supseteq E(H_Y)$ (Lemma~\ref{s6:lemJplus}(iii)). So $\Lent(Y)$ is determined by steps of rounds $\ge r+2$, all of which come before round $r$.
+
+(ii) Let $Y$ be lend-bad, standalone or light.
+\begin{itemize}
+\item A JS-LC system of $(Y,l)$ exists only if $R_Y\neq\emptyset$ at round $l$, i.e.\ only if $Y$ is the class of a port of some $\Qs_Z$. Since $Y$ is lend-bad, Definition~\ref{s6:defLending} puts every port $u$ with $Y(u)=Y$ into $\Lost_Z$, so $Y$ is not the class of any port of any $\Qs_Z$. Hence $R_Y=\emptyset$ at every round $l$, no pair is routed in any $\LJS_{Y,l,j}$, and $\LentJS(Y)=\emptyset$.
+\item By \JC{1} and the disjointness used in (i), $\LentJV_l\cap E(H_Y)\subseteq\LJV_{Y,l}$ can be non-empty only if $Y$ is lend-good. So $\LentJV(Y)=\emptyset$.
+\item $\LentU(Y)=\emptyset$ for standalone $Y$ by definition. For a demoted light $Y$ it is empty because Lemma~\ref{s5:lemParent} uses only U-classes of good parents, and a demoted part is not a good parent (Definition~\ref{s5:defStages}). A demoted light part is lend-bad by Definition~\ref{s6:defLending}.
+\end{itemize}
+
+(iii) Let $Z\in\Std_l$.
+\begin{itemize}
+\item If $Z$ is lend-good, then $O_Z=\Own_Z$. Moreover $E(\Own_Z)\subseteq E(X^0_Z)=E(H_Z)$, and $E(H_Z)\subseteq E_l(Z)$ by Lemma~\ref{s6:lemJplus}(iii). By (i), $\Lent(Z)\subseteq\Lend_Z$, and $\Lend_Z\cap\Own_Z=\emptyset$ (Definition~\ref{s3:defCOL}(i)). So $E(O_Z)\subseteq E_l(Z)\setminus\Lent(Z)=\Erem(Z)$.
+\item If $Z$ is lend-bad, then $\Lent(Z)=\emptyset$ by (ii), so $\Erem(Z)=E_l(Z)\supseteq E(X^0_Z)=E(O_Z)$.
+\end{itemize}
+For a non-demoted light $Y$: $\Own_Y\subseteq E(X_Y)\subseteq E_r(Y)$ and $\Own_Y\cap\Lend_Y=\emptyset$, so $\Own_Y\subseteq H_0(Y)$ by (i).
+
+(iv) By the argument of (i), $\Lentext(Y)\subseteq\bigcup_{l,j}\LJS_{Y,l,j}\cup\bigcup_l\LJV_{Y,l}$. By (ii), $\Lentext(Y)=\emptyset$ if $Y$ is demoted. $\LentU(Y)$ is by definition the set of U-lent edges of $Y$ used by Lemma~\ref{s5:lemParent}, exactly as in Lemma~\ref{s5:lemKRED}. So $H_0(Y)=E_r(Y)\setminus\Lent(Y)=E_r(Y)\setminus(\LentU(Y)\cup\Lentext(Y))$. The three sets lie in distinct colour classes of the colouring of $\Lend_Y$ (Definition~\ref{s3:defCOL}(ii)), so they are pairwise disjoint.
+\end{proof}
+
+\begin{theorem}[Theorem MIX-C: the assembly with $\mathcal V=\emptyset$, deterministic form]\label{s6:thmMIXC}
+Fix the following data:
+\begin{itemize}
+\item a valid $\HBtp$ run on $G$ with $n\ge\Nzero$ and $d_1\ge\Dstar$, and a designation $\delta$;
+\item \emph{any} stage-1 outcome;
+\item stage-3 outcomes in the good events of Lemma~\ref{s4:lemTPV} (every $Z\in\Std$), of Lemma~\ref{s4:lemPV} through Lemma~\ref{s5:lemChild} (every non-demoted light part), and of Theorem~\ref{s4:thmVXp} through Lemma~\ref{s5:lemDemoted} (every demoted light part);
+\item \emph{any} J-consumer.
+\end{itemize}
+Run Construction~\ref{s6:consOrder}. Then:
+\begin{enumerate}
+\item[(a)] (Order.) At step~(1) of round $l$, $\Lent(Z)$ is final for every $Z\in\Std_l$. JS-LC at round $l$ uses only classes $\LJS_{Y,l,\cdot}$, and the J-consumer only classes $\LJV_{Y,l}$, of ancestors $Y$ of rounds $\le l-2$, which are processed later. The hypotheses of Lemma~\ref{s6:lemJSLC} hold at every round $l\ge3$, and every device is applied within its hypotheses.
+\item[(b)] (Coverage.) The output is a decomposition of $E(G)$: every edge of $G$ lies in exactly one output object. In detail:
+  \begin{itemize}
+  \item for a light $Y$ of round $r$, $E_r(Y)=\LentU(Y)\sqcup\LentJS(Y)\sqcup\LentJV(Y)\sqcup H_0(Y)$ if $Y$ is not demoted, and $\Lent(Y)=\emptyset$ if $Y$ is demoted;
+  \item for $Z\in\Std_l$, $E_l(Z)=\Lent(Z)\sqcup\EV(Z)\sqcup(\EQ(Z)\setminus J_l)\sqcup(J_l\cap E_l(Z))$, where the third set consists of the beads of $Z$;
+  \item every lent edge is used by at most one object;
+  \item lent edges that are unused or returned are covered by the device of their owner, and every device tolerates such junk;
+  \item the bound \eqref{s6:eqJbound} on $|J_l|$ is computed on the sets $E_l(Z)$ with lent edges included, so lending never increases it (that bound is not used later; see the remark after it).
+  \end{itemize}
+\item[(c)] (Cost.) The number of output objects is at most
+\[
+\Bigl(\frac{\Dstar}2+\cKRED+\cFresh\Bigr)n+\varepsilon_{\mathrm M}(\Dstar)\,n+\Bigl[80\,\mathrm{dem}+369\,\mathrm{lp}+169\sum_l|\Lost_l|\Bigr]+1.5\sum_{(Y,l)}m_{Y,l}+\sum_l|\Obj_l|,
+\]
+where $\varepsilon_{\mathrm M}(\Dstar):=\epsK(\Dstar)+169\,\epsA+252/\Dstar$, with $\epsA=31\eps/(\Cp\log\log\Dstar)$ as defined in Lemma~\ref{s2:lemTower}(e). Thus $\varepsilon_{\mathrm M}$ is a function of $\Dstar$ alone; it depends neither on the run nor on $n$. Moreover $1.5\sum_{(Y,l)}m_{Y,l}\le1.5\,\epsCONC(\Dstar)\,n$ by Theorem~\ref{s6:thmCONCL}(iv).
+\end{enumerate}
+The itemization of (c) is:
+\begin{itemize}
+\item K-RED: $(\Dstar/2+\cKRED+\epsK)n+80\,\mathrm{dem}+369\,\mathrm{lp}$, including $\Cyc$ and $E_0$;
+\item TPV: $169\sum(|A_Z|+|F_Z|+|\Lost_Z|)\le169(2+\epsA)n+169\sum_l|\Lost_l|$;
+\item JS-LC cycles: $\sum_l126n/M_l+1.5\sum m\le252n/\Dstar+1.5\sum m$;
+\item J-consumer: $\sum_l|\Obj_l|$. The set $J_l$ is handed entirely to the J-consumer.
+\end{itemize}
+\deps{\ref{s6:consOrder}, \ref{s4:lemTPV}, \ref{s5:lemKRED}, \ref{s5:lemDemoted}, \ref{s6:lemJSLC}, \ref{s6:lemJplus}, \ref{s6:defJconsumer}, \ref{s6:lemLent}, \ref{s6:thmCONCL}, \ref{s2:propStructure}, \ref{s2:propParentless}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s3:defCOL}, \ref{s3:lemCOL}, \ref{s4:lemPV}, \ref{s5:lemChild}, \ref{s4:thmVXp}, \ref{s2:defHBtp}, \ref{s1:condG3}, \ref{s6:defDesign}, \ref{s6:defLending}}
+\fixes{\RTa{M7} (assembly written in full), \RTa{M1} and \RTb{I1} (used JV junction edges in $\Lent$, $H_0$, $\Lentext$ and the coverage)}
+\end{theorem}
+
+\begin{proof}
+\emph{(a) Order.}
+\begin{itemize}
+\item \emph{Finality.} By Lemma~\ref{s6:lemLent}(i), $\Lent(Z)$ for $Z\in\Std_l$ depends only on steps of rounds $\ge l+2$. So it is final at step~(1) of round $l$. The same holds for $H_0(Y)$ of every light part $Y$ of round $l$ at step~(2).
+\item \emph{Classes used.} At round $l$, JS-LC routes only in classes $\LJS_{Y,l,j}$ with $Y$ the class of a non-lost port of round $l$, so $Y\in\anc_l(u)$ has round $\le l-2$. The J-consumer uses only classes $\LJV_{Y,l}$ with $r(Y)\le l-2$, by \JC{1}. Such $Y$ are processed at round $r(Y)<l$, i.e.\ later.
+\item \emph{Hypotheses of Lemma~\ref{s6:lemJSLC}.} Take $B_Z:=\EQ(Z)\subseteq\Erem(Z)\subseteq E_l(Z)$. By \ref{s2:R5} every edge of $E_l(Z)$ lies inside $Z^0=\Ret_Z\sqcup\Qs_Z$. By \ref{s4:T1} of Lemma~\ref{s4:lemTPV}, every edge of $\Erem(Z)$ with both ends in $\Ret_Z$ lies in $\EV(Z)$. So every edge of $B_Z$ has an end in $\Qs_Z$. By COL(g) of Definition~\ref{s3:defCOL}, the only consumer of $\LJS_{Y,l,j}$ is the JS-LC system of $(Y,l)$ at step~(3) of round $l$. By the argument in the proof of Lemma~\ref{s6:lemLent}(i), no other step up to that moment uses an edge of $E(H_Y)$. So no edge of these classes has been used.
+\item \emph{Lemma~\ref{s4:lemTPV} at step (1).}
+  \begin{itemize}
+  \item $|Z^0|\ge P_l\ge\Nzero$ by \ref{s1:condG3}.
+  \item If $Z$ is lend-good, then $O_Z=\Own_Z$. By Lemma~\ref{s3:lemCOL}(a) it is a spanning $(2^{-5},s_l/4)$-expander on $Z^0$, and by Lemma~\ref{s3:lemCOL}(e) we have $s_l/4\ge2^{150}L_Z^{42}$.
+  \item If $Z$ is lend-bad, $O_Z=X^0_Z$ is a spanning $(2^{-5},s_l)$-expander on $Z^0$ (Proposition~\ref{s2:propStructure}(i)), and $s_l\ge s_l/4\ge2^{150}L_Z^{42}$: the inequality of Lemma~\ref{s3:lemCOL}(e) involves only $s_l$ and $L_Z$, not the colouring.
+  \item $E=\Erem(Z)\supseteq E(O_Z)$ (Lemma~\ref{s6:lemLent}(iii)), and all its edges lie inside $Z^0$.
+  \item The good event of Lemma~\ref{s4:lemTPV} is determined by $(Z^0,O_Z,\Ret_Z)$ and the stage-3 labels, all fixed before step~(1). On it, the conclusion holds for every such $E$. So TPV tolerates the junk (unused and returned lent edges) left in $\Erem(Z)$.
+  \end{itemize}
+\item \emph{Light parts at step (2).} Let $Y$ be a light part of round $l$. If $Y$ is not demoted, then $\Own_Y\subseteq H_0(Y)\subseteq E_l(Y)$ by Lemma~\ref{s6:lemLent}(iii). This is what Lemma~\ref{s5:lemChild} needs, and the child vortex covers every such $H_0(Y)$. If $Y$ is demoted, then $\Lent(Y)=\emptyset$ by Lemma~\ref{s6:lemLent}(ii). So Lemma~\ref{s5:lemDemoted} applies to $E:=E_l(Y)\supseteq E(X_Y)$, which may contain arbitrary extra edges.
+\item \emph{Step (4).} The J-consumer receives $J_l$, which has the properties of Lemma~\ref{s6:lemJplus}.
+\end{itemize}
+
+\emph{(b) Coverage.} Split the output objects into four families.
+\begin{itemize}
+\item[$\mathcal O_{\mathrm K}$:] the cycles of all $\Cyc_l$, the edges of $E_0$, and the objects of step~(2) at all rounds;
+\item[$\mathcal O_{\mathrm T}$:] the objects of step~(1);
+\item[$\mathcal O_{\mathrm S}$:] the cycles of step~(3);
+\item[$\mathcal O_{\mathrm J}$:] $\bigsqcup_l\Obj_l$.
+\end{itemize}
+
+\emph{$\mathcal O_{\mathrm K}$ is the output of Lemma~\ref{s5:lemKRED}.} By Lemma~\ref{s6:lemLent}(iv), the final family $(\Lentext(Y))_Y$ satisfies the hypothesis of Lemma~\ref{s5:lemKRED}, and its $H_0(Y)$ are those of the construction. That lemma processes rounds $R,\dots,1$. Its step at round $l$ depends only on $H_0(Y)$ for light parts $Y$ of round $l$ and on its own earlier steps. At round $l$ the sets $H_0(Y)$ of the construction are already final (part (a)). So the objects of step~(2) over all rounds, together with $\Cyc$ and $E_0$, are exactly the output of Lemma~\ref{s5:lemKRED} for this family. Hence $\mathcal O_{\mathrm K}$ decomposes
+\[
+E_{\mathrm K}:=E(G)\setminus\Kstd\setminus\textstyle\bigsqcup_{Y\text{ light}}\Lentext(Y)
+=\bigsqcup_l\Cyc_l\sqcup E_0\sqcup\bigsqcup_{Y\text{ light}}\bigl(E_r(Y)\setminus\Lentext(Y)\bigr),
+\]
+where the equality is Proposition~\ref{s2:propStructure}(iii).
+
+\emph{The other three families.}
+\begin{itemize}
+\item By \ref{s4:T3} and \ref{s4:T4}, $\mathcal O_{\mathrm T}$ decomposes $\bigsqcup_Z\EV(Z)$.
+\item By Lemma~\ref{s6:lemJSLC}, at each round $l\ge3$ the cycles of step~(3) decompose $\bigl(\bigsqcup_{Z\in\Std_l}\EQ(Z)\setminus J_l\bigr)\sqcup\LentJS_l$.
+\item By \JC{2}, $\Obj_l$ decomposes $J_l\sqcup\LentJV_l$. These two sets are disjoint, because $J_l\subseteq\bigcup_ZE_l(Z)$ and $\LentJV_l\subseteq\bigcup_YE(H_Y)$ with $r(Y)\le l-2$ (Lemma~\ref{s6:lemJplus}(iii)).
+\end{itemize}
+Every edge of $\LentJS_l$ lies in exactly one class $\LJS_{Y,l,j}$. By \JC{1} and Lemma~\ref{s6:lemJplus}(iii), every edge of $\LentJV_l$ lies in exactly one $E(H_Y)$. Distinct $l$ use distinct classes. Hence
+\[
+\bigsqcup_l\LentJS_l=\bigsqcup_Y\LentJS(Y),\qquad\bigsqcup_l\LentJV_l=\bigsqcup_Y\LentJV(Y),
+\]
+with all unions disjoint.
+
+\emph{Putting the pieces together.} Since $\Erem(Z)=\EV(Z)\sqcup\EQ(Z)$ and $J_l\cap E_l(Z)\subseteq\EQ(Z)$,
+\[
+\EV(Z)\sqcup(\EQ(Z)\setminus J_l)\sqcup(J_l\cap E_l(Z))=\Erem(Z)=E_l(Z)\setminus\Lent(Z),
+\]
+and $\Lent(Z)=\LentJS(Z)\sqcup\LentJV(Z)$ for standalone $Z$. For light non-demoted $Y$,
+\[
+E_r(Y)\setminus\Lentext(Y)=\LentU(Y)\sqcup H_0(Y)\qquad\text{(Lemma~\ref{s6:lemLent}(iv))},
+\]
+and for demoted $Y$, $\Lentext(Y)=\emptyset$. Therefore the edge sets of the four families are pairwise disjoint, and their union is
+\[
+E_{\mathrm K}\sqcup\bigsqcup_{Z\in\Std}E_l(Z)\sqcup\bigsqcup_{Y\text{ light}}\Lentext(Y)=E(G),
+\]
+again by Proposition~\ref{s2:propStructure}(iii).
+
+Each family decomposes its own edge set, so together they decompose $E(G)$. In particular every lent edge lies in at most one object. A lent edge that is not used (not in $\Lent(Y)$), including every returned edge of JS-LC, stays in $\Erem(Y)$ or $H_0(Y)$ and is covered by the owner's device, which tolerates it by part~(a). The last item of (b) is the remark after \eqref{s6:eqJbound}. Its right side involves only $E_l(Z)$, $\delta$ and $\Lost_Z$, not $\Lent$, the TPV split or earlier rounds.
+
+\emph{(c) Cost.}
+\begin{itemize}
+\item \emph{$\mathcal O_{\mathrm K}$.} By Lemma~\ref{s5:lemKRED}, $|\mathcal O_{\mathrm K}|\le(\Dstar/2+\cKRED+\epsK(\Dstar))n+80\,\mathrm{dem}+369\,\mathrm{lp}$.
+\item \emph{$\mathcal O_{\mathrm T}$.} By \ref{s4:T3}, $|\mathcal O_{\mathrm T}|\le\sum_l\sum_{Z\in\Std_l}169|\Ret_Z|=169\sum_{l,Z}(|A_Z|+|F_Z|+|\Lost_Z|)$. Here $\sum_{l,Z}|A_Z|\le\sum_l15.2\eps n/\log P_l\le\epsA n$ by Proposition~\ref{s2:propOV}(K2) and Lemma~\ref{s2:lemTower}(e). Also $\sum_{l,Z}|F_Z|\le2n$ by Proposition~\ref{s2:propParentless}(i). Finally $\sum_{Z\in\Std_l}|\Lost_Z|=|\Lost_l|$, because the $\Lost_Z$ of one round lie in the pairwise disjoint port sets $U_Z$ (Proposition~\ref{s2:propStructure}(iv)). So $|\mathcal O_{\mathrm T}|\le(\cFresh+169\epsA)n+169\sum_l|\Lost_l|$, with $\cFresh=169\cdot2$.
+\item \emph{$\mathcal O_{\mathrm S}$.} By Lemma~\ref{s6:lemJSLC} and $\sum_l1/M_l\le2/\Dstar$ (Lemma~\ref{s2:lemTower}(b)),
+\[
+|\mathcal O_{\mathrm S}|\le\sum_{l\ge3}\Big(126\frac n{M_l}+1.5\sum_{(Y,l)\text{ giant}}m_{Y,l}\Big)\le\frac{252\,n}{\Dstar}+1.5\sum_{(Y,l)}m_{Y,l}.
+\]
+\item \emph{$\mathcal O_{\mathrm J}$.} $|\mathcal O_{\mathrm J}|=\sum_l|\Obj_l|$.
+\end{itemize}
+Adding the four bounds gives (c), since $\epsK+169\epsA+252/\Dstar=\varepsilon_{\mathrm M}(\Dstar)$. The final inequality is Theorem~\ref{s6:thmCONCL}(iv), which holds for every valid run and every designation.
+\end{proof}

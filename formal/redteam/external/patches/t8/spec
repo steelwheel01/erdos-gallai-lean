@@ -1,0 +1,3 @@
+MODE=evasion
+TARGET=EGCheck.RTEvade
+DESC=macro expands to sorryAx

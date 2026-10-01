@@ -1,0 +1,1665 @@
+\section{The junction-vertex quotient, ultra hubs, and the induction}\label{s7:sec}
+
+This section supplies the J-consumer of Definition~\ref{s6:defJconsumer}, bounds
+the size of the quotient graphs it produces, and closes the argument by the
+layered quotient induction. The mathematics is a \candidate{} argument: it has
+been checked only by AI referees and has not been verified by human experts (see
+Remark~\ref{s1:remStatus} and the final subsection of this section).
+
+\paragraph{Setting of this section.}
+Throughout, $\Dstar$ satisfies \Gc{1}--\Gc{4}, $G$ is a graph with $n\ge\Nzero$
+vertices and $d_1\ge\Dstar$, a valid $\HBtp$ run on $G$ is fixed
+(Proposition~\ref{s2:propExists}), a designation $\delta$ is fixed
+(Definition~\ref{s6:defDesign}), and there are no VX-parts
+($\mathcal{V}=\emptyset$), so that every standalone pre-part is a MIX-part. The
+rounds of the run are $1,\dots,R$; the round step below acts at the rounds
+$3\le l\le R$ (rounds $1$ and $2$ have no classed ports). For a classed port $u$
+of round $l$ (that is, $u\in Q_Z$ for some $Z\in\Std_l$) we write $Y(u)$ for its
+class and $r(u)$ for the round of $Y(u)$; since $Y(u)\in\anc_l(u)$ we have
+$r(u)\le l-2$ and $u\in V(Y(u))$. For an ancestor $Y$ of round $r$, $H_Y$ is its
+expander ($X_Y$ if $Y$ is light, $X^0_Y$ if $Y$ is standalone), $s_Y$ is $s_r/2$
+or $s_r$ respectively, and $p_Y=1/(2\klend(Y))$ (Definition~\ref{s3:defCOL}).
+The functions $\epsOne$ and $\epsTwo$ defined below contain the function
+$\epsA=31\eps/(\Cp\log\log\Dstar)$ of Lemma~\ref{s2:lemTower}(e), which depends
+on $\Dstar$ only and satisfies $\sum_{l\le R}15.2\eps/\log P_l\le\epsA$; the
+function $\epsX$ does not contain $\epsA$.
+
+%% ----------------------------------------------------------------------
+\subsection{Round-split pools and candidate junctions}
+
+\begin{definition}[Round-split pool labels]\label{s7:defPool}
+Every vertex $v$ of $G$ independently draws a \emph{pool label}
+\[
+\plab(v)\in\{\bot\}\cup\{(l,r):3\le l\le R,\ 1\le r\le l-2\},\qquad
+\Prob\bigl(\plab(v)=(l,r)\bigr)=q_l\,\pi_{l,r},
+\]
+where $q_l\defeq M_l^{-2}$ and $\pi_{l,r}\defeq 2^{-(l-1-r)}$, and
+$\Prob(\plab(v)=\bot)\defeq 1-\sum_{l,r}q_l\pi_{l,r}$. This is a probability
+distribution: for each $l$ we have $\sum_{r=1}^{l-2}\pi_{l,r}=1-2^{-(l-2)}<1$,
+and $\sum_l q_l\le\sum_l M_l^{-1}\le 2/\Dstar<1$ by
+Lemma~\ref{s2:lemTower}(b). Put
+\[
+\Pool_{l,r}\defeq\plab^{-1}(l,r),\qquad
+\Pool_l\defeq\bigcup_{r=1}^{l-2}\Pool_{l,r}\ \ \text{(a disjoint union)},
+\]
+so that $\Prob(v\in\Pool_l)=q_l(1-2^{-(l-2)})\le q_l$ for every $v$. The sets
+$\Pool_l$ ($3\le l\le R$) are pairwise disjoint, because every vertex has one
+label. For $w\in\Pool_l$ let $r(w)$ denote the unique $r$ with
+$w\in\Pool_{l,r}$. The pool labels are stage (1d) of the randomness schedule.
+They are independent of all other stage-1 data, in particular of the colourings
+and labels of Definition~\ref{s3:defCOL}.
+\deps{\ref{s2:lemTower}, \ref{s3:defCOL}}
+\end{definition}
+
+\begin{definition}[Candidates and JV-bad ports]\label{s7:defCand}
+Let $u$ be a classed port of round $l\ge3$, with class $Y\defeq Y(u)$ of round
+$r\defeq r(u)\le l-2$. Its \emph{candidate set} is
+\[
+\Cand_l(u)\defeq\{\,w\in\Pool_{l,r(u)}:\ uw\in\LJV_{Y,l}\,\}.
+\]
+Since $\LJV_{Y,l}\subseteq\Lend_Y\subseteq E(H_Y)$ and $H_Y$ is a graph on
+$V(Y)$, automatically $\Cand_l(u)\subseteq N_{H_Y}(u)$ and
+$N_{H_Y}(u)\subseteq V(Y)$. The
+candidate sets are always taken in the class graph $H_{Y(u)}$ itself; this is
+used in Lemma~MULT below. Put
+\[
+\Hcd_l\defeq\frac{\lambda_{l-2}^{95}}{8M_l^{2}}.
+\]
+The port $u$ is \emph{JV-bad} if
+\[
+|\Cand_l(u)|<\tfrac12\,\Ex|\Cand_l(u)|,
+\]
+and \emph{JV-good} otherwise. Here $\Ex$ is the unconditional expectation over
+stage~1, which is a number determined by the run and $\delta$. The definition
+applies to every classed port, whether or not it lies in $\Lost_l$. JV-badness
+is a deterministic function of stage~1; it is one of the stage-2 statuses. The
+number $\Hcd_l$ is not a threshold of the definition: it is a lower bound for
+the threshold, since $\tfrac12\Ex|\Cand_l(u)|\ge\Hcd_l$ for every classed port
+$u$ of round $l$ (Lemma~\ref{s7:lemCand}(ii) below). Consequently every JV-good
+port has $|\Cand_l(u)|\ge\Hcd_l$ (Lemma~\ref{s7:lemCand}(iv)).
+\deps{\ref{s7:defPool}, \ref{s3:defCOL}, \ref{s6:defDesign}}
+\fixes{\RTa{M4}}
+\end{definition}
+
+\begin{lemma}[Candidate counts]\label{s7:lemCand}
+Let $u$ be a classed port of round $l\ge3$ with class $Y$ of round $r$. Then:
+\begin{enumerate}
+\item[(i)] $|\Cand_l(u)|$ is a sum of independent Bernoulli variables, one for
+each $w\in N_{H_Y}(u)$, each with success probability $q_l\pi_{l,r}p_Y$;
+\item[(ii)] its mean satisfies
+\[
+\Ex|\Cand_l(u)|=q_l\,\pi_{l,r}\,p_Y\,\deg_{H_Y}(u)
+\;\ge\;\frac{\lambda_r^{96}\,2^{-(l-r)}}{M_l^{2}}
+\;\ge\;2\Hcd_l ;
+\]
+\item[(iii)] $\Prob(u\text{ is JV-bad})\le\exp(-\Hcd_l/4)$;
+\item[(iv)] if $u$ is JV-good then $|\Cand_l(u)|\ge\Hcd_l\ge2^{10}M_l^{10}$.
+\end{enumerate}
+\deps{\ref{s7:defCand}, \ref{s7:defPool}, \ref{s3:defCOL}, \ref{s3:lemCOLJV}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:citChernoffGen}}
+\fixes{\RTa{M8}, \RTb{J7}}
+\end{lemma}
+
+\begin{proof}
+(i) By definition,
+\[
+|\Cand_l(u)|=\sum_{w\in N_{H_Y}(u)}\ind{\plab(w)=(l,r)}\cdot\ind{uw\in\LJV_{Y,l}} .
+\]
+The pool labels are independent across vertices. The colours of the edges of
+$H_Y$ are independent across edges (Definition~\ref{s3:defCOL}), and the edges
+$uw$ for distinct $w$ are distinct. The two families are independent of each
+other (Definition~\ref{s7:defPool}). So the summands for distinct $w$ are
+functions of disjoint sets of independent variables, hence independent. For a
+fixed $w$ the two indicators are independent, with
+$\Prob(\plab(w)=(l,r))=q_l\pi_{l,r}$. Moreover $\Prob(uw\in\LJV_{Y,l})=p_Y$: the
+edge $uw\in E(H_Y)$ lies in $\Lend_Y$ with probability $1/2$, and it then
+receives the colour $l\in\IJV$ with probability $1/\klend(Y)$; note that
+$r+2\le l\le R$, so $l$ is an index of $\IJV$.
+
+(ii) The first equality follows from (i). Every $H_Y$ has minimum degree larger
+than $s_Y\ge s_r/2$, and $s_r\ge\lambda_r^{100}$
+(Proposition~\ref{s2:propStructure}(i)). Also $p_Y\ge\lambda_r^{-4}$
+(Lemma~\ref{s3:lemCOLJV}). Hence
+\[
+\Ex|\Cand_l(u)|\ \ge\ M_l^{-2}\,2^{-(l-1-r)}\,\lambda_r^{-4}\,\frac{\lambda_r^{100}}{2}
+\;=\;\frac{\lambda_r^{96}\,2^{-(l-r)}}{M_l^{2}} .
+\]
+Since $2\Hcd_l=\lambda_{l-2}^{95}/(4M_l^2)$, the second inequality is equivalent
+to
+\begin{equation}\label{s7:eqCandExp}
+\lambda_r^{96}\ \ge\ 2^{\,l-r-2}\,\lambda_{l-2}^{95}.
+\end{equation}
+By Lemma~\ref{s2:lemTower}(a), $\lambda_r\ge\lambda_{l-2}$ because $r\le l-2$.
+By Lemma~\ref{s2:lemTower}(d),
+$\lambda_r\ge2^{2\logs d_r+2}\ge2^{R-r}\ge2^{l-r}\ge2^{l-r-2}$. Multiplying
+$\lambda_r^{95}\ge\lambda_{l-2}^{95}$ by $\lambda_r\ge2^{l-r-2}$ gives
+\eqref{s7:eqCandExp}. (The chain of exponents is
+$2\logs d_r+2\ge R-r\ge l-r$; only the exponent $l-r-2$ is needed.)
+
+(iii) Put $\mu\defeq\Ex|\Cand_l(u)|$. By definition, $u$ is JV-bad exactly
+when $|\Cand_l(u)|<\mu/2$. By (i) and the lower-tail Chernoff
+bound for sums of independent indicators, with deviation parameter $1/2$
+(Cited result~\ref{s1:citChernoffGen}),
+$\Prob(|\Cand_l(u)|<\mu/2)\le\exp(-\mu/8)\le\exp(-\Hcd_l/4)$, where the last
+step uses $\mu/2\ge\Hcd_l$ from (ii).
+
+(iv) If $u$ is JV-good then $|\Cand_l(u)|\ge\tfrac12\Ex|\Cand_l(u)|\ge\Hcd_l$,
+by the definition of JV-good and (ii); this is the first inequality. The second
+is the line
+``$\Hcd_l\ge2^{10}M_l^{10}$'' of the table of Lemma~\ref{s3:lemCOLJV}. It also
+follows directly from $M_l\le\lambda_{l-2}^{1.6}$
+(Lemma~\ref{s2:lemTower}(b)): then
+$8M_l^2\cdot2^{10}M_l^{10}=2^{13}M_l^{12}\le2^{13}\lambda_{l-2}^{19.2}\le\lambda_{l-2}^{95}$,
+because $\lambda_{l-2}\ge M_l^{1/1.6}\ge2^{25}$.
+\end{proof}
+
+%% ----------------------------------------------------------------------
+\subsection{The randomness schedule and the round step}
+
+\begin{definition}[The randomness schedule]\label{s7:defSchedule}
+All random choices of the construction are made in the following order,
+summarized in Table~\ref{s7:tabSchedule}.
+\begin{itemize}
+\item \emph{Stage 1} consists of four mutually independent families:
+(1a) the COL-JV colourings of Definition~\ref{s3:defCOL}(i)--(iii);
+(1b) the vertex choices and sublabels of Definition~\ref{s5:defZones};
+(1c) the JS labels of Definition~\ref{s3:defCOL}(iv);
+(1d) the pool labels of Definition~\ref{s7:defPool}.
+\item \emph{Selection} (1e), which is not a random family: a stage-1 outcome is
+then fixed in the event $\{\Xp\le3\,\Ex\Xp\}$. Here
+$\Xp\ge0$ is the stage-1 functional introduced later in this section, a
+deterministic function of the run, $\delta$ and stage~1. After (1e), stage~1 is
+a fixed outcome: no later step of the construction uses the law of stage~1 or
+conditions on the event of (1e); the numbers $\Ex\Xp$ and $\Ex|\Cand_l(u)|$
+that appear later are unconditional expectations, fixed in advance.
+\item \emph{Stage 2} is deterministic given stage~1: demotion, parent-bad and
+$\Bad$ (Definition~\ref{s5:defStages}); lend-bad, $\Lost$, $\Ret$ and $\Qs$
+(Definition~\ref{s6:defLending}); JV-bad (Definition~\ref{s7:defCand}).
+\item \emph{Stage 3} is drawn part by part: the TPV labels of every standalone
+pre-part, the P-vortex labels of every non-demoted light part, and the VX$^+$
+labels of every demoted light part. Given stage~1, the label families of distinct
+parts are independent. Each part's labels are fixed inside that part's good event.
+\item \emph{Rounds} $l=R,R-1,\dots,3$. The round randomness $\xi_l$ consists of
+the following mutually independent variables:
+a uniformly random bijection $\eta_h:[4M_l]\to[4M_l]$ for every vertex $h$;
+a uniformly random $3$-subset $\zeta_{h,u}\subseteq[4M_l]$ for every ordered pair
+$(h,u)$ of distinct vertices;
+and a uniformly random linear order $\prec_u$ of $V(G)$ for every vertex $u$.
+The dependence of $\eta_h,\zeta_{h,u},\prec_u$ on $l$ is suppressed. The draw
+$\xi_l$ is fresh: it is independent of stage~1, of stage~3 and of all $\xi_{l'}$
+with $l'>l$.
+\end{itemize}
+The \emph{past} $\Past_l$ at round $l$ is the fixed outcome of stage~1, of
+stage~3 and of the draws $\xi_{l'}$ ($l'>l$), together with everything these
+determine: in particular the decompositions fixed at the rounds $l'>l$ and the
+set $J_l$. It is a fixed outcome, not a random $\sigma$-algebra. We write
+$\Ex[\,\cdot\mid\Past_l]$ and $\Prob(\,\cdot\mid\Past_l)$ for expectation and
+probability over $\xi_l$ with $\Past_l$ fixed. At each round, $\xi_l$ is chosen in
+the event of step (f) of the round step. All draws in stage~1, stage~3 and the
+rounds are mutually independent. The outcomes actually used are chosen inside
+events (stage~1 in $\{\Xp\le3\,\Ex\Xp\}$, stage~3 in the good events, each
+$\xi_l$ in the event of step (f)); after each choice only deterministic
+properties of the chosen outcome are used, and every later probability is over
+fresh variables with the past fixed.
+\deps{\ref{s3:defCOL}, \ref{s5:defZones}, \ref{s7:defPool}, \ref{s6:defLending}, \ref{s5:defStages}, \ref{s7:defCand}, \ref{s4:lemTPV}, \ref{s4:lemPV}, \ref{s4:thmVXp}, \ref{s5:lemChild}, \ref{s5:lemDemoted}}
+\fixes{\RTb{J5}, \RTa{M4}}
+\end{definition}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|p{1.5cm}|p{5.9cm}|p{3.6cm}|p{3.8cm}|}
+\hline
+\textbf{Stage} & \textbf{Drawn or decided} & \textbf{Depends on} & \textbf{How it is fixed}\\
+\hline
+1a & COL-JV colourings of every ancestor & independent per ancestor and per edge & part of the stage-1 outcome\\
+1b & vertex choices and sublabels (zones) & independent per vertex & part of the stage-1 outcome\\
+1c & JS labels $\lab_{Y,l}(y)$ & independent & part of the stage-1 outcome\\
+1d & pool labels $\plab(v)$ & independent per vertex & part of the stage-1 outcome\\
+1e & choice of the stage-1 outcome & the functional $\Xp$ & $\Xp\le3\,\Ex\Xp$ (probability $\ge2/3$)\\
+\hline
+2 & demotion, parent-bad, lend-bad, $\Lost$, $\Ret$, $\Qs$, JV-bad & deterministic in stage~1 & determined\\
+\hline
+3 & TPV, P-vortex and VX$^+$ labels & independent per part & inside each part's good event (probability $\ge1/2-o(1)$)\\
+\hline
+$l=R,\dots,3$ & $\xi_l=(\eta_h,\zeta_{h,u},\prec_u)$: HUB lists and injections & fresh draw, $\Past_l$ fixed & event of step (f) (probability $\ge1/2$)\\
+\hline
+\end{tabular}
+\caption{The randomness schedule (Definition~\ref{s7:defSchedule}).}
+\label{s7:tabSchedule}
+\end{table}
+
+\begin{construction}[The JV$^{+*}$ round step at round $l\ge3$; the J-consumer]\label{s7:consRound}
+Fix $3\le l\le R$ and the past $\Past_l$. The input is the set
+$J_l=\Jlost_l\cup\Jhub_l\cup\Jfr_l\cup\Jpar_l$ produced by JS-LC at round $l$,
+with the properties \Jp{1}--\Jp{3} and (i)--(v) of Lemma~\ref{s6:lemJplus}.
+
+\emph{Fixed rules.} The rules and orders called fixed in steps (b)--(e), (g)
+and (h) below are deterministic functions, chosen once and for all before any
+randomness is drawn, with the following arguments.
+\begin{itemize}
+\item \emph{Functions of $\Past_l$ alone:} the pairing of the live $\Jfr$ items
+at a fresh centre and the choice of its unpaired fresh leg, and the order in
+which the PAR objects are coloured, in (b); the split of the live items of a
+non-ultra hub into groups, together with the numbering of the groups, in (c).
+In particular these rules do not read $\xi_l$.
+\item \emph{Functions of $\Past_l$ and of the lists}, that is, of the variables
+$\eta_h$ and $\zeta_{h,u}$ of $\xi_l$: the choice of the system of distinct
+representatives in (d); the processing order and the order of $V(G)$ in (e1);
+and the order $e_1,\dots,e_q$ of $E'(u)$ in (e2).
+\item None of the rules of steps (b)--(e) reads the orders $\prec_u$ of
+$\xi_l$; within steps (a)--(f), the orders $\prec_u$ of $\xi_l$ enter only
+through the assignment $e_i\mapsto w_i$ of (e2) (and through what is computed
+from it). Through $\Past_l$ the rules may depend on the draws
+$\xi_{l'}$ of the rounds $l'>l$, orders included, and in general they do,
+since $J_l$ does.
+\item The rank order in (g) and the rule choosing $\Dec_l$ in (h) are not
+restricted: they are arbitrary deterministic functions of $\Past_l$ and
+$\xi_l$. They necessarily depend on $\xi_l$, since the layers and $Q_l$ do.
+\end{itemize}
+Rules with these arguments exist, for instance lexicographically first choices
+for fixed orders of the finite sets involved (the greedy colouring of (b)
+succeeds for every order, by part (i) of the next lemma, and a split into groups
+as in (c) always exists). Every statement of this section about the
+round step holds for every choice of the fixed rules that obeys these
+restrictions. The restrictions are used in the claims of steps (c) and (e2), in
+Lemma~\ref{s7:lemWellDef}(iii) (the grouping does not read $\eta_h$), and in
+Lemmas~\ref{s7:lemCC}(i), \ref{s7:lemUltra}(i) and \ref{s7:lemPay}(c) (nothing
+before the assignment $e_i\mapsto w_i$ reads the orders $\prec_u$), as well as
+in the opening paragraph of the subsection ``Quotient size and payments'' and
+in the proof of Lemma~\ref{s7:lemUHsplit}(ii) (the copies of non-ultra hubs are
+deterministic given the lists).
+
+\emph{Items.} The \emph{items} are the edges of $J_l\setminus\Jlost_l$. The
+\emph{vertices} of an item are its port end or ends, which lie in $\Qs_Z$, and
+its centre. The centre is a hub $h\in D_l$ for a $\Jhub$ item and a fresh centre
+$x\in F_Z$ for a $\Jfr$ item. A $\Jpar$ item $u$--$v$ has two port ends and no
+centre. A $\Jhub$ item is written $(h,u)$, with $h$ its hub and $u$ its port.
+
+\smallskip\noindent
+(a) \emph{Payments bounded by stage-1 weights.} The following are \emph{paid},
+that is, output as single edges:
+(a1) every edge of $\Jlost_l$;
+(a2) every item with a vertex in $\Pool_l$;
+(a3) every item with a JV-bad port end.
+The remaining items are \emph{live}. A vertex is \emph{live} if it is a vertex of
+a live item, and $\Live$ denotes the set of live vertices. By (a2),
+$\Live\cap\Pool_l=\emptyset$. The sets paid in (a1)--(a3) depend on $J_l$, hence
+on the past; only their sizes are bounded by stage-1 functionals
+(this is proved in the payment lemma below).
+
+\smallskip\noindent
+(b) \emph{PAR objects.} Every live $\Jpar$ item $u$--$v$ is a \emph{PAR object}
+with \emph{ends} at $u$ and at $v$; here $u,v\in\Qs_Z$ and $Y(u)\ne Y(v)$. At each
+fresh centre $x$, the live $\Jfr$ items at $x$ are paired, by a fixed rule, into
+\emph{cherries} $u$--$x$--$u'$. Here $u\ne u'$ because $G$ is simple, so
+distinct items at $x$ have distinct port ends. A cherry is a PAR object with ends
+at $u$ and $u'$ and \emph{middle} $x$. If the number of live $\Jfr$ items at $x$
+is odd, one of them, chosen by a fixed rule, is paid: it is the \emph{unpaired
+fresh leg} of $x$. The PAR objects are then coloured greedily, in a fixed order,
+with colours from $[3M_l]$, so that two PAR objects sharing a port, or sharing a
+middle, receive different colours.
+
+\smallskip\noindent
+(c) \emph{HUB lists.} For a hub $h\in D_l$ let $\clive_h$ be its number of live
+$\Jhub$ items. Put
+\[
+\thult_l\defeq\bigl\lfloor M_l\Hcd_l/7\bigr\rfloor,\qquad \KHUB_l\defeq4M_l .
+\]
+The hub $h$ is \emph{ultra} if $\clive_h>\thult_l$, and \emph{non-ultra}
+otherwise. For a non-ultra $h$ with $\clive_h\ge1$, its live items are split, by
+a fixed rule, into
+\[
+k_h\defeq\bigl\lceil 8\clive_h/\Hcd_l\bigr\rceil
+\]
+\emph{groups} of at most $\lceil\Hcd_l/8\rceil$ items each. This is possible
+because $k_h\lceil\Hcd_l/8\rceil\ge\clive_h$. The $i$-th group receives the
+\emph{list} $\{\eta_h(3i-2),\eta_h(3i-1),\eta_h(3i)\}\subseteq[4M_l]$; this needs
+$3k_h\le4M_l$, which is part (ii) of the next lemma. The lists of the
+groups of $h$ are pairwise disjoint, and, since the groups and their numbering
+are functions of $\Past_l$ while $\eta_h$ is independent of $\Past_l$, they form
+a uniformly random sequence of
+$k_h$ pairwise disjoint $3$-subsets of $[4M_l]$. Lists of distinct hubs are
+independent. For an ultra $h$, every live item $(h,u)$ is its own group, with
+list $\zeta_{h,u}$.
+
+\smallskip\noindent
+(d) \emph{SDR.} Every port $u$ carrying at least one live hub item chooses, by a
+fixed rule, pairwise distinct colours for its live hub items, each item's colour
+taken from the list of its group (a system of distinct representatives). If no
+such choice exists, all live hub items of $u$ are paid (an \emph{SDR failure} at
+$u$). The items that receive a colour are the \emph{coloured hub items}. In
+particular, every port carries at most one coloured hub item of each HUB colour.
+
+\smallskip\noindent
+(e) \emph{Junctions.} Initially $\Used(u)\defeq\emptyset$ for every port $u$ and
+$\Used_\kappa(h)\defeq\emptyset$ for every hub $h$ and every $\kappa\in[4M_l]$.
+\begin{itemize}
+\item[(e1)] The coloured hub items of non-ultra hubs are processed in a fixed
+order. The item $(h,u)$ of colour $\kappa$ receives as its \emph{junction} the
+first vertex $w$, in a fixed order of $V(G)$, of
+$\Cand_l(u)\setminus\Used(u)\setminus\Used_\kappa(h)$. Then $w$ is added to
+$\Used(u)$ and to $\Used_\kappa(h)$.
+\item[(e2)] For every port $u$ let $E'(u)$ be the set of the ends at $u$ of the
+PAR objects and of the coloured hub items $(h,u)$ with $h$ ultra, listed in a
+fixed order $e_1,\dots,e_q$. Let $w_1\prec_u w_2\prec_u\cdots$ be the elements of
+$\Cand_l(u)\setminus\Used(u)$ in the order $\prec_u$; the end $e_i$ receives the
+junction $w_i$. This is well defined by part (v) of the next lemma. With
+$\Past_l$ and the lists fixed, the map $e_i\mapsto w_i$ is a uniformly random
+injection of $E'(u)$ into $\Cand_l(u)\setminus\Used(u)$, and these injections are
+independent over ports: by the restrictions on the fixed rules, $\Used(u)$, the
+set $E'(u)$ and its order $e_1,\dots,e_q$ are determined by $\Past_l$ and the
+lists, and the orders $\prec_u$ are independent of both. No payment is made for
+coincidences of junctions at ultra hubs.
+\item[(e3)] \emph{Loops.} A PAR object whose two ends received the same junction
+is paid. A looped $\Jpar$ item costs one single edge; a looped cherry costs its
+two edges.
+\end{itemize}
+Every end of a coloured hub item or of an unpaid PAR object now has a junction
+$w$. It is a candidate of the end's port $u$, so $w\in\Cand_l(u)\subseteq\Pool_l$
+and $uw\in\LJV_{Y(u),l}$. The edge $uw$ is the \emph{junction edge} of that end.
+
+\smallskip\noindent
+(f) \emph{Markov choice.} Let $\payrd_l$ be the number of edges paid in (d) and
+(e3), and let $\copies_l\defeq|V(Q_l)|$, with $Q_l$ as in (g). Both are
+functions of $\Past_l$ and $\xi_l$. The round randomness $\xi_l$ is chosen in the
+event
+\[
+\bigl\{\copies_l\le4\,\Ex[\copies_l\mid\Past_l]\bigr\}\cap
+\bigl\{\payrd_l\le4\,\Ex[\payrd_l\mid\Past_l]\bigr\}.
+\]
+By Markov's inequality in the form~(b) of Cited result~\ref{s1:citMarkov},
+taken conditionally as in its item~(c) ($\xi_l$ is independent of the variables
+whose outcome $\Past_l$ fixes, Definition~\ref{s7:defSchedule}), this event has
+probability at least $1/2$ given $\Past_l$ (each of the two events fails with
+probability at most $1/4$).
+
+\smallskip\noindent
+(g) \emph{Layers, sub-layers and the quotient.} For $\kappa\in[3M_l]$ the
+\emph{PAR layer} $\BP_\kappa$ is the multigraph on the vertex set
+$\{[w]:w\in\Pool_l\}$ of formal copies. It has one edge $[w_1][w_2]$ for every
+unpaid PAR object of colour $\kappa$ whose ends have the junctions $w_1$ and
+$w_2$; here $w_1\ne w_2$ by (e3). For $\kappa\in[4M_l]$ the \emph{HUB layer}
+$\BH_\kappa$ is the bipartite multigraph with sides $D_l$ and
+$\{[w]:w\in\Pool_l\}$. It has one edge $h[w]$ for every coloured hub item $(h,u)$
+of colour $\kappa$ whose junction is $w$. \emph{Rank split:} in every layer, the
+edges joining the same two vertices are listed in a fixed order, and the $i$-th
+edge of such a list has \emph{rank} $i$. For a layer $B$ and $\iota\ge1$, the
+\emph{sub-layer} $B^{(\iota)}$ is the spanning subgraph of $B$ formed by its edges
+of rank $\iota$. The \emph{quotient} $Q_l$ is the vertex-disjoint union of all
+sub-layers $B^{\mathrm{P},(\iota)}_\kappa$ ($\kappa\in[3M_l]$, $\iota\ge1$) and
+$B^{\mathrm{H},(\iota)}_\kappa$ ($\kappa\in[4M_l]$, $\iota\ge1$), with the
+isolated vertices of each sub-layer deleted. Vertices of distinct sub-layers are
+distinct vertices of $Q_l$; hence every cycle of $Q_l$ lies in one sub-layer.
+
+\smallskip\noindent
+(h) \emph{Decompose and lift.} Let $\Dec_l$ be a decomposition of $E(Q_l)$ into
+$\f(Q_l)$ objects, chosen by a fixed deterministic rule (for instance the
+lexicographically first one for a fixed order of $E(Q_l)$). Each member of
+$\Dec_l$ is \emph{lifted} to objects of $G$ as follows.
+\begin{itemize}
+\item A single edge of a PAR sub-layer is a PAR object. It is output as its one
+($\Jpar$) or two (cherry) J-edges, each as a single edge. A single edge $h[w]$ of
+a HUB sub-layer is a coloured hub item $(h,u)$, and it is output as the single
+edge $hu$.
+\item A cycle $[w_0][w_1]\cdots[w_{m-1}]$ of a PAR sub-layer, with $m\ge3$:
+indices are taken mod $m$, and the edge $[w_i][w_{i+1}]$ is a PAR object $o_i$.
+Let $p_i$ be the end of $o_i$ with junction $w_i$ and $q_i$ its end with junction
+$w_{i+1}$; they are well defined because $w_i\ne w_{i+1}$. The lift is the closed
+walk
+\[
+w_0\,p_0\,(x_0)\,q_0\,w_1\,p_1\,(x_1)\,q_1\,w_2\ \cdots\ q_{m-1}\,w_0 ,
+\]
+where $x_i$ is the middle of $o_i$ if $o_i$ is a cherry, and is omitted if $o_i$
+is a $\Jpar$ item.
+\item A cycle $h_0[w_0]h_1[w_1]\cdots h_{m-1}[w_{m-1}]h_0$ of a HUB sub-layer,
+with $m\ge2$: the edge $h_i[w_i]$ is a coloured hub item $(h_i,u_i)$ with
+junction $w_i$, and the edge $[w_i]h_{i+1}$ is a coloured hub item
+$(h_{i+1},u'_i)$ with junction $w_i$ (indices mod $m$). The lift is the closed
+walk
+\[
+h_0\,u_0\,w_0\,u'_0\,h_1\,u_1\,w_1\,u'_1\,h_2\ \cdots\ u'_{m-1}\,h_0 .
+\]
+\end{itemize}
+Put $\Obj_l\defeq{}$(the single edges paid in (a), (b), (d) and (e3)) together
+with (the lifted objects of all members of $\Dec_l$), and let $\LentJV_l$ be the
+set of junction edges that lie on lifted cycles. A junction edge assigned in (e)
+that does not lie on a lifted cycle is not used by the round step; it stays with
+its owner as junk.
+\deps{\ref{s6:lemJplus}, \ref{s6:defJconsumer}, \ref{s7:defCand}, \ref{s7:defPool}, \ref{s7:defSchedule}, \ref{s1:citMarkov}}
+\fixes{\RTb{J5}, \RTb{J8}, \RTb{J4}, \RTa{M4}}
+\end{construction}
+
+\begin{lemma}[The round step is well defined]\label{s7:lemWellDef}
+For every past $\Past_l$ ($3\le l\le R$) the following hold.
+\begin{enumerate}
+\item[(i)] \emph{PAR palette.} Every PAR object shares a port or a middle with
+fewer than $3M_l$ other PAR objects, so the greedy colouring of (b) succeeds.
+Consequently every port carries at most one PAR object of each colour, and
+every fresh centre is the middle of at most one cherry of each colour.
+\item[(ii)] \emph{Disjoint lists.} Every non-ultra hub $h$ has
+$k_h\le\lceil8M_l/7\rceil$ and $3k_h\le4M_l$.
+\item[(iii)] \emph{Cuckoo SDR.} For every port $u$,
+$\Prob(\text{SDR failure at }u\mid\Past_l)\le(\KHUB_l)^{-4}=(4M_l)^{-4}$.
+\item[(iv)] \emph{Greedy step.} Step (e1) always finds a junction. Two coloured
+items of the same non-ultra hub $h$ with the same colour $\kappa$ receive
+distinct junctions.
+\item[(v)] \emph{Injections.} At every port $u$ carrying a live item,
+$|\Cand_l(u)\setminus\Used(u)|\ge\Hcd_l-(M_l-1)\ge\Hcd_l/2\ge M_l>|E'(u)|$, so
+step (e2) is well defined.
+\end{enumerate}
+\deps{\ref{s7:consRound}, \ref{s6:lemJplus}, \ref{s7:lemCand}, \ref{s3:lemCOLJV}, \ref{s1:citHall}, \ref{s2:defHBtp}}
+\fixes{\RTb{I3}, \RTb{J3}, \RTb{J8}}
+\end{lemma}
+
+\begin{proof}
+Throughout, $M_l\ge2^{40}$ by the definition of $M_l$, and
+$\Hcd_l\ge2^{10}M_l^{10}$ by Lemma~\ref{s7:lemCand}(iv) (equivalently, by the
+table of Lemma~\ref{s3:lemCOLJV}). By \Jp{2} of Lemma~\ref{s6:lemJplus}, every
+port carries at most $M_l-1$ J-edges, hence at most $M_l-1$ live items. By
+Lemma~\ref{s6:lemJplus}(ii), every fresh centre carries at most $M_l-1$ $\Jfr$
+edges, hence is the middle of at most $(M_l-1)/2$ cherries.
+
+(i) A PAR object has at most two ports and at most one middle. Each of its ports
+carries at most $M_l-2$ further live items, and each further PAR object at that
+port uses one of them. Its middle, if any, is the middle of at most
+$(M_l-1)/2-1$ further cherries. So the object conflicts with at most
+$2(M_l-2)+(M_l-1)/2<3M_l$ others. When it is coloured, fewer than $3M_l$ colours
+are therefore blocked, and a colour of $[3M_l]$ remains. The consequences are
+the defining property of the colouring.
+
+(ii) If $h$ is non-ultra then $\clive_h\le\thult_l\le M_l\Hcd_l/7$, so
+$k_h=\lceil8\clive_h/\Hcd_l\rceil\le\lceil8M_l/7\rceil$. Hence
+$3k_h\le3(8M_l/7+1)=24M_l/7+3\le4M_l$, because $M_l\ge21/4$.
+
+(iii) Fix $u$ and let $(h_1,u),\dots,(h_m,u)$ be its live hub items, so that
+$m\le M_l-1\le K/4$ with $K\defeq\KHUB_l=4M_l$. These items are distinct edges at
+$u$ and $G$ is simple, so the hubs $h_1,\dots,h_m$ are distinct. With $\Past_l$
+fixed, it is determined which hubs are ultra, how the items are grouped, and
+which group each item belongs to (the grouping rule of step (c) reads $\Past_l$
+only, by the restrictions on the fixed rules in
+Construction~\ref{s7:consRound}). The list of $(h_i,u)$ is a function of
+$\eta_{h_i}$ if $h_i$ is non-ultra, and equals $\zeta_{h_i,u}$ if $h_i$ is ultra.
+Since the $h_i$ are distinct, the $m$ lists are independent. Each list is a
+uniformly random $3$-subset of $[K]$; for a non-ultra hub this holds because the
+sequence of its lists is a uniformly random sequence of pairwise disjoint
+$3$-subsets, so each single list is uniform. By Hall's theorem (Cited
+result~\ref{s1:citHall}, applied with the $m$ items as the index set and, for
+each item $(h_i,u)$, its list as the set of that item), an SDR fails to exist
+only if some set of $s$ items has at most $s-1$ colours in the union of their
+lists. Since every list has $3$ elements, this forces $s\ge4$. The union is
+then contained in some $(s-1)$-subset of $[K]$. The union bound over $s$, over
+the $s$-sets of items and over the $(s-1)$-subsets of $[K]$ gives
+\[
+\Prob(\text{SDR failure at }u\mid\Past_l)\ \le\ \sum_{s=4}^{m}T_s,\qquad
+T_s\defeq\binom{m}{s}\binom{K}{s-1}\Bigl(\binom{s-1}{3}\Big/\binom{K}{3}\Bigr)^{s}.
+\]
+We use $\binom{m}{s}\le(em/s)^s\le(eK/(4s))^s$,
+$\binom{K}{s-1}\le(eK/(s-1))^{s-1}$, and
+\[
+\binom{s-1}{3}\Big/\binom{K}{3}=\frac{(s-1)(s-2)(s-3)}{K(K-1)(K-2)}\le\Bigl(\frac{s-1}{K}\Bigr)^3 ,
+\]
+which holds because $(s-1-j)/(K-j)\le(s-1)/K$ for $j=1,2$ and $s\le K+1$.
+Multiplying, and using $(s-1)^{2s+1}\le s^{2s+1}$,
+\[
+T_s\ \le\ e^{2s-1}\,4^{-s}\,s^{-s}\,(s-1)^{2s+1}\,K^{-s-1}\ \le\
+a_s\defeq\frac1e\cdot\frac sK\cdot\Bigl(\frac{e^2s}{4K}\Bigr)^{s}.
+\]
+First, $a_4=4e^7K^{-5}<4400\,K^{-5}$. Second, for $s\ge4$,
+\[
+\frac{a_{s+1}}{a_s}=\frac{s+1}{s}\cdot\frac{e^2(s+1)}{4K}\cdot\Bigl(\frac{s+1}{s}\Bigr)^{s}
+\le\frac54\cdot\frac{e^2(s+1)}{4K}\cdot e=\frac{5e^3}{16}\cdot\frac{s+1}{K},
+\]
+which is at most $\frac{5e^3}{16}(\frac1{13}+\frac1K)<0.49$ when $4\le s<K/13$ and
+$K\ge10^4$. Hence $a_s\le2^{4-s}a_4$ for $4\le s\le\lceil K/13\rceil$, and the sum
+of these terms is at most $2a_4<8800\,K^{-5}$. Third, for $K/13<s\le m\le K/4$ we
+have $s/K\le1/4$, so $a_s\le\frac1{4e}(e^2/16)^s\le0.47^{s}$, and the sum of
+these terms is at most $0.47^{K/13}/0.53\le2\cdot0.47^{K/13}$. Altogether
+\[
+\Prob(\text{SDR failure at }u\mid\Past_l)\ \le\ 8800\,K^{-5}+2\cdot0.47^{K/13}\ \le\ K^{-4}
+\qquad(K\ge10^4),
+\]
+since $8800K^{-5}\le0.88K^{-4}$ and $2\cdot0.47^{K/13}\le0.1K^{-4}$ for
+$K\ge10^4$. Here $K=4M_l\ge2^{42}$.
+
+(iv) Items reach (e1) only if they are live, so their ports are JV-good and
+$|\Cand_l(u)|\ge\Hcd_l$ (Lemma~\ref{s7:lemCand}(iv)). When the item $(h,u)$ of
+colour $\kappa$ is processed, $\Used(u)$ contains one junction for each earlier
+item at $u$, so $|\Used(u)|\le M_l-2$. The lists of the groups of $h$ are pairwise
+disjoint, so all coloured items of $h$ with colour $\kappa$ lie in the one group
+whose list contains $\kappa$. That group has at most $\lceil\Hcd_l/8\rceil$
+items, so $|\Used_\kappa(h)|\le\lceil\Hcd_l/8\rceil-1<\Hcd_l/8$. Hence at least
+$\Hcd_l-(M_l-2)-\Hcd_l/8>0$ choices remain. The second statement holds because
+each junction chosen for $h$ in colour $\kappa$ is added to $\Used_\kappa(h)$
+and is excluded afterwards.
+
+(v) After (e1), $\Used(u)$ consists of one junction for each coloured item of a
+non-ultra hub at $u$. The elements of $E'(u)$ correspond to further live items at
+$u$: a PAR end at $u$ corresponds to the $\Jpar$ item or the leg of the cherry at
+$u$, and an ultra hub end is itself an item. So
+$|\Used(u)|+|E'(u)|\le M_l-1$. Every port carrying a live item is JV-good, so
+$|\Cand_l(u)\setminus\Used(u)|\ge\Hcd_l-(M_l-1)\ge\Hcd_l/2\ge M_l>|E'(u)|$,
+using $\Hcd_l\ge2^{10}M_l^{10}\ge2M_l$.
+
+\emph{Remark on numerics (not used).} An exact evaluation of the union bound
+$K^5\sum_sT_s$ with $m=M_l-1$ has its maximum, about $0.0502$, near $M_l=19$;
+it tends to $9/256$ as $M_l\to\infty$, which is the limit of $K^5T_4$, where
+$T_4=\binom{m}{4}/\binom{K}{3}^3\sim9m^4/K^9$. An earlier numerical claim of $0.040$ for this quantity was
+false. None of these numerical values is used: only the analytic bound (iii) is
+used, and it holds since $M_l\ge2^{40}$.
+\end{proof}
+
+%% ----------------------------------------------------------------------
+\subsection{The quotient is simple, and every decomposition lifts}
+
+For a HUB colour $\kappa$, a hub $h$ and $w\in\Pool_l$, let $m_\kappa(h,w)$ be
+the number of edges $h[w]$ of $\BH_\kappa$, that is, the number of coloured hub
+items $(h,u)$ of colour $\kappa$ with junction $w$.
+
+\begin{lemma}[Lemma MULT]\label{s7:lemMULT}
+Let $3\le l\le R$, $\kappa\in[4M_l]$, let $h$ be a hub and let
+$w\in\Pool_{l,r}$. Then
+\[
+m_\kappa(h,w)\ \le\ \mult_r(w)\ \le\ \mu_r(w).
+\]
+Moreover, the number of sub-layers $B^{\mathrm{H},(\iota)}_\kappa$ ($\iota\ge1$)
+in which $[w]$ is not isolated equals $\max_{h}m_\kappa(h,w)$, and the number of
+those in which $h$ is not isolated equals $\max_{w}m_\kappa(h,w)$.
+\deps{\ref{s7:consRound}, \ref{s6:lemJplus}, \ref{s7:defCand}, \ref{s7:defPool}, \ref{s2:propOV}}
+\end{lemma}
+
+\begin{proof}
+Let $(h,u_1),\dots,(h,u_m)$ be the coloured hub items of colour $\kappa$ at $h$
+with junction $w$, so $m=m_\kappa(h,w)$. By step (e) of
+Construction~\ref{s7:consRound}, the junction of $(h,u_i)$ lies in
+$\Cand_l(u_i)\subseteq\Pool_{l,r(u_i)}$ (Definition~\ref{s7:defCand}). Every
+vertex has a single pool label (Definition~\ref{s7:defPool}), and
+$w\in\Pool_{l,r}$, so $r(u_i)=r$ for all $i$. Moreover
+$w\in\Cand_l(u_i)\subseteq N_{H_{Y(u_i)}}(u_i)\subseteq V(Y(u_i))$; this is where
+it matters that candidates are taken in the class graph $H_{Y(u_i)}$ itself. So
+each $Y(u_i)$ is an ancestor of round $r$ whose vertex set contains $w$. The
+items $(h,u_i)$ are distinct $\Jhub$ edges at $h$ of round $l$. By \Jp{1} of
+Lemma~\ref{s6:lemJplus}, for each class $Y$ there is at most one $\Jhub$ edge of
+class $Y$ at $h$ in round $l$, aggregated over all MIX-parts. So the classes
+$Y(u_1),\dots,Y(u_m)$ are pairwise distinct. Hence $m\le\mult_r(w)$, the number
+of ancestors of round $r$ containing $w$, and $\mult_r(w)\le\mu_r(w)$ by
+Proposition~\ref{s2:propOV}.
+
+For the second statement: $[w]$ is not isolated in $B^{\mathrm{H},(\iota)}_\kappa$
+if and only if some edge of rank $\iota$ is incident to $[w]$. By the definition
+of ranks, this holds if and only if some pair $\{h,[w]\}$ carries at least
+$\iota$ edges, that is, $\max_h m_\kappa(h,w)\ge\iota$. The statement for $h$ is
+proved in the same way.
+\end{proof}
+
+\begin{lemma}[$Q_l$ is simple]\label{s7:lemSimple}
+Every sub-layer of Construction~\ref{s7:consRound}(g) is a simple graph: it has
+no parallel edges, PAR sub-layers have no loops, and HUB sub-layers are
+bipartite between hubs and junction copies $[w]$, where the hub $h$ and the
+junction $w$ of any edge $h[w]$ are distinct vertices of $G$. Consequently $Q_l$
+is a simple graph without isolated vertices.
+\deps{\ref{s7:consRound}}
+\end{lemma}
+
+\begin{proof}
+By the definition of ranks, a sub-layer contains at most one edge of rank
+$\iota$ between any two vertices, so it has no parallel edges. An edge of a PAR
+layer joins $[w_1]$ and $[w_2]$ with $w_1\ne w_2$, because looped PAR objects
+were paid in (e3); so PAR sub-layers have no loops. An edge $h[w]$ of a HUB
+layer joins the side $D_l$ to the side $\{[w]\}$. Moreover $h$ is the hub of a
+coloured, hence live, item, so $h$ is a live vertex and $h\notin\Pool_l$ by (a2),
+while $w\in\Pool_l$. So $h\ne w$ as vertices of $G$, and HUB sub-layers have no
+loops even when $[w]$ is identified with $w$. So every sub-layer is simple.
+$Q_l$ is a vertex-disjoint union of the sub-layers with their isolated vertices
+deleted, so it is simple and has no isolated vertices.
+\end{proof}
+
+\begin{lemma}[Lemma JV-L: the lift]\label{s7:lemLift}
+Let $3\le l\le R$, fix any past, any $\xi_l$, and let $\Live$ be the set of live
+vertices of round $l$.
+\begin{enumerate}
+\item[(i)] $\Live\cap\Pool_l=\emptyset$. Every port carries at most one PAR
+object of each PAR colour and at most one coloured hub item of each HUB colour.
+Hence, although ports are not vertices of $Q_l$, at most one edge of each
+sub-layer is an object or item with an end at a given port. Every fresh centre is the middle of at
+most one cherry of each PAR colour. Hubs, fresh centres and ports are pairwise
+disjoint.
+\item[(ii)] For \emph{every} decomposition $\Dec$ of $E(Q_l)$ into cycles and
+single edges, the lift of each cycle of $\Dec$ (Construction~\ref{s7:consRound}(h))
+is a cycle of $G$, and the lift of each single edge of $\Dec$ consists of one or
+two single edges of $G$. The lifts of distinct members of $\Dec$ are pairwise
+edge-disjoint. Hence the lift of $\Dec$ consists of at most $2|\Dec|$ pairwise
+edge-disjoint objects of $G$.
+\item[(iii)] Every item is either paid or lies in exactly one edge of $Q_l$.
+Every junction edge $uw$ is the junction edge of at most one item-end, and that
+end is at $u$, never at $w$. The edge $uw$ lies in exactly one lent class, namely
+$\LJV_{Y(u),l}$, where $Y(u)$ is a lend-good ancestor of round at most $l-2$; the
+only consumer of this class is the round-$l$ step. Junction edges lie in
+$E_{r}(Y)$ for ancestors $Y$ of rounds $r\le l-2$, items lie in $E_l(Z)$ for
+$Z\in\Std_l$, and these edge sets are disjoint.
+\item[(iv)] Consequently the round step of Construction~\ref{s7:consRound},
+applied at every round $3\le l\le R$, is a J-consumer:
+$\Obj_l$ and $\LentJV_l$ satisfy \JC{1}--\JC{3} of
+Definition~\ref{s6:defJconsumer}. The objects of $\Obj_l$ other than paid single
+edges number at most $2|\Dec_l|=2\f(Q_l)$.
+\end{enumerate}
+\deps{\ref{s7:consRound}, \ref{s7:lemSimple}, \ref{s7:lemWellDef}, \ref{s6:lemJplus}, \ref{s6:defJconsumer}, \ref{s3:defCOL}, \ref{s2:propStructure}, \ref{s6:defLending}}
+\fixes{\RTa{M1}, \RTb{J2}}
+\end{lemma}
+
+\begin{proof}
+(i) The first claim is (a2) of Construction~\ref{s7:consRound}. The claims about
+ports and fresh centres are Lemma~\ref{s7:lemWellDef}(i) together with the SDR
+of step (d). Since every edge of a sub-layer of colour $\kappa$ is a PAR object or
+a coloured hub item of colour $\kappa$, at most one edge of each sub-layer is an
+object or item with an end at a given port. Disjointness of the three roles is \Jp{3} of
+Lemma~\ref{s6:lemJplus}.
+
+(ii) \emph{PAR cycles.} Let $[w_0]\cdots[w_{m-1}]$ be a cycle of a PAR sub-layer
+of colour $\kappa$. By Lemma~\ref{s7:lemSimple} the sub-layer is simple, so
+$m\ge3$. Distinct vertices of the sub-layer are copies of distinct pooled
+vertices, so $w_0,\dots,w_{m-1}$ are distinct. The objects $o_0,\dots,o_{m-1}$
+are distinct, because they are distinct edges of the cycle, and all have colour
+$\kappa$. By (i) a port carries at most one object of colour $\kappa$, so ports
+of distinct objects are distinct. The two ends of one PAR object lie at distinct
+ports ($u\ne v$ for a $\Jpar$ item, $u\ne u'$ for a cherry), so $p_i\ne q_i$.
+Hence the $2m$ ports $p_i,q_i$ are pairwise distinct. The middles $x_i$ of the
+cherries among the $o_i$ are distinct, because a fresh centre is the middle of at
+most one cherry of colour $\kappa$. Ports lie in $\Qs_Z$ and middles in $F_Z$, so
+by (i) no port is a middle. Ports and middles are live, junctions are pooled,
+and $\Live\cap\Pool_l=\emptyset$. So all vertices of the closed walk
+$w_0p_0(x_0)q_0w_1\cdots q_{m-1}w_0$ are pairwise distinct. Consecutive vertices
+are adjacent in $G$: $w_ip_i$ and $q_iw_{i+1}$ are junction edges (edges of
+$H_{Y(p_i)}$ and $H_{Y(q_i)}$), and $p_iq_i$ or $p_ix_i,x_iq_i$ are the J-edges
+of $o_i$. The walk has length at least $3m\ge9$. A closed walk of length at
+least $3$ with pairwise distinct vertices is a cycle of $G$.
+
+\emph{HUB cycles.} Let $h_0[w_0]h_1[w_1]\cdots h_{m-1}[w_{m-1}]h_0$ be a cycle of
+a HUB sub-layer of colour $\kappa$. The sub-layer is simple and bipartite
+(Lemma~\ref{s7:lemSimple}), so the cycle has even length at least $4$, and
+$m\ge2$. The hubs $h_i$ are pairwise distinct, and so are the junctions $w_i$.
+The $2m$ items $(h_i,u_i)$ and $(h_{i+1},u'_i)$ are distinct, because they are
+distinct edges of the cycle, and all have colour $\kappa$. A port carries at most
+one coloured hub item of colour $\kappa$, so the $2m$ ports $u_i,u'_i$ are
+pairwise distinct; in particular $u_i\ne u'_i$. Hubs and ports are disjoint by
+(i), and hubs and ports are live while junctions are pooled. So all vertices of
+the closed walk $h_0u_0w_0u'_0h_1\cdots u'_{m-1}h_0$ are distinct. Consecutive
+vertices are adjacent: $h_iu_i$ and $u'_ih_{i+1}$ are items, and $u_iw_i$,
+$w_iu'_i$ are junction edges. The length is $4m\ge8$, so the lift is a cycle of
+$G$.
+
+\emph{Single edges.} A single edge of a PAR sub-layer is lifted to the one or two
+J-edges of its PAR object, and a single edge of a HUB sub-layer to one item. So
+every member of $\Dec$ lifts to at most two objects.
+
+\emph{Edge-disjointness.} Every live item that is not paid is a coloured hub
+item or belongs to exactly one unpaid PAR object, so it lies in exactly one edge
+of $Q_l$. Each edge of $Q_l$ lies in exactly one member of $\Dec$. So the item
+edges used by the lifts of distinct members are distinct. A junction edge $uw$
+on a lifted cycle is the junction edge of an end at $u$ with junction $w$. The
+ends at $u$ have pairwise distinct junctions: in (e1) every chosen junction is
+added to $\Used(u)$ and is excluded later, and in (e2) the map is injective into
+$\Cand_l(u)\setminus\Used(u)$. So $uw$ determines the end at $u$, hence the
+item, the edge of $Q_l$ and the member of $\Dec$. It cannot also be the junction
+edge of an end at $w$: $w$ is pooled, so every item with vertex $w$ was paid in
+(a2), and no end lies at $w$. Finally, junction edges are not items: a junction
+edge lies in $E(H_Y)\subseteq E_r(Y)$ for an ancestor $Y$ of round $r\le l-2$,
+an item lies in $E_l(Z)$ with $Z\in\Std_l$, and these edge sets are disjoint
+(Proposition~\ref{s2:propStructure}(iii); Lemma~\ref{s6:lemJplus}(iii)).
+
+(iii) The first two claims were shown in the proof of (ii); every item that is
+not in an edge of $Q_l$ was paid in (a2), (a3), (b), (d) or (e3). Let $uw$ be a
+junction edge of an end at $u$. Then $w\in\Cand_l(u)$, so
+$uw\in\LJV_{Y(u),l}\subseteq E(H_{Y(u)})$. The graphs $H_Y$ of distinct ancestors
+are edge-disjoint, since $E(H_Y)\subseteq E_r(Y)$ and these sets are pairwise
+disjoint (Proposition~\ref{s2:propStructure}(iii)). Inside $\Lend_{Y(u)}$ the
+edge has exactly one colour. So $uw$ lies in exactly one lent class, namely
+$\LJV_{Y(u),l}$. By COL(g) of Definition~\ref{s3:defCOL}, the only consumer of
+this class is the round-$l$ J-consumer. The port $u$ carries an end, so it is
+live, and hence $u\in\Qs_Z=Q_Z\setminus\Lost_Z$. Since $\Lost_Z$ contains every
+classed port whose class is lend-bad, $Y(u)$ is lend-good. Finally
+$r(u)\le l-2$. The disjointness claim was shown in (ii).
+
+(iv) \JC{1}: $\LentJV_l$ consists of junction edges on lifted cycles, and by
+(iii) each lies in $\LJV_{Y,l}$ for a lend-good ancestor $Y$ of round at most
+$l-2$. \JC{2}: the paid single edges are J-edges that lie in no edge of $Q_l$;
+they are distinct from each other and from all edges used by the lifts, which
+consist of items in edges of $Q_l$ and of junction edges. Together with (ii), the
+objects of $\Obj_l$ are pairwise edge-disjoint cycles and single edges. Their
+union contains every edge of $\Jlost_l$ (paid in (a1)) and every item: each item
+is paid or lies in an edge of $Q_l$, whose member of $\Dec_l$ lifts to objects
+containing all items of that edge. The only other edges used are the junction
+edges on lifted cycles, which form $\LentJV_l$ by definition. So the union is
+exactly $J_l\cup\LentJV_l$. \JC{3} holds because no other edge is used. The
+bound $2|\Dec_l|=2\f(Q_l)$ is (ii) for $\Dec=\Dec_l$. Junction edges that were
+assigned but do not lie on a lifted cycle are not in $\LentJV_l$; they stay in
+$E_r(Y)\setminus\Lent(Y)$ as junk for their owner.
+\end{proof}
+
+%% ----------------------------------------------------------------------
+\subsection{Quotient size and payments}
+
+In this subsection $3\le l\le R$ and the past $\Past_l$ are fixed. We say that
+\emph{the lists are fixed} when, in addition, the variables $\eta_h$ and
+$\zeta_{h,u}$ of $\xi_l$ are fixed. Then steps (a)--(d) and (e1) of
+Construction~\ref{s7:consRound}, the sets $E'(u)$ and their orders
+$e_1,\dots,e_q$ are determined (by the restrictions on the fixed rules), and
+only the orders $\prec_u$ are random. By step (e2), the junctions of the ends at distinct ports are then
+independent, and the junction of an end in $E'(u)$ is uniform on
+$\Cand_l(u)\setminus\Used(u)$, a set of size at least $\Hcd_l/2$
+(Lemma~\ref{s7:lemWellDef}(v)). By \Jp{2} of Lemma~\ref{s6:lemJplus},
+$|J_l|\le n(M_l-1)\le1.37n(M_l-1)$. In this subsection we deliberately use the
+looser second form (it only enlarges constants). Hence the number of PAR
+objects and the number of hub items are each at most $1.37nM_l$. For a PAR colour $\kappa$ and $w\ne w'$ in
+$\Pool_l$, let $m_\kappa(w,w')$ be the number of edges $[w][w']$ of $\BP_\kappa$.
+As in Lemma~\ref{s7:lemMULT}, $[w]$ is not isolated in exactly
+$\max_{w'}m_\kappa(w,w')$ of the sub-layers $B^{\mathrm{P},(\iota)}_\kappa$.
+
+\begin{lemma}[Lemma CC: PAR copies]\label{s7:lemCC}
+Let the past and the lists be fixed. Fix a PAR colour $\kappa$ and $w\in\Pool_l$.
+Condition further on the indicators
+\[
+I_x\defeq\ind{\text{the end at $x$ of the $\kappa$-object at $x$ receives the junction }w}
+\]
+for every port $x$ carrying a PAR object of colour $\kappa$. Let $S_w$ be the
+set of PAR objects of colour $\kappa$ with exactly one end whose junction is $w$.
+\begin{enumerate}
+\item[(i)] The partner ports $v_o$ of the objects $o\in S_w$ (the ports of the
+ends whose junction is not $w$) are pairwise distinct. Under the conditioning,
+the junctions of the partner ends are independent, and the junction of the
+partner end of $o$ is uniform on $(\Cand_l(v_o)\setminus\Used(v_o))\setminus\{w\}$.
+In particular it equals a given $w'$ with probability at most $3/\Hcd_l$.
+\item[(ii)] For every integer $t\ge1$,
+\[
+\Ex\Bigl[\max_{w'}m_\kappa(w,w')\ \Big|\ \Past_l,\text{lists},(I_x)_x\Bigr]
+\ \le\ t\cdot\ind{S_w\ne\emptyset}+\frac{6e|S_w|}{\Hcd_l}+4e\,2^{-t}|S_w| .
+\]
+\item[(iii)] With $t\defeq\tCC_l\defeq\lceil2\log_2M_l\rceil$, the number of
+vertices of $Q_l$ lying in PAR sub-layers satisfies
+\[
+\Ex\bigl[\#\{\text{PAR copies}\}\ \big|\ \Past_l,\text{lists}\bigr]\ \le\
+3M_l(\tCC_l+1)|\Pool_l|+44.7\,\frac{nM_l}{\Hcd_l}+29.8\,\frac{n}{M_l}.
+\]
+\end{enumerate}
+These bounds hold for every past, in particular for every realized $J_l$, and for
+every outcome of the lists, the SDR and the greedy step (e1): only the orders
+$\prec_u$ are random.
+\deps{\ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s1:citChernoffGen}, \ref{s6:lemJplus}}
+\fixes{\RTb{I4}, \RTa{M2}}
+\end{lemma}
+
+\begin{proof}
+The edges at $[w]$ in $\BP_\kappa$ are exactly the objects in $S_w$. Indeed, an
+object with both ends at junction $w$ is looped and was paid in (e3), and an
+object with no end at junction $w$ is not incident to $[w]$. So
+$m_\kappa(w,w')$ is the number of $o\in S_w$ whose partner end has junction
+$w'$.
+
+(i) A PAR object has its two ends at distinct ports, and every port carries at
+most one PAR object of colour $\kappa$ (Lemma~\ref{s7:lemWellDef}(i)). So every
+such port $x$ carries exactly one end of colour $\kappa$, the indicator $I_x$ is
+well defined, and the partner ports of distinct objects of $S_w$ are distinct.
+The set $S_w$ and the partner ports are determined by the indicators. With the
+past and the lists fixed, $\Cand_l(x)\setminus\Used(x)$, $E'(x)$ and its order
+are fixed for every port $x$ (restrictions on the fixed rules in
+Construction~\ref{s7:consRound}), so the junction of the $\kappa$-end at a
+port $x$ is a function of $\prec_x$ alone, and the orders of distinct ports are independent.
+So conditioning on $(I_x)_x$ keeps the partner ends independent, and it
+conditions the partner end at $v_o$ only on the event $I_{v_o}=0$. The junction
+of that end is uniform on $C(v_o)\defeq\Cand_l(v_o)\setminus\Used(v_o)$, since
+it is the image of a fixed element under a uniform injection. Given $I_{v_o}=0$
+it is therefore uniform on $C(v_o)\setminus\{w\}$. By
+Lemma~\ref{s7:lemWellDef}(v), $|C(v_o)\setminus\{w\}|\ge\Hcd_l/2-1\ge\Hcd_l/3$.
+
+(ii) If $S_w=\emptyset$ the left side is $0$. Otherwise, by (i), each
+$m_\kappa(w,w')$ is, under the conditioning, a sum of independent indicators
+with mean $\mu_{w'}\le3|S_w|/\Hcd_l$, and $\sum_{w'}\mu_{w'}=|S_w|$. Put
+$T\defeq\max(t,\lceil6e|S_w|/\Hcd_l\rceil)$. For every integer $j\ge T$ we have
+$j\ge2e\mu_{w'}$. By Cited result~\ref{s1:citChernoffGen},
+$\Prob(m_\kappa(w,w')\ge j)\le(e\mu_{w'}/j)^j\le(e\mu_{w'}/j)\,2^{1-j}$. Hence,
+writing $m$ for $m_\kappa(w,w')$,
+\begin{align*}
+\Ex\bigl[m\,\ind{m\ge T}\bigr]
+&=T\,\Prob(m\ge T)+\sum_{j>T}\Prob(m\ge j)
+\le e\mu_{w'}2^{1-T}+\sum_{j>T}\frac{e\mu_{w'}}{j}2^{1-j}\\
+&\le e\mu_{w'}\,2^{2-T}\le e\mu_{w'}\,2^{2-t}.
+\end{align*}
+Moreover
+\[
+\max_{w'}m_\kappa(w,w')\le(T-1)+\sum_{w'}m_\kappa(w,w')\,\ind{m_\kappa(w,w')\ge T}:
+\]
+if the maximum is below $T$ it is at most $T-1$, and otherwise it is one of the
+summands. Taking conditional expectations,
+\[
+\Ex\Bigl[\max_{w'}m_\kappa(w,w')\ \Big|\ \cdot\Bigr]\le T-1+4e\,2^{-t}|S_w|
+\le t+\frac{6e|S_w|}{\Hcd_l}+4e\,2^{-t}|S_w|,
+\]
+because $T-1\le\max(t-1,6e|S_w|/\Hcd_l)$.
+
+(iii) The number of PAR copies is
+$\sum_{\kappa\in[3M_l]}\sum_{w\in\Pool_l}\max_{w'}m_\kappa(w,w')$. Averaging (ii)
+over the indicators and summing over the at most $3M_l|\Pool_l|$ pairs
+$(\kappa,w)$ gives at most
+$3M_l\,t\,|\Pool_l|+\bigl(6e/\Hcd_l+4e\,2^{-t}\bigr)\,\Ex\sum_{\kappa,w}|S_w|$.
+Every PAR object lies in at most two of the sets $S_w$ (one for each end), so
+$\sum_{\kappa,w}|S_w|\le2\cdot1.37nM_l=2.74\,nM_l$. With $t=\tCC_l$ we have
+$2^{-t}\le M_l^{-2}$, and $6e\cdot2.74<44.7$ and $4e\cdot2.74<29.8$. Finally
+$t\le t+1$.
+\end{proof}
+
+\begin{lemma}[Ultra-hub copies]\label{s7:lemUltra}
+Let the past and the lists be fixed.
+\begin{enumerate}
+\item[(i)] Let $h$ be an ultra hub, $\kappa\in[4M_l]$, and let
+$\omega_1,\dots,\omega_N$ be the junctions of the coloured hub items of $h$ of
+colour $\kappa$. These items lie at $N$ distinct ports, because distinct items
+at $h$ are distinct edges $hu$ and $G$ is simple. The $\omega_i$ are independent,
+and each is uniform on a set of size at least $\Hcd_l/2$.
+\item[(ii)] If $N\ge1$ then, with $\mu^*\defeq2N/\Hcd_l$,
+$\Ex[\max_w m_\kappa(h,w)\mid\Past_l,\text{lists}]\le\log_2N+2e\mu^*+8$.
+\item[(iii)] The number of vertices of HUB sub-layers that are copies of $h$
+satisfies
+$\Ex[\,\cdot\mid\Past_l,\text{lists}]\le4M_l(\log_2\clive_h+8)+4e\,\clive_h/\Hcd_l$.
+\item[(iv)] Summed over all ultra hubs, the expected number of hub copies of
+ultra hubs, given $\Past_l$ and the lists, is at most
+\[
+320\,\frac{nM_l^{3}\,(\log_2\thult_l+8)}{\lambda_{l-2}^{95}} .
+\]
+\end{enumerate}
+The bound depends on the past only through deterministic counts, so it holds for
+every past and every realized $J_l$.
+\deps{\ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s6:lemJplus}, \ref{s1:citChernoffGen}, \ref{s7:lemMULT}, \ref{s7:lemCand}}
+\fixes{\RTa{M8}}
+\end{lemma}
+
+\begin{proof}
+(i) Items of ultra hubs receive their junctions in (e2). The junction of the
+item $(h,u_i)$ is the image of its end under the uniformly random injection at
+$u_i$, so it is uniform on $\Cand_l(u_i)\setminus\Used(u_i)$, a set of size at
+least $\Hcd_l/2$ by Lemma~\ref{s7:lemWellDef}(v). The ports $u_i$ are distinct,
+and injections at distinct ports are independent, so the $\omega_i$ are
+independent. (Distinctness of the ports comes from the simplicity of $G$; it
+does not use \Jp{1}.)
+
+(ii) Let $m_w\defeq\#\{i:\omega_i=w\}$. It is a sum of independent indicators
+with mean $\mu_w\le2N/\Hcd_l=\mu^*$, and $\sum_w\mu_w=N$. Put
+$T\defeq\max(\lceil2e\mu^*\rceil,\lceil\log_2N\rceil+1)$. For $j\ge T$ we have
+$e\mu_w/j\le1/2$, so by Cited result~\ref{s1:citChernoffGen}
+$\Prob(m_w\ge j)\le(e\mu_w/j)^j\le(e\mu_w/j)2^{1-j}$, and summing over $w$ gives
+$\sum_w\Prob(m_w\ge j)\le(eN/j)2^{1-j}$. Hence
+\[
+\Ex\bigl[\max_wm_w\bigr]=\sum_{j\ge1}\Prob\bigl(\max_wm_w\ge j\bigr)
+\le(T-1)+\sum_{j\ge T}\frac{eN}{j}2^{1-j}\le(T-1)+\frac{eN}{T}2^{2-T}
+\le T-1+\frac{2e}{T},
+\]
+using $2^{-T}\le2^{-\log_2N-1}=1/(2N)$. Finally
+$T-1\le\max(2e\mu^*,\log_2N+1)\le\log_2N+2e\mu^*+1$ and $2e/T\le2e<7$.
+
+(iii) By Lemma~\ref{s7:lemMULT}, the number of copies of $h$ in the sub-layers of
+colour $\kappa$ is $\max_wm_\kappa(h,w)$. Let $N_\kappa$ be the number of
+coloured items of $h$ of colour $\kappa$. Then $N_\kappa\le\clive_h$ and
+$\sum_\kappa N_\kappa\le\clive_h$, and at most $4M_l$ colours have
+$N_\kappa\ge1$. By (ii) the expected number of copies of $h$ is at most
+$\sum_{\kappa:N_\kappa\ge1}\bigl(\log_2\clive_h+8\bigr)+2e\sum_\kappa2N_\kappa/\Hcd_l
+\le4M_l(\log_2\clive_h+8)+4e\,\clive_h/\Hcd_l$.
+
+(iv) The function $g(x)\defeq(\log_2x+8)/x$ is decreasing on $[1,\infty)$, since
+$x^2g'(x)=1/\ln2-8-\log_2x<0$ there. For an ultra hub, $\clive_h>\thult_l\ge1$,
+so $\log_2\clive_h+8=\clive_h\,g(\clive_h)\le\clive_h(\log_2\thult_l+8)/\thult_l$.
+By \Jp{2} of Lemma~\ref{s6:lemJplus},
+$\sum_h\clive_h\le|J_l|\le1.37nM_l$. We have
+$M_l\Hcd_l/7=\lambda_{l-2}^{95}/(56M_l)$, and $M_l\Hcd_l\ge2^{10}M_l^{11}$
+(Lemma~\ref{s7:lemCand}(iv)), so $\lambda_{l-2}^{95}/M_l\ge2^{453}$. Hence
+$\thult_l\ge\lambda_{l-2}^{95}/(56M_l)-1\ge\lambda_{l-2}^{95}/(57M_l)$, and also
+$\thult_l\ge2^{8}$. Summing (iii) over ultra hubs,
+\[
+\sum_{h\text{ ultra}}\Bigl(4M_l(\log_2\clive_h+8)+\frac{4e\,\clive_h}{\Hcd_l}\Bigr)
+\le4M_l\cdot1.37nM_l\cdot\frac{57M_l}{\lambda_{l-2}^{95}}(\log_2\thult_l+8)
++4e\cdot1.37nM_l\cdot\frac{8M_l^2}{\lambda_{l-2}^{95}} .
+\]
+The first term is $312.36\,nM_l^3(\log_2\thult_l+8)/\lambda_{l-2}^{95}$ and the
+second is at most $119.2\,nM_l^3/\lambda_{l-2}^{95}$. Since
+$\log_2\thult_l+8\ge16$, the second term is at most
+$7.5\,nM_l^3(\log_2\thult_l+8)/\lambda_{l-2}^{95}$, and $312.36+7.5<320$.
+\end{proof}
+
+\begin{lemma}[The stage-1 weight $\XV$]\label{s7:lemVstar}
+For $3\le l\le R$ put
+\[
+X_{\mathrm{V},l}\defeq3M_l(\tCC_l+1)|\Pool_l|+4M_l\sum_{w\in\Pool_l}\mult_{r(w)}(w),
+\qquad \XV\defeq\sum_{l=3}^{R}X_{\mathrm{V},l}.
+\]
+Each $X_{\mathrm{V},l}$ is a deterministic function of the run and the pool
+labels, and
+\[
+\Ex X_{\mathrm{V},l}\le\frac{(6\log_2M_l+12)\,n}{M_l},\qquad
+\Ex\XV\le2.1\,\frac{(6\log_2\Dstar+12)\,n}{\Dstar}.
+\]
+\deps{\ref{s7:defPool}, \ref{s2:propOV}, \ref{s2:lemTower}}
+\fixes{\RTa{M3}, \RTa{M2}, \RTb{I4}}
+\end{lemma}
+
+\begin{proof}
+The quantities $M_l$, $\tCC_l$ and $\mult_r(w)$ are determined by the run, and
+$\Pool_l$ and $r(w)$ by the pool labels. Since $\tCC_l+1\le2\log_2M_l+2$ and
+$\Ex|\Pool_l|\le q_ln=n/M_l^2$, the first summand has expectation at most
+$(6\log_2M_l+6)n/M_l$. For the second,
+\[
+\Ex\sum_{w\in\Pool_l}\mult_{r(w)}(w)=\sum_{w}\sum_{r=1}^{l-2}q_l\pi_{l,r}\,\mult_r(w)
+=q_l\sum_{r=1}^{l-2}\pi_{l,r}\sum_w\mult_r(w)\le q_l\cdot1.37n ,
+\]
+since $\sum_w\mult_r(w)\le1.37n$ for every $r$ (Proposition~\ref{s2:propOV}) and
+$\sum_r\pi_{l,r}<1$. So the second summand has expectation at most
+$4M_l\cdot1.37n/M_l^2=5.48\,n/M_l$. Adding, $\Ex X_{\mathrm{V},l}\le(6\log_2M_l+11.48)n/M_l$.
+Summing over $l$ and using $\sum_l\psi(M_l)\le2.1\,\psi(\Dstar)$ for
+$\psi(x)=(6\log_2x+12)/x$ (Lemma~\ref{s2:lemTower}(b)) gives the bound for
+$\Ex\XV$.
+\end{proof}
+
+\begin{lemma}[Payments]\label{s7:lemPay}
+For every past and every $3\le l\le R$ the following hold.
+\begin{enumerate}
+\item[(a1)] $|\Jlost_l|\le(M_l-1)|\Lost_l|$.
+\item[(a2)] The number of items with a vertex in $\Pool_l$ is at most
+$\sum_{v\in\Pool_l}\omega_l(v)$, where $\omega_l(v)\defeq\cagg_{v,l}$ if
+$v\in D_l$ and $\omega_l(v)\defeq M_l$ otherwise.
+\item[(a3)] The number of items with a JV-bad port end is at most $M_l-1$ times
+the number of JV-bad classed ports of round $l$.
+\item[(b)] Every fresh centre has at most one unpaired fresh leg per round, so
+the number of unpaired fresh legs over all rounds is at most
+$\sum_{l,Z}|F_Z|\le2n$.
+\item[(c)] $\Ex[\text{SDR-failure payments}\mid\Past_l]\le n(M_l-1)(4M_l)^{-4}\le n/(256M_l^3)$,
+and $\Ex[\text{loop-paid edges}\mid\Past_l]\le2\cdot(2/\Hcd_l)\cdot\#\{\text{PAR objects}\}\le5.5\,nM_l/\Hcd_l$.
+\item[(d)] If $\xi_l$ lies in the event of Construction~\ref{s7:consRound}(f),
+then $\payrd_l\le4\bigl(n/(256M_l^3)+5.5\,nM_l/\Hcd_l\bigr)\le2n/M_l$; if this
+holds at every round, then $\sum_l\payrd_l\le9n/\Dstar$.
+\item[(e)] No other item is paid. In particular, no item is paid because of a
+coincidence of junctions at an ultra hub, and no item is paid for a concentrated
+pair.
+\end{enumerate}
+\deps{\ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s6:lemJplus}, \ref{s2:propParentless}, \ref{s2:lemTower}}
+\fixes{\RTb{J4}, \RTa{M8}}
+\end{lemma}
+
+\begin{proof}
+We use the properties of Lemma~\ref{s6:lemJplus}.
+
+(a1) Every $\Jlost$ edge joins a vertex of $\Lost_l$ to a port, and every vertex
+carries at most $M_l-1$ J-edges by \Jp{2}.
+
+(a2) Let $v\in\Pool_l$. If $v\in D_l$, then $v$ is a hub and not a port or a
+fresh centre, by \Jp{3}. The items with vertex $v$ are therefore $\Jhub$ items
+$(v,u)$: $\Jpar$ items have both ends in $\Qs_Z$, and $\Jfr$ items have their
+centre in $F_Z$. By \Jp{1} there is at most one such item per class $Y$. Each
+such class has $d_{Y,l}(v)\ge1$, because the item is an edge $vu\in E_l(Z)$ with
+$u\in Q_Z$ and $Y(u)=Y$. So there are at most $\cagg_{v,l}$ items with vertex
+$v$. If $v\notin D_l$, then $v$ carries at most $M_l-1\le M_l$ J-edges by \Jp{2}.
+
+(a3) A port carries at most $M_l-1$ items by \Jp{2}.
+
+(b) The pairing at a fresh centre $x$ leaves at most one live $\Jfr$ item
+unpaired. Every fresh centre of round $l$ lies in $F_Z$ for some $Z\in\Std_l$,
+and $\sum_{l,Z}|F_Z|\le2n$ by Proposition~\ref{s2:propParentless}(i).
+
+(c) By \Jp{3}, every non-hub vertex has one role in one part per round, so there
+are at most $n$ ports. A port $u$ pays at most $M_l-1$ items for an SDR failure,
+and it fails with probability at most $(4M_l)^{-4}$ given $\Past_l$
+(Lemma~\ref{s7:lemWellDef}(iii)). This gives the first bound. For loops, fix the
+lists. A PAR object has its two ends at distinct ports $p\ne q$. Their junctions
+are independent, and the junction at $q$ is uniform on a set of size at least
+$\Hcd_l/2$ (Lemma~\ref{s7:lemWellDef}(v)). So the probability that the two
+junctions coincide is
+$\sum_w\Prob(p\to w)\Prob(q\to w)\le\max_w\Prob(q\to w)\le2/\Hcd_l$. A looped
+object costs at most two edges (a cherry costs two, a $\Jpar$ item one), and
+there are at most $1.37nM_l$ PAR objects (\Jp{2}). So the expected number of
+loop-paid edges is at most $4\cdot1.37\,nM_l/\Hcd_l\le5.5\,nM_l/\Hcd_l$. This
+bound does not depend on the lists, so it also holds given $\Past_l$ alone.
+
+(d) The first inequality is the definition of the event in (f), together with
+(c). Next, $4\cdot5.5\,nM_l/\Hcd_l=176\,nM_l^3/\lambda_{l-2}^{95}$. By
+Lemma~\ref{s2:lemTower}(b), $M_l\le\lambda_{l-2}^{1.6}$, so
+$\lambda_{l-2}\ge M_l^{1/1.6}\ge2^{25}$ and
+$176\,M_l^3/\lambda_{l-2}^{95}\le176\,\lambda_{l-2}^{-90.2}\le\lambda_{l-2}^{-1.6}\le1/M_l$.
+Also $4n/(256M_l^3)\le n/M_l$. Hence $\payrd_l\le2n/M_l$, and
+$\sum_l\payrd_l\le2n\sum_l1/M_l\le4n/\Dstar\le9n/\Dstar$ by
+Lemma~\ref{s2:lemTower}(b).
+
+(e) In Construction~\ref{s7:consRound}, single edges are paid only in (a1),
+(a2), (a3), (b), (d) and (e3).
+\end{proof}
+
+\begin{definition}[The stage-1 functional $\Xp$]\label{s7:defXprime}
+With $\omega_l$ as in Lemma~\ref{s7:lemPay}(a2), put
+\[
+\Xpool\defeq\sum_{l=3}^{R}\Bigl[\sum_{v\in\Pool_l}\omega_l(v)+(M_l-1)\cdot\#\{\text{JV-bad classed ports of round }l\}\Bigr],
+\]
+let $\XV$ be as in Lemma~\ref{s7:lemVstar}, and let $\XU$ be as in
+Definition~\ref{s6:defLending}. Then
+\[
+\Xp\defeq\XU+\Xpool+\XV .
+\]
+Each of the three terms is non-negative and is a deterministic function of the
+run, $\delta$ and the stage-1 outcome. Indeed, $\omega_l(v)$ is determined by the
+run and $\delta$ (through $\cagg_{v,l}$), $\Pool_l$ is determined by the pool
+labels, and JV-badness is determined by stage~1. $\Xp$ is the functional used in
+stage (1e) of the schedule.
+\deps{\ref{s6:defLending}, \ref{s7:lemVstar}, \ref{s7:lemPay}}
+\end{definition}
+
+\begin{lemma}[Expectation of $\Xp$]\label{s7:lemEXprime}
+$\Ex\Xp\le\epsX(\Dstar)\,n$, where
+\[
+\epsX(\Dstar)\defeq\epsU(\Dstar)+\frac{10.3}{\Dstar}+2.1\,\frac{6\log_2\Dstar+12}{\Dstar}
+\]
+and $\epsU$ is the function of Lemma~\ref{s5:lemExpect} (through
+Lemma~\ref{s6:lemLost}). More precisely, $\Ex\XU\le\epsU(\Dstar)n+5.5n/\Dstar$,
+$\Ex\Xpool\le4.8n/\Dstar$ and $\Ex\XV\le2.1(6\log_2\Dstar+12)n/\Dstar$.
+\deps{\ref{s7:defXprime}, \ref{s6:lemLost}, \ref{s7:lemCand}, \ref{s7:lemVstar}, \ref{s2:propOV}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s5:lemExpect}, \ref{s2:lemCap}}
+\fixes{\RTa{M5}}
+\end{lemma}
+
+\begin{proof}
+The bound on $\Ex\XU$ is Lemma~\ref{s6:lemLost}, and the bound on $\Ex\XV$ is
+Lemma~\ref{s7:lemVstar}. For $\Xpool$, fix a round $l$.
+
+\emph{Pooled weights.} The weights $\omega_l(v)$ are determined by the run and
+$\delta$, so they are independent of the pool labels. Hence
+$\Ex\sum_{v\in\Pool_l}\omega_l(v)\le q_l\sum_v\omega_l(v)\le q_l\bigl(\sum_{h\in D_l}\cagg_{h,l}+nM_l\bigr)$.
+Now $\cagg_{h,l}\le\sum_Yd_{Y,l}(h)$, and $\sum_Yd_{Y,l}(h)$ counts the edges
+$hu\in E_l(Z)$ with $Z\in\Std_l$ and $u\in Q_Z$. Summing over $h$ counts each such
+edge at most once for each of its classed-port ends. So
+$\sum_h\cagg_{h,l}\le\sum_{Z\in\Std_l}\sum_{u\in Q_Z}\deg_{E_l(Z)}(u)$. Every
+vertex has $E_l(Z)$-degree at most $M_l-1$ (Lemma~\ref{s2:lemCap}(ii)), and
+$\sum_{Z\in\Std_l}|Z^0|\le1.37n$ by Proposition~\ref{s2:propOV}. Hence
+$\sum_{h\in D_l}\cagg_{h,l}\le1.37nM_l$, and the expected pooled weight is at
+most $2.37\,n/M_l$.
+
+\emph{JV-bad ports.} There are at most $n$ classed ports of round $l$, because
+$Q_Z\subseteq U_Z$ and the port sets $U_Z$ of distinct $Z\in\Std_l$ are pairwise
+disjoint (Proposition~\ref{s2:propStructure}(iv)); this is the count used in
+the proofs of \ref{s6:K6} of Lemma~\ref{s6:lemLost} and of \Jp{2} of
+Lemma~\ref{s6:lemJplus}. By Lemma~\ref{s7:lemCand}(iii) each is JV-bad with
+probability at most $\exp(-\Hcd_l/4)$, and $\exp(-\Hcd_l/4)\le M_l^{-3}$ because
+$\Hcd_l\ge2^{10}M_l^{10}$ (Lemma~\ref{s7:lemCand}(iv)). So the expected JV-bad
+weight is at most
+\[
+(M_l-1)\cdot n\cdot M_l^{-3}\ \le\ n/M_l^2\ \le\ 0.03\,n/M_l .
+\]
+The pooled-weight bound above counts the same classed ports by the
+deliberately looser $\sum_{Z\in\Std_l}|Z^0|\le1.37n$; this only enlarges its
+constant.
+
+Hence $\Ex\Xpool\le\sum_l2.4\,n/M_l\le4.8\,n/\Dstar$, using
+$\sum_l1/M_l\le2/\Dstar$ (Lemma~\ref{s2:lemTower}(b)). Adding the three bounds
+gives $\Ex\Xp\le\epsU(\Dstar)n+(5.5+4.8)n/\Dstar+2.1(6\log_2\Dstar+12)n/\Dstar=\epsX(\Dstar)n$.
+\end{proof}
+
+\begin{lemma}[Lemma UH$^*$-split: quotient size]\label{s7:lemUHsplit}
+For $3\le l\le R$ put
+\[
+\dett_l\defeq3|D_l|+78\,\frac{nM_l}{\Hcd_l}+30\,\frac{n}{M_l}
++320\,\frac{nM_l^{3}(\log_2\thult_l+8)}{\lambda_{l-2}^{95}},
+\]
+a deterministic function of the run.
+\begin{enumerate}
+\item[(i)] $X_{\mathrm{V},l}$ is the stage-1 weight of Lemma~\ref{s7:lemVstar}.
+\item[(ii)] For every past, $\Ex[\copies_l\mid\Past_l]\le X_{\mathrm{V},l}+\dett_l$.
+\item[(iii)] If the stage-1 outcome satisfies $\Xp\le3\,\Ex\Xp$ and at every round
+$\xi_l$ lies in the event of Construction~\ref{s7:consRound}(f), then
+\[
+\sum_{l=3}^{R}|V(Q_l)|\ \le\ 12\,\Ex\Xp+4\sum_{l=3}^{R}\dett_l .
+\]
+\item[(iv)] Put $F(x)\defeq(3184+30400\log_2x)\,x^{-90.2}$ for $x\ge1$.
+Then $\sum_l\dett_l\le3\epsA n+60n/\Dstar+2F(\log_2\Dstar)\,n$, and
+$2F(\log_2\Dstar)<2^{-1000}$. Hence, in the situation of (iii),
+\[
+\sum_{l=3}^{R}|V(Q_l)|\le\thetaQ\,n,\qquad
+\thetaQ\defeq\epsTwo(\Dstar)\defeq12\,\epsX(\Dstar)+4\Bigl(3\epsA+\frac{60}{\Dstar}+2F(\log_2\Dstar)\Bigr),
+\]
+with $\epsA=31\eps/(\Cp\log\log\Dstar)$ as in Lemma~\ref{s2:lemTower}(e). So
+$\thetaQ$ depends on $\Dstar$ only, and $\thetaQ\le1/4$ by
+condition~\ref{s1:condG4}.
+\end{enumerate}
+\deps{\ref{s7:lemCC}, \ref{s7:lemMULT}, \ref{s7:lemUltra}, \ref{s7:lemVstar}, \ref{s7:lemEXprime}, \ref{s7:defSchedule}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:lemLacunary}, \ref{s1:condG4}, \ref{s1:condG1}, \ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s2:defHBtp}, \ref{s6:lemJplus}}
+\fixes{\RTa{M3}, \RTa{M5}}
+\end{lemma}
+
+\begin{proof}
+(ii) Fix the past and the lists. The vertices of $Q_l$ are of four kinds.
+
+\emph{PAR copies.} Their conditional expectation is at most
+$3M_l(\tCC_l+1)|\Pool_l|+44.7\,nM_l/\Hcd_l+29.8\,n/M_l$ by
+Lemma~\ref{s7:lemCC}(iii).
+
+\emph{Copies of non-ultra hubs} (deterministic given the lists). Let $h$ be
+non-ultra. By Lemma~\ref{s7:lemWellDef}(iv) (see step (e1) of
+Construction~\ref{s7:consRound}), $m_\kappa(h,w)\le1$ for all $\kappa$ and $w$.
+So by Lemma~\ref{s7:lemMULT}, $h$ has exactly one copy in each colour that one of
+its items uses, and none in the other colours. The colours of its items lie in
+the union of its $k_h$ lists, which has $3k_h$ elements. So the number of copies
+of non-ultra hubs is at most
+$\sum_{h:\clive_h\ge1}3k_h\le\sum_{h\in D_l}3(1+8\clive_h/\Hcd_l)\le3|D_l|+24\cdot1.37\,nM_l/\Hcd_l$,
+since $\sum_h\clive_h\le1.37nM_l$. Here $24\cdot1.37=32.88<32.9$.
+
+\emph{Junction copies in HUB sub-layers} (the count depends on the junctions,
+but the bound below is deterministic). By
+Lemma~\ref{s7:lemMULT}, in colour $\kappa$ the vertex $[w]$ has
+$\max_hm_\kappa(h,w)\le\mult_{r(w)}(w)$ copies. Summing over the $4M_l$ HUB
+colours and $w\in\Pool_l$ gives at most $4M_l\sum_{w\in\Pool_l}\mult_{r(w)}(w)$.
+
+\emph{Copies of ultra hubs.} Their conditional expectation is at most
+$320\,nM_l^3(\log_2\thult_l+8)/\lambda_{l-2}^{95}$ by Lemma~\ref{s7:lemUltra}(iv).
+
+The first summands of the PAR bound and of the junction bound add up to
+$X_{\mathrm{V},l}$. The remaining terms add up to at most $\dett_l$, because
+$44.7+32.9\le78$ and $29.8\le30$. Averaging over the lists gives (ii).
+
+(iii) By the choice in (f) and by (ii),
+$|V(Q_l)|=\copies_l\le4\,\Ex[\copies_l\mid\Past_l]\le4(X_{\mathrm{V},l}+\dett_l)$
+at every round. Summing over $l$,
+$\sum_l|V(Q_l)|\le4\XV+4\sum_l\dett_l\le4\Xp+4\sum_l\dett_l\le12\,\Ex\Xp+4\sum_l\dett_l$,
+because $\XU,\Xpool\ge0$ and $\Xp\le3\Ex\Xp$ (stage (1e) of
+Definition~\ref{s7:defSchedule}).
+
+(iv) By Proposition~\ref{s2:propOV}(K2), $|D_l|\le7.6\eps n/\log P_l$. So
+$\sum_l3|D_l|\le3n\sum_l7.6\eps/\log P_l\le1.5\epsA n\le3\epsA n$ by
+Lemma~\ref{s2:lemTower}(e) (the factor~$2$ of slack is deliberate; it only
+enlarges $\epsTwo$). Next,
+$\sum_l30n/M_l\le60n/\Dstar$ by Lemma~\ref{s2:lemTower}(b). For the remaining
+terms, $78\,nM_l/\Hcd_l=624\,nM_l^3/\lambda_{l-2}^{95}$, and
+$\log_2\thult_l\le\log_2(M_l\Hcd_l/7)\le95\log_2\lambda_{l-2}$. With
+$M_l\le\lambda_{l-2}^{1.6}$ (Lemma~\ref{s2:lemTower}(b)), these terms are at most
+$nF(\lambda_{l-2})$, with $F$ as in (iv).
+Here $\lambda_{l-2}\ge M_l^{1/1.6}\ge2^{25}$. On $[2^{25},\infty)$, $F$ is
+decreasing, and $F(2x)\le F(x)/2$, since the first factor at most doubles while
+$x^{-90.2}$ is multiplied by $2^{-90.2}$. By Lemma~\ref{s2:lemLacunary}(ii),
+$\lambda_{r}\ge2^{\lambda_{r+1}/A}\ge2\lambda_{r+1}$ for consecutive rounds,
+because $\lambda_{r+1}\ge2^{25}$. So $X_l\defeq F(\lambda_{l-2})$
+($3\le l\le R$) satisfies $X_l\le X_{l+1}/2$. By
+Lemma~\ref{s2:lemLacunary}(i), $\sum_lX_l\le2X_R=2F(\lambda_{R-2})$ (if $R\le2$
+the sum is empty). Moreover $\lambda_{R-2}\ge\lambda_R=\log_2d_R\ge\log_2\Dstar$,
+by Lemma~\ref{s2:lemTower}(a) and because round $R$ has $d_R\ge\Dstar$ by
+rule~\ref{s2:R0} of Definition~\ref{s2:defHBtp}; and $\log_2\Dstar\ge2^{256}\ge2^{25}$ by \Gc{1}(a) at $\mu=\log_2\log_2\Dstar$. Since $F$
+is decreasing on $[2^{25},\infty)$, we get
+\[
+\sum_lX_l\ \le\ 2F(\log_2\Dstar)\ \le\ 2F(2^{25})\ \le\ 2\cdot2^{20}\cdot2^{-2255}\ <\ 2^{-1000}.
+\]
+Together, $\sum_l\dett_l\le3\epsA n+60n/\Dstar+2F(\log_2\Dstar)\,n$. The bound
+on $\sum_l|V(Q_l)|$ follows from (iii) and $\Ex\Xp\le\epsX(\Dstar)n$
+(Lemma~\ref{s7:lemEXprime}). The functions $\epsX$, $\epsA$ and
+$F(\log_2\Dstar)$ depend on $\Dstar$ only, and $\thetaQ\le1/4$ is part of
+condition~\ref{s1:condG4}.
+\end{proof}
+
+%% ----------------------------------------------------------------------
+\subsection{One joint outcome, the cost, and Theorem \texorpdfstring{JV$^{+*}$}{JV+*}}
+
+\begin{lemma}[One joint outcome exists]\label{s7:lemOneOutcome}
+There is a joint outcome, consisting of a stage-1 outcome, stage-3 outcomes for
+all parts, and draws $\xi_R,\dots,\xi_3$, such that:
+\begin{enumerate}
+\item[(1)] $\Xp\le3\,\Ex\Xp$;
+\item[(2)] the stage-3 labels of every part lie in that part's good event: the
+event of Lemma~\ref{s4:lemTPV} for every standalone pre-part (with the data of
+step (1) of Construction~\ref{s6:consOrder}); the event of Lemma~\ref{s4:lemPV}
+as used in Lemma~\ref{s5:lemChild} for every non-demoted light part; and the event
+of Theorem~\ref{s4:thmVXp} as used in Lemma~\ref{s5:lemDemoted} for every
+demoted light part;
+\item[(3)] at every round $3\le l\le R$, $\xi_l$ lies in the event of
+Construction~\ref{s7:consRound}(f). Consequently
+$\copies_l\le4(X_{\mathrm{V},l}+\dett_l)$ and
+$\payrd_l\le4\bigl(n/(256M_l^3)+5.5\,nM_l/\Hcd_l\bigr)$.
+\end{enumerate}
+Such an outcome is obtained as follows.
+(i) Choose the stage-1 outcome in $\{\Xp\le3\Ex\Xp\}$; stage~2 is then
+determined.
+(ii) For every part, choose its stage-3 labels in its good event.
+(iii) For $l=R,R-1,\dots,3$ in turn: run steps (1)--(3) of
+Construction~\ref{s6:consOrder} at round $l$, which are deterministic given the
+past; draw $\xi_l$ and choose it in the event of
+Construction~\ref{s7:consRound}(f); build $Q_l$, fix $\Dec_l$, lift it, and record
+$\LentJV_l$ (step (4) of Construction~\ref{s6:consOrder}).
+(iv) At rounds $2$ and $1$, run steps (1)--(2) of Construction~\ref{s6:consOrder};
+here $J_2=J_1=\emptyset$.
+\deps{\ref{s7:defSchedule}, \ref{s7:consRound}, \ref{s6:consOrder}, \ref{s4:lemTPV}, \ref{s4:lemPV}, \ref{s4:thmVXp}, \ref{s5:lemChild}, \ref{s5:lemDemoted}, \ref{s7:lemEXprime}, \ref{s7:lemPay}, \ref{s7:lemUHsplit}, \ref{s1:citMarkov}, \ref{s1:condG3}}
+\fixes{\RTb{J5}, \RTb{I4}}
+\end{lemma}
+
+\begin{proof}
+\emph{Step (i).} $\Xp$ is a non-negative random variable on a finite probability
+space. By Markov's inequality (Cited result~\ref{s1:citMarkov}),
+$\Prob(\Xp\le3\Ex\Xp)\ge2/3>0$, so the event is non-empty. Fix an outcome in it;
+this gives (1). Stage~2 is a deterministic function of stage~1
+(Definition~\ref{s7:defSchedule}).
+
+\emph{Step (ii).} With stage~1 fixed, the good event of each part is determined
+by stage-1 and stage-2 data together with that part's own stage-3 labels.
+\begin{itemize}
+\item For a standalone pre-part $Z$, Lemma~\ref{s4:lemTPV} is applied with $O_Z$
+and $\vP=\Ret_Z$, both fixed at stage~2, and its good event is determined by
+$(Z^0,O_Z,\Ret_Z)$ and the labels.
+\item For a non-demoted light part, the good event of Lemma~\ref{s4:lemPV}
+depends only on the own classes, $\Rt$, $\extph$ and the labels
+(Lemma~\ref{s5:lemChild}).
+\item For a demoted light part, the good event of Theorem~\ref{s4:thmVXp}
+depends only on $O=X_Y$ and the labels (Lemma~\ref{s5:lemDemoted}).
+\end{itemize}
+Each of these events has probability at least $1/2-o(1)$, and by
+condition~\ref{s1:condG3} every such $o(1)$ is at most $1/100$. So each event
+is non-empty, whatever the stage-1 outcome; only this non-emptiness is used. The events of distinct parts involve disjoint families of labels,
+so choosing each part's labels inside its own event gives one stage-3 outcome in
+all of the events at once; no union bound is needed. None of these events
+depends on the edge sets that the devices later receive: the conclusions of
+Lemma~\ref{s4:lemTPV}, Lemma~\ref{s4:lemPV} and Theorem~\ref{s4:thmVXp} hold on
+their good events for \emph{every} admissible edge set (every $E\supseteq E(O)$,
+every $H_0$ containing the own classes, every graph containing $O$). So the
+events do not depend on junk, on $\Erem$, on $H_0$ or on later rounds. This
+gives (2).
+
+\emph{Step (iii).} At round $l$ the past $\Past_l$ is fixed, and steps (1)--(3)
+of Construction~\ref{s6:consOrder} are deterministic given it; in particular
+$J_l$ is determined. The draw $\xi_l$ is independent of the past, and
+$\copies_l$ and $\payrd_l$ are non-negative functions of $\xi_l$ with the past
+fixed. By Markov's inequality (Cited result~\ref{s1:citMarkov}), the event of
+Construction~\ref{s7:consRound}(f) has probability at least $1/2$. This holds for
+every past and needs nothing beyond Markov's inequality. So a choice of $\xi_l$
+in the event exists, whatever happened before. On this event, the explicit
+bounds of (3) follow from Lemma~\ref{s7:lemUHsplit}(ii) and
+Lemma~\ref{s7:lemPay}(c), which hold for \emph{every} past; this is the only
+place where the uniformity in the past is used.
+
+\emph{Step (iv).} Rounds $1$ and $2$ have no classed ports, since every port
+there is fresh. So JS-LC produces no J-set, and there is no round step.
+\end{proof}
+
+\begin{proposition}[Cost on the chosen outcome]\label{s7:propCost}
+On an outcome as in Lemma~\ref{s7:lemOneOutcome}, with the round step of
+Construction~\ref{s7:consRound} as the J-consumer, the decomposition of $E(G)$
+given by Theorem~\ref{s6:thmMIXC} has at most
+\[
+\Bigl(\frac{\Dstar}{2}+1085+\epsOne(\Dstar)\Bigr)n+2\sum_{l=3}^{R}\f(Q_l)
+\]
+objects, where
+\[
+\epsOne(\Dstar)\defeq\epsK(\Dstar)+169\,\epsA+\frac{252}{\Dstar}+1.5\,\epsCONC(\Dstar)+3\,\epsX(\Dstar)+\frac{9}{\Dstar},
+\]
+with $\epsA=31\eps/(\Cp\log\log\Dstar)$ as in Lemma~\ref{s2:lemTower}(e). The
+terms are itemized in Table~\ref{s7:tabCost}. The constant is $745+338+2=1085$, and
+$\epsOne$ is counted once. Consequently
+$\Czero=\Dstar/2+1085+\epsOne(\Dstar)\le\Dstar/2+1091$ under \Gc{4}. No term
+involves $\cEG$. The only Markov multipliers are the fixed $3$ (stage 1) and $4$
+(per round). There is no term for VX-parts ($\mathcal{V}=\emptyset$).
+\deps{\ref{s6:thmMIXC}, \ref{s6:thmCONCL}, \ref{s7:lemLift}, \ref{s7:lemPay}, \ref{s7:lemEXprime}, \ref{s7:lemOneOutcome}, \ref{s5:lemKRED}, \ref{s2:propParentless}, \ref{s2:propOV}, \ref{s7:consRound}, \ref{s2:lemTower}, \ref{s1:condG4}, \ref{s6:defLending}, \ref{s7:defXprime}}
+\fixes{\RTb{J6}}
+\end{proposition}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{|p{5.0cm}|p{6.2cm}|p{3.6cm}|}
+\hline
+\textbf{Item} & \textbf{Bound on the number of objects} & \textbf{Source}\\
+\hline
+Long cycles, $E_0$ and light parts (K-RED) & $(\Dstar/2+745+\epsK)n+[80\,\mathrm{dem}+369\,\mathrm{lp}]$ & Lemma~\ref{s5:lemKRED}\\
+TPV in standalone pre-parts & $169(2+\epsA)n+[169\sum_l|\Lost_l|]$ & Thm.~\ref{s6:thmMIXC}(c); Props.~\ref{s2:propParentless}, \ref{s2:propOV}\\
+JS-LC cycles & $252\,n/\Dstar+1.5\,\epsCONC(\Dstar)\,n$ & Thms.~\ref{s6:thmMIXC}(c), \ref{s6:thmCONCL}\\
+$\Jlost$ items & $[\sum_l(M_l-1)|\Lost_l|]$ & Lemma~\ref{s7:lemPay}(a1)\\
+Pooled and JV-bad items & $[\Xpool]$ & Lemma~\ref{s7:lemPay}(a2),(a3)\\
+Unpaired fresh legs & $2n$ & Lemma~\ref{s7:lemPay}(b)\\
+SDR failures and loops & $9n/\Dstar$ & Lemma~\ref{s7:lemPay}(d)\\
+Lift of the quotients & $2\sum_l|\Dec_l|=2\sum_l\f(Q_l)$ & Lemma~\ref{s7:lemLift}\\
+\hline
+All bracketed terms together & $\le\XU+\Xpool\le\Xp\le3\,\Ex\Xp\le3\,\epsX(\Dstar)\,n$ & Lemmas~\ref{s7:lemEXprime}, \ref{s7:lemOneOutcome}\\
+\hline
+\end{tabular}
+\caption{The cost line on the chosen outcome (Proposition~\ref{s7:propCost}).
+Summing the rows gives $(\Dstar/2+745+338+2)n+\epsOne(\Dstar)n+2\sum_l\f(Q_l)$.}
+\label{s7:tabCost}
+\end{table}
+
+\begin{proof}
+By Lemma~\ref{s7:lemLift}(iv), the round step is a J-consumer. The outcome of
+Lemma~\ref{s7:lemOneOutcome} has stage-3 labels in all good events. So
+Theorem~\ref{s6:thmMIXC} applies to the run, $\delta$, the chosen stage-1 and
+stage-3 outcomes and this J-consumer, and it yields a decomposition of $E(G)$. By
+Theorem~\ref{s6:thmMIXC}(c), its number of objects is at most
+\[
+\Bigl(\frac{\Dstar}2+745+338\Bigr)n+\eps_M(\Dstar)\,n
++\Bigl[80\,\mathrm{dem}+369\,\mathrm{lp}+169\sum_l|\Lost_l|\Bigr]
++1.5\sum_{(Y,l)}m_{Y,l}+\sum_l|\Obj_l| ,
+\]
+with $\eps_M(\Dstar)=\epsK(\Dstar)+169\epsA+252/\Dstar$. This itemization
+combines the K-RED bound of Lemma~\ref{s5:lemKRED}; the TPV bound
+\[
+169\sum_{l,Z}\bigl(|A_Z|+|F_Z|+|\Lost_Z|\bigr),
+\]
+with $\sum|F_Z|\le2n$ (Proposition~\ref{s2:propParentless}(i)) and
+$\sum|A_Z|\le\epsA n$ (Proposition~\ref{s2:propOV}(K2) and
+Lemma~\ref{s2:lemTower}(e)); and the JS-LC bound. By
+Theorem~\ref{s6:thmCONCL}(iv),
+$1.5\sum_{(Y,l)}m_{Y,l}\le1.5\,\epsCONC(\Dstar)\,n$.
+
+The objects of $\Obj_l$ are the paid single edges and the lifted objects. By
+Lemma~\ref{s7:lemPay}, the paid single edges number at most:
+$(M_l-1)|\Lost_l|$ in (a1); the round-$l$ summand of $\Xpool$ in (a2) and (a3);
+at most $2n$ unpaired fresh legs over all rounds; and $\payrd_l$ SDR-failure and
+loop edges, with $\sum_l\payrd_l\le9n/\Dstar$ by Lemma~\ref{s7:lemPay}(d), since
+the outcome satisfies Lemma~\ref{s7:lemOneOutcome}(3). By
+Lemma~\ref{s7:lemLift}(iv), the lifted objects number at most $2\f(Q_l)$. Hence
+\[
+\sum_l|\Obj_l|\le\sum_l(M_l-1)|\Lost_l|+\Xpool+2n+\frac{9n}{\Dstar}+2\sum_l\f(Q_l).
+\]
+The bracketed terms and the terms $\sum_l(M_l-1)|\Lost_l|$ and $\Xpool$ together
+equal
+$80\,\mathrm{dem}+369\,\mathrm{lp}+\sum_l(169+M_l-1)|\Lost_l|+\Xpool\le\XU+\Xpool\le\Xp$.
+By Lemma~\ref{s7:lemOneOutcome}(1) and Lemma~\ref{s7:lemEXprime},
+$\Xp\le3\Ex\Xp\le3\epsX(\Dstar)n$. Adding everything gives at most
+\[
+\Bigl(\frac{\Dstar}2+745+338+2\Bigr)n
++\Bigl(\epsK+169\epsA+\frac{252}{\Dstar}+1.5\epsCONC+3\epsX+\frac9{\Dstar}\Bigr)n
++2\sum_l\f(Q_l),
+\]
+which is the claim, since $745+338+2=1085$. Every term of $\epsOne$ is a function
+of $\Dstar$ alone, and $\epsOne(\Dstar)\le6$ is part
+of \Gc{4}, which gives $\Czero\le\Dstar/2+1091$.
+\end{proof}
+
+\begin{theorem}[Theorem JV$^{+*}$]\label{s7:thmJVps}
+Assume that $\Dstar$ satisfies \Gc{1}--\Gc{4}. Let $G$ be a graph with
+$n\ge\Nzero$ vertices and $d_1\ge\Dstar$. Take any valid $\HBtp$ run on $G$
+(Proposition~\ref{s2:propExists}), any designation $\delta$, and no VX-parts
+($\mathcal{V}=\emptyset$). Then there are simple graphs $Q_3,\dots,Q_R$ without
+isolated vertices such that
+\begin{enumerate}
+\item[(1)] $\f(G)\le\Czero n+2\sum_{l=3}^{R}\f(Q_l)$, where
+$\Czero\defeq\Dstar/2+1085+\epsOne(\Dstar)$;
+\item[(2)] $\sum_{l=3}^{R}|V(Q_l)|\le\thetaQ\,n$, where
+$\thetaQ=\epsTwo(\Dstar)\le1/4$.
+\end{enumerate}
+Here $\epsOne$ and $\epsTwo$ are the explicit functions of $\Dstar$ defined in
+Proposition~\ref{s7:propCost} and Lemma~\ref{s7:lemUHsplit}. Items at ultra hubs
+cost no collision payments. They pay only the standard costs (pooled vertices,
+JV-bad ports, SDR failures), and they add quotient vertices only through
+Lemma~\ref{s7:lemUHsplit}.
+\deps{\ref{s7:propCost}, \ref{s7:lemUHsplit}, \ref{s7:lemSimple}, \ref{s7:lemLift}, \ref{s7:lemOneOutcome}, \ref{s6:thmMIXC}, \ref{s2:propExists}, \ref{s7:lemPay}, \ref{s7:lemUltra}, \ref{s1:condGamma}}
+\fixes{\RTa{M8}}
+\end{theorem}
+
+\begin{proof}
+Take the outcome of Lemma~\ref{s7:lemOneOutcome} and let $Q_3,\dots,Q_R$ be the
+quotients built on it. By Lemma~\ref{s7:lemSimple} each $Q_l$ is simple and has
+no isolated vertices. By Lemma~\ref{s7:lemLift}(iv), the round step is a
+J-consumer, so Theorem~\ref{s6:thmMIXC} gives a decomposition of $E(G)$. By
+Proposition~\ref{s7:propCost} it has at most $\Czero n+2\sum_l\f(Q_l)$ objects,
+which proves (1), since $\f(G)$ is at most the number of objects of any
+decomposition. The outcome satisfies the hypotheses of
+Lemma~\ref{s7:lemUHsplit}(iii): $\Xp\le3\Ex\Xp$, and the event of (f) holds at
+every round. So Lemma~\ref{s7:lemUHsplit}(iv) gives (2). The statement about
+ultra hubs is Lemma~\ref{s7:lemPay}(e) together with Lemma~\ref{s7:lemUltra}.
+\end{proof}
+
+%% ----------------------------------------------------------------------
+\subsection{The layered quotient induction and the proof of the Main Theorem}
+
+\begin{theorem}[Theorem HI$''$ (layered quotient induction)]\label{s7:thmHI}
+Let $C\ge\Dstar/2$ and $\vartheta\in[0,1/2)$ be constants with the
+following property. Every graph $G$ without isolated vertices, with $n\ge\Nzero$
+vertices and $d_1=2|E(G)|/n\ge\Dstar$, admits finitely many simple graphs
+$Q_1,\dots,Q_k$ ($k\ge0$) such that
+\[
+\f(G)\le C\,n+2\sum_{i=1}^{k}\f(Q_i)\qquad\text{and}\qquad\sum_{i=1}^{k}|V(Q_i)|\le\vartheta\,n .
+\]
+Then $\f(G)\le c\,|V(G)|$ for every graph $G$, where
+$c\defeq\max\bigl(C/(1-2\vartheta),\,\Nzero/2\bigr)$.
+\deps{\ref{s1:factAdd}, \ref{s1:defObject}, \ref{s1:defConstants}}
+\fixes{\RTa{M6}}
+\end{theorem}
+
+\begin{proof}
+Suppose the conclusion fails, and let $G$ be a counterexample with
+$n\defeq|V(G)|$ minimal, so that $\f(G)>cn$. The graph without vertices has
+$\f=0$, so $n\ge1$.
+
+(1) \emph{$G$ has no isolated vertex.} If $v$ were isolated, then
+$\f(G-v)=\f(G)$ by Fact~\ref{s1:factAdd}(d), so
+$\f(G-v)>cn\ge c(n-1)=c|V(G-v)|$, and $G-v$ would be a smaller counterexample.
+
+(2) \emph{$n\ge\Nzero$.} Otherwise $n-1<\Nzero$, and by Fact~\ref{s1:factAdd}(a),
+$\f(G)\le|E(G)|\le n(n-1)/2<(\Nzero/2)\,n\le cn$.
+
+(3) \emph{$d_1\ge\Dstar$.} Otherwise, by Fact~\ref{s1:factAdd}(a),
+$\f(G)\le|E(G)|=d_1n/2<(\Dstar/2)\,n\le Cn\le cn$, because
+$c\ge C/(1-2\vartheta)\ge C$. This is the trivial bound $\f(G)\le|E(G)|$; no
+other estimate is used for graphs of small average degree.
+
+(4) By (1)--(3), the hypothesis applies to $G$ and gives simple graphs
+$Q_1,\dots,Q_k$ with $\f(G)\le Cn+2\sum_i\f(Q_i)$ and
+$\sum_i|V(Q_i)|\le\vartheta n<n$. Each $Q_i$ has fewer vertices than $G$, so by
+the minimality of $n$, $\f(Q_i)\le c|V(Q_i)|$.
+
+(5) Hence $\f(G)\le Cn+2c\sum_i|V(Q_i)|\le Cn+2c\vartheta n
+\le c(1-2\vartheta)n+2c\vartheta n=cn$, where we used $C\le c(1-2\vartheta)$.
+This contradicts $\f(G)>cn$.
+
+The constants $C$ and $\vartheta$ do not depend on $c$, and minimality is applied
+only to the graphs $Q_i$, which have strictly fewer vertices than $G$.
+\end{proof}
+
+\begin{lemma}[The galactic conditions are satisfiable]\label{s7:lemGammaSat}
+Let $\Nzero$ be as in Definition~\ref{s1:defConstants}(ii). Then:
+\begin{enumerate}
+\item[(i)] each item (a)--(f) of \Gc{1} (Condition~\ref{s1:condG1}) holds for
+all sufficiently large real $\mu$; hence there is $\mu_1\ge1$ such that all of them
+hold for every $\mu\ge\mu_1$, and \Gc{1} holds for every $\Dstar>2$ with
+$\log_2\log_2\Dstar\ge\mu_1$;
+\item[(ii)] $\epsOne(\Dstar)\to0$ and $\epsTwo(\Dstar)\to0$ as $\Dstar\to\infty$;
+\item[(iii)] there is $D_0$ such that every $\Dstar\ge D_0$ satisfies
+\Gc{1}--\Gc{4} simultaneously.
+\end{enumerate}
+In particular a constant $\Dstar$ as in Definition~\ref{s1:defConstants}(iii)
+exists. Only this existence is used: neither $\mu_1$ nor $D_0$ is computed.
+\deps{\ref{s1:condGamma}, \ref{s7:propCost}, \ref{s7:lemUHsplit}, \ref{s5:lemExpect}, \ref{s5:lemKRED}, \ref{s2:lemTower}, \ref{s7:lemEXprime}, \ref{s6:thmCONCL}, \ref{s1:defConstants}, \ref{s3:lemCOL}, \ref{s5:lemE1}, \ref{s3:lemCOLJVev}}
+\end{lemma}
+
+\begin{proof}
+(i) We use inequalities of type (E) as defined in Lemma~\ref{s3:lemCOLJVev},
+which has no hypothesis: by part~(i) of that lemma, every inequality of type (E)
+holds for all sufficiently large $\mu$. For $\mu\ge1$ we have
+$0\le\log_2\mu\le\log_2(\Aexp\mu)$, and:
+item~(a) holds for every $\mu\ge2^8$;
+item~(b), that is $\mu-14-\log_2\Aexp-3\log_2\mu\ge0$, follows from the
+inequality $\mu-(14+\log_2\Aexp)-3\log_2(\Aexp\mu)\ge0$ of type (E);
+item~(c) is the inequality $1.6\mu-2\Aexp\log_2(\Aexp\mu)\ge0$ of type (E);
+item~(d), that is $\mu-8-2\log_2\mu\ge0$, follows from the inequality
+$\mu-8-2\log_2(\Aexp\mu)\ge0$ of type (E);
+item~(e), which is \Gstar, is (after taking $\log_2$ of both sides) the
+inequality $36\mu-240-46\Aexp\log_2(\Aexp\mu)\ge0$ of type (E);
+and every inequality of item~(f) holds for all sufficiently large $\mu$ by
+Lemma~\ref{s3:lemCOLJVev}(iii).
+So each of the finitely many inequalities of \Gc{1} holds for all $\mu$ at least
+some threshold; let $\mu_1\ge1$ be at least all of these thresholds. If
+$\Dstar>2$ and $\log_2\log_2\Dstar\ge\mu_1$, every $\mu\ge\log_2\log_2\Dstar$
+satisfies $\mu\ge\mu_1$, so \Gc{1} holds.
+
+(ii) By Proposition~\ref{s7:propCost} and Lemmas~\ref{s7:lemEXprime}
+and~\ref{s7:lemUHsplit}, $\epsOne$ and $\epsTwo$ are finite sums of non-negative
+explicit functions of $\Dstar$ with fixed coefficients:
+$1/\Dstar$; $(6\log_2\Dstar+12)/\Dstar$;
+$\epsA=31\eps/(\Cp\log\log\Dstar)$ (Lemma~\ref{s2:lemTower}(e));
+$\epsCONC(\Dstar)$; $\epsU(\Dstar)$; $\epsK(\Dstar)$; and, in $\epsTwo$ only,
+$F(\log_2\Dstar)$ with $F(x)=(3184+30400\log_2x)\,x^{-90.2}$ as in
+Lemma~\ref{s7:lemUHsplit}(iv), which tends to $0$ because $F(x)\to0$ as
+$x\to\infty$. The function $\epsCONC$ is the explicit expression
+of Theorem~\ref{s6:thmCONCL}(iv). It is a combination of
+$\logs\Dstar/\log\Dstar$, $\logs\Dstar/\log\log\Dstar$ and
+$(2\logs\Dstar+2)/(\log\Dstar)^{1/2}$, each of which tends to $0$. The functions
+$\epsU$ (Lemma~\ref{s5:lemExpect}) and $\epsK$ (Lemma~\ref{s5:lemKRED}) are, by
+their defining statements, explicit functions of $\Dstar$ that tend to $0$ as
+$\Dstar\to\infty$. Every other listed function tends to $0$. Hence
+$\epsOne(\Dstar)\to0$ and $\epsTwo(\Dstar)\to0$.
+
+(iii) Put $D_1\defeq2^{2^{\mu_1}}$; then $D_1\ge4>2$, as $\mu_1\ge1$. By (i),
+\Gc{1} holds for every $\Dstar\ge D_1$, since then $\log_2\log_2\Dstar\ge\mu_1$.
+\Gc{2}(a) holds for every $\Dstar\ge2^{117}$, and \Gc{2}(b),(c) are implied by
+\Gc{1} (Condition~\ref{s1:condGamma}). \Gc{3} holds for every
+$\Dstar\ge2^{(2\Nzero)^{1/\Cp}}$; here $\Nzero$ is fixed before $\Dstar$. By (ii)
+there is $D''$ with $\epsOne(\Dstar)\le6$ and $\epsTwo(\Dstar)\le1/4$ for all
+$\Dstar\ge D''$, which is \Gc{4}. Take
+$D_0\defeq\max\bigl(D_1,2^{117},2^{(2\Nzero)^{1/\Cp}},D''\bigr)$.
+\end{proof}
+
+\begin{corollary}[Corollary JV$^{+*}$-EG; proof of the Main Theorem]\label{s7:thmMainProof}
+Theorem~\ref{s1:thmMain} holds.
+\deps{\ref{s7:thmHI}, \ref{s7:thmJVps}, \ref{s2:propExists}, \ref{s7:lemGammaSat}, \ref{s6:defDesign}, \ref{s1:condGamma}, \ref{s1:defConstants}}
+\end{corollary}
+
+\begin{proof}
+Let $\Dstar$ be as in Theorem~\ref{s1:thmMain}, that is, a constant satisfying
+\Gc{1}--\Gc{4}. Such constants exist by Lemma~\ref{s7:lemGammaSat}, and the
+argument below applies to each of them. Let
+$\Czero=\Dstar/2+1085+\epsOne(\Dstar)$, $\thetaQ=\epsTwo(\Dstar)$ and
+$\cEG=\max\bigl(\Czero/(1-2\thetaQ),\Nzero/2\bigr)$, as in
+Theorem~\ref{s1:thmMain}. We apply Theorem~\ref{s7:thmHI} with $C\defeq\Czero$
+and $\vartheta\defeq\thetaQ$. Its assumptions on the constants hold:
+$\Czero\ge\Dstar/2$, since $\epsOne\ge0$; and $0\le\thetaQ\le1/4<1/2$.
+
+Let $G$ be a graph without isolated vertices, with $n\ge\Nzero$ vertices and
+$d_1\ge\Dstar$. By Proposition~\ref{s2:propExists}, $G$ has a valid $\HBtp$
+run. A designation exists: for every standalone pre-part $Z$ of a round $l\ge3$
+and every $u\in Q_Z$, the set $\anc_l(u)$ is non-empty by the definition of
+classed ports, and $Y(u)$ can be chosen in it by a fixed rule
+(Definition~\ref{s6:defDesign}). With no VX-parts, Theorem~\ref{s7:thmJVps} gives
+simple graphs $Q_3,\dots,Q_R$ with $\f(G)\le\Czero n+2\sum_l\f(Q_l)$ and
+$\sum_l|V(Q_l)|\le\thetaQ n$. This is the hypothesis of
+Theorem~\ref{s7:thmHI}, which therefore gives $\f(G)\le\cEG|V(G)|$ for every
+graph $G$. In particular $\f(n)\le\cEG n$ for every $n$, so $\f(n)=O(n)$, where
+$\cEG$ depends only on $\sigma,\Cp,\Aexp,\eps,\Nzero$ and $\Dstar$.
+
+This completes the candidate proof; its status is described in Remark~\ref{s1:remStatus}.
+\end{proof}
+
+\begin{remark}[Why the argument is not circular]\label{s7:remNonCirc}
+(1) $\Czero$ and $\thetaQ$ are fixed functions of $\Dstar$
+(Proposition~\ref{s7:propCost}, Lemma~\ref{s7:lemUHsplit}), and $\Dstar$ is fixed
+before any graph is considered. The constant $\cEG$ enters only as the
+constant $c$ of Theorem~\ref{s7:thmHI} (throughout its statement and
+proof); it plays no other role in any construction or bound of
+Sections~\ref{s2:sec}--\ref{s7:sec}.
+(2) Minimality is applied only to the quotients $Q_l$. They are simple and have
+at most $\thetaQ n\le n/4<n$ vertices in total, and the induction uses about
+them only the inequality $\f(Q_l)\le\cEG|V(Q_l)|$.
+(3) The quotient $Q_l$ depends on the decompositions $\Dec_{l'}$ ($l'>l$), through
+$J_l$ and through junk. This is harmless. Each $\Dec_{l'}$ is fixed at round $l'$
+by a deterministic rule. The Markov choice at round $l$ succeeds with
+probability at least $1/2$ whatever the past. Every bound of
+Lemmas~\ref{s7:lemCC}, \ref{s7:lemUltra} and~\ref{s7:lemPay} holds for every
+past.
+(4) No other link calls itself. Lemma~TPV, Lemma~PV and Theorem~VX$^+$
+finish their runs with the elementary long-cycle bound of
+Fact~\ref{s1:factEG0}, which is proved directly and does not use the statement
+being proved; all three are unconditional.
+\deps{\ref{s7:thmHI}, \ref{s7:thmJVps}, \ref{s7:propCost}, \ref{s7:lemUHsplit}, \ref{s7:lemCC}, \ref{s7:lemUltra}, \ref{s7:lemPay}, \ref{s7:lemSimple}, \ref{s7:consRound}, \ref{s4:lemTPV}, \ref{s4:lemPV}, \ref{s4:thmVXp}, \ref{s1:condG4}, \ref{s1:factEG0}}
+\end{remark}
+
+%% ----------------------------------------------------------------------
+\subsection*{What is not established}
+\namedlabel{s7:ssecNotEstablished}{What is not established}
+
+This section completes a \candidate{} proof. We record what has not been
+established.
+
+\begin{enumerate}
+\item \emph{AI review only; no human verification.} No human expert has
+verified any part of this manuscript. All checking so far was done by AI agents.
+As a single text it has had six AI review rounds. Clean-room review~1
+(eight lenses, referees reading only this text and \cite{BM}) found one major
+gap, PV-ARC-END: the per-vertex arc-end bound of Lemma~\ref{s4:lemPV}(c) missed
+arcs created by stripping in the Finish. The gap was repaired (fix
+\textsf{CR1-PV}). Clean-room review~2 (two repair lenses, two lenses auditing
+every site where a per-vertex multiplicity feeds a path-connectivity parameter
+$t$, and a judge) found the repair correct and found no error at any such site;
+its remaining findings were presentational. Clean-room reviews~3--5 each
+returned verdict~(A): no fatal or major error, and presentational findings
+only. A sixth round, a cross-model clean-room review (six section referees
+running on a different AI model) together with three conceptual lenses
+(proves-too-much, traces on concrete graph families, and key idea versus
+barriers), also returned verdict~(A), with minor and cosmetic findings only,
+all applied here. In blinded calibrations of this review process on copies of the text with
+planted errors, the AI referees flagged every planted error that lay inside the
+sections they were asked to review ($9$ of $9$ distinct plants), missed the one
+plant placed outside those sections, and raised no false fatal or major alarm
+in $21$ passes over the unmodified text.
+Such AI review cannot exclude conceptual gaps that leave no local
+inconsistency in the text, or blind spots shared by the model family that wrote
+the proof and the one that reviewed it; verification by human experts is
+required. Each link of
+the chain was checked by two independent AI referees. Two AI red teams then
+audited the chain and found no fatal or major error. Red team~1 listed the minor
+fixes \RTa{M1}--\RTa{M12}; red team~2 listed \RTb{J1}--\RTb{J8} for the
+composition and \RTb{I1}--\RTb{I16} for the inputs. Two further AI audits of the
+routing engine of JS-LC also found no fatal or major error. All listed fixes are
+applied in this text. Correlated blind spots between AI referees are possible.
+The parts written or changed for the present version~6 of the text postdate
+all of these reviews. They are described in Remark~\ref{s1:remStatus}(iii) and,
+for item R6, in Section~\ref{s1:ssecDAG}. They have had one clean-room AI review
+(gate G0, 2026-09-26: eight AI referee lenses and an AI judge), which covered
+every changed statement and returned verdict~(A), no fatal or major error; its
+minor and cosmetic fixes are applied here and have not been re-reviewed, and
+the proof of the stated form of Haxell's theorem (Cited
+result~\ref{s1:citHaxell}), added after G0, has had no referee yet. In
+Table~\ref{s1:tabDAG}, the
+statements that were added for version~6, or whose statement or proof was
+rewritten for it, are marked ``one clean-room AI review (G0, 2026-09-26)'';
+changes that concern only
+single proof steps, dependency entries, pointers, names, titles or explanatory
+text are not necessarily marked. G0, like every earlier review, was done by AI
+agents; no human expert has refereed any part of the text, and the text remains
+a \candidate{} proof. Version~6.1 (26 September 2026) applies the manuscript
+patches found by the triage of the formalization in Lean (P2 triage): $M_l$ is
+an integer, the fixed rules of Construction~\ref{s7:consRound} have declared
+arguments, and several wording and proof-step repairs; no constant changes and
+no statement used downstream is weakened (Lemma~\ref{s6:lemJSLC} is restated in
+the form its only consumer uses; Remark~\ref{s1:remStatus}(iii)). These patches have had
+no referee yet; the changed statements are marked ``changed in v6.1 (P2
+triage): no referee yet'' in Table~\ref{s1:tabDAG}.
+\item \emph{The weakest links} (as in Remark~\ref{s1:remStatus}(iv)).
+(a) The routing engine inside JS-LC, that is, HCC-P, PAR, MED and EQ-LPT as used
+for cherry systems at multiplicity $2M_l-2$ (Section~\ref{s6:sec}); it remains
+listed first despite the two AI audits mentioned above.
+(b) Lemma~14$^\tau$ together with CONC-L(iv), which modify the core Lemma~14 of
+\cite{BM} (Sections~\ref{s2:sec} and~\ref{s6:sec}).
+(c) The JV$^{+*}$ composition of this section, which is the newest link. Within
+it, the most delicate points are: property \Jp{1} aggregated over all MIX-parts,
+on which Lemma~MULT rests; the conditioning in Lemma~CC and in the ultra-hub
+bound; the lift, including the cross-round use of junction edges through the
+$\Lent$ sets; and the existence of one joint outcome.
+(d) The statements changed by fix \textsf{CR1-PV} (Lemma~\ref{s4:lemPV}(c),
+Lemma~\ref{s5:lemChild}(c), Lemma~\ref{s5:lemParent} Steps~5--6, the
+parent-bad definition, Lemma~\ref{s3:lemCOL}(c) and rows~4 and~7 of
+Table~\ref{s3:tabCOLJV}); these have had one AI re-review (clean-room
+review~2).
+(e) The factor $2q-1$ of Haxell's theorem (Cited result~\ref{s1:citHaxell}),
+until it has been checked against the text of \cite{Hax95}; its only
+application has slack of a factor of about $h/2$ (Lemma~\ref{s3:lemL9rho}),
+and the proof of the stated form written out after the citation has had no
+referee yet.
+\item \emph{Refutation targets} (as in Remark~\ref{s1:remStatus}(v)). Any of the
+following would refute the chain:
+a valid $\HBtp$ run with $\sum_{(Y,l)}m_{Y,l}=\omega(n)$;
+a valid run on which JS-LC emits two $\Jhub$ edges of one class at one hub in one
+round (this would break Lemma~MULT);
+a lifted sub-layer cycle that repeats a vertex;
+an edge covered twice, in particular a junction edge used both by a lifted cycle
+and by its owner's device;
+any per-round cost term of order $\Theta(n)$ that is not a once-per-vertex
+charge.
+\item \emph{Status of the conjecture.} The \EG{} conjecture must not be recorded
+as proved on the basis of this text. The argument here is a \candidate{} proof,
+checked only by AI referees and not yet verified by human experts. It should be
+regarded as a proof only after human experts have verified it.
+\item \emph{No end-to-end computational check.} Only a toy end-to-end
+bookkeeping simulation with stubbed analytic inputs exists; it proves nothing.
+The other toy computations are for components: checkers of the
+lift of the round step, a skeleton of the routing in JS-LC, and simulators of
+Lemma~14$^\tau$. They test small instances in regimes far below the galactic
+thresholds (Condition~\ref{s1:condGamma} makes $\Dstar$ of tower type), and they prove nothing.
+\end{enumerate}

@@ -1,0 +1,75 @@
+/-
+Copyright 2026 The Formal Conjectures Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-/
+/-
+MODIFIED by the Erdős–Gallai formalization project (formal/comparator/Solution.lean), from
+google-deepmind/formal-conjectures@2424bb480c590237ffbb2cc831ae4cb8977e045a
+FormalConjectures/ErdosProblems/184.lean (= formal/comparator/Challenge.lean, byte-identical).
+Changes: two private imports of the project; the proof of `erdos_184` (was `sorry`) replaced by
+the FC-184-free bridge applied to `EG.Proof.mainInternal`; the five `variants` theorems (all
+`sorry`, not claimed) removed. Everything else is verbatim. This is comparator's `Solution`
+(leanprover/comparator); see formal/comparator/README.md.
+-/
+module
+
+public import FormalConjecturesUtil
+import EG.Proof.Main
+import EGCheck.BridgeCore
+
+/-!
+# Erdős Problem 184
+
+*References:*
+- [erdosproblems.com/184](https://www.erdosproblems.com/184)
+- [BM22] Bucić, M. and Montgomery, R., Towards the Erdős-Gallai Cycle Decomposition Conjecture.
+  arXiv:2211.07689 (2022).
+- [CFS14] Conlon, David and Fox, Jacob and Sudakov, Benny, Cycle packing. Random Structures
+  Algorithms (2014), 608-626.
+- [EGP66] Erdős, Paul and Goodman, A. W. and Pósa, Lajos, The representation of a graph by set
+  intersections. Canadian J. Math. (1966), 106-112.
+- [Er71] Erdős, P., Some unsolved problems in graph theory and combinatorial analysis. Combinatorial
+  Mathematics and its Applications (Proc. Conf., Oxford, 1969) (1971), 97-109.
+-/
+
+@[expose] public section
+
+open Filter SimpleGraph
+
+namespace Erdos184
+
+/--
+A graph $H$ is a cycle or an edge if it is connected and 2-regular, or if it has exactly one edge.
+-/
+def IsCycleOrEdge {U : Type*} [Fintype U] (H : SimpleGraph U) : Prop :=
+  open scoped Classical in
+  (H.Connected ∧ H.IsRegularOfDegree 2) ∨ H.edgeFinset.card = 1
+
+open scoped Classical in
+/--
+Any graph on $n$ vertices can be decomposed into $O(n)$ many edge-disjoint cycles and edges.
+-/
+@[category research open, AMS 5]
+theorem erdos_184 :
+    ∃ f : ℕ → ℝ,
+      (f =O[atTop] fun n : ℕ ↦ (n : ℝ)) ∧
+      ∀ {V : Type*} [Fintype V] [DecidableEq V] (G : SimpleGraph V),
+      ∃ (D : Finset G.Subgraph),
+        (∀ H ∈ D, IsCycleOrEdge H.coe) ∧
+        IsDecomposition G D ∧
+        (D.card : ℝ) ≤ f (Fintype.card V) := by
+  obtain ⟨f, hf, hD⟩ := EGCheck.Bridge.of_mainInternal_unfolded EG.Proof.mainInternal
+  exact ⟨f, hf, fun G => (hD G).imp fun _ hD => ⟨fun H hH => hD.1 H hH _ _, hD.2⟩⟩
+
+end Erdos184

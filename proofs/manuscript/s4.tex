@@ -1,0 +1,816 @@
+\section{Vortex tools}\label{s4:sec}
+
+This section proves three absorption statements for a single vertex set carrying a spanning robust expander:
+Lemma~TPV (the transparent P-vortex, used on standalone pre-parts), Lemma~PV (the four-phase P-vortex, used on light
+parts) and Theorem~VX$^+$ (vortex absorption with arbitrary extra edges, used on demoted light parts). All three are
+proved from Theorem~16$^*$ (Theorem~\ref{s3:thmT16s}), Lemma~HB
+(Lemma~\ref{s3:lemHB}), \BMnames's Corollary~22 (Cited result~\ref{s1:citCor22}) and the elementary long-cycle
+bound (Fact~\ref{s1:factEG0}); Lemma~TPV and Theorem~VX$^+$ also use Lemma~15$^+$ (Lemma~\ref{s3:lemL15p}), while
+Lemma~PV takes its own classes as given expanders and does not. None of them refers to the hierarchy: each is a statement about one vertex set $Z$, one
+expander on $Z$ and edge sets inside $Z$. In each of them the random labels and the good event are fixed
+\emph{before} the edge set to be decomposed is revealed, and the conclusion then holds for \emph{every} admissible edge
+set; this is the form in which the later sections use them.
+
+Throughout the section, graphs are simple (Convention~\ref{s1:convGraphs}); this is used, for instance, in
+Corollary~22, in the distinctness of the far ends $u_1\ne u_2$ of a cherry (two distinct edges at $w$ have distinct
+far ends), in the fact that a closed trail in a simple graph has length at least~$3$, in the per-vertex bound
+$\deg_{H_0}(x)\le|Z|-1$ of Lemma~PV(c), and in the finishes of the three runs, through Fact~\ref{s1:factEG0}, whose
+proof uses that a vertex of degree at least $d$ has at least $d$ neighbours and that a graph on $h$
+vertices has at most $\binom h2$ edges.
+
+\subsection{Conventions and elementary observations}\label{s4:ssecConv}
+
+\begin{convention}[vortex-local notation]\label{s4:convVortex}
+Inside one run of Lemma~TPV, Lemma~PV or Theorem~VX$^+$ below (a \emph{vortex run}),
+$Z$ denotes the vertex set of the run, $N:=|Z|$ and $L:=\log_2|Z|$. All run-local objects are written in sans-serif:
+the number of steps $\vJ$; the reservoir colour classes $\vR_{j,c}$ and the reserve class $\vM$; the level $\vlev(v)\in\{0,1,\dots,\vJ\}$
+and the label $\vkap(v)$ of a vertex; the sets $\vU_j$ (vertices still active before step $j$), $\vW_j$ (vertices
+retiring at step $j$, for $0\le j<\vJ$; the vertices of level $\vJ$ stay in $\vU_{\vJ}$ and are treated by the
+finish), $\vZ_j$ (reserve far ends of step $j$) and $\vV_{j,c}$ (connector interiors of step $j$ and
+phase $c$); the graphs $\vH_j$ (edges not yet covered before step $j$) and edge sets $\vF_j$ (edges of $\vH_j$ meeting
+$\vW_j$); the partition $Z=\vP\sqcup\vQ$ of Lemma~TPV; the reserve sets $\vC^j_w$ (or $\vC_w$); the parameters
+$\vm$, $\vb$ (of Lemma~HB) and $\vt$ (the multiplicity used with Theorem~16$^*$); the path families $\vPaths_{j,c}$
+(produced by Corollary~22) and $\vPathsQ_{j,c}$ (after moving ends and splitting). The letter $j$ is the step index
+and $c$ the phase. The number of colours of a run is written $k$, and the good events of a run are called
+(G1)--(G5) (numbered alike in the three runs; a run need not use all five); these letters, the invariants
+(Inv1)--(Inv3) and the path properties (P1)--(P4) (and (P5) in Lemma~PV) are local to the run
+(the good events (G$k$) are unrelated to the galactic conditions \Gc{k} of Condition~\ref{s1:condGamma}). None of
+these symbols has a meaning outside the run in which it is defined. Auxiliary symbols that are local to a
+single estimate inside one of the three proofs (such as $\chi$, $\mathcal K_{j,c}$, $V'$ and $I_u$ below) are
+written in italic or calligraphic type, not in sans-serif.
+\deps{none.}
+\end{convention}
+
+
+The three proofs below share five elementary observations. They are recorded here once, with tags, and proved in
+full; they are parts of the proofs of Lemma~TPV, Lemma~PV and Theorem~VX$^+$ below, not
+separate statements.
+
+\smallskip\noindent\textbf{Trail splitting}\namedlabel{s4:eqSplit}{\textup{(S)}}~\textup{(S)}.
+\emph{Let $T=x_0x_1\cdots x_q$ ($q\ge0$) be a trail (a walk with pairwise distinct edges) in a simple graph and put
+$\mathrm{rep}(T):=(q+1)-|\{x_0,\dots,x_q\}|$. Then $E(T)$ is the disjoint union of the edge sets of at most $\mathrm{rep}(T)$ cycles,
+each of length at least $3$, and of at most one path; the path is present if and only if $x_0\ne x_q$, and then its
+ends are $x_0$ and $x_q$. Every vertex of every piece is a vertex of $T$. In particular, if the inner vertices
+$x_1,\dots,x_{q-1}$ are pairwise distinct, then $\mathrm{rep}(T)\le2$ and $T$ splits into at most two cycles and at most one
+path, so into at most three pieces.}
+
+\emph{Proof.} Induction on $q$. If $\mathrm{rep}(T)=0$, all $x_i$ are distinct, so $T$ is empty ($q=0$) or a path with ends
+$x_0\ne x_q$. Otherwise choose $i<i'$ with $x_i=x_{i'}$ and $i'-i$ minimal. Then $x_i,x_{i+1},\dots,x_{i'-1}$ are pairwise
+distinct, and $i'-i\ge3$: $i'-i=1$ would be a loop, and $i'-i=2$ would give $x_ix_{i+1}=x_{i+1}x_{i+2}$, the same
+edge twice, which a trail does not contain. So $C:=x_ix_{i+1}\cdots x_{i'}$ is a cycle of length $i'-i\ge3$. Delete it:
+$T':=x_0\cdots x_ix_{i'+1}\cdots x_q$ is again a trail (its step from $x_i$ to $x_{i'+1}$ is the edge $x_{i'}x_{i'+1}$ of
+$T$), $E(T)=E(C)\sqcup E(T')$, and $T'$ begins at $x_0$ and ends at $x_q$ (if $i'=q$ it ends at $x_i=x_q$). The
+vertices $x_{i+1},\dots,x_{i'-1}$ are pairwise distinct and differ from $x_i$, so at most $i'-i-1$ distinct vertices
+disappear while $i'-i$ entries are removed; hence $\mathrm{rep}(T')\le\mathrm{rep}(T)-1$, and the induction hypothesis applied to
+$T'$ finishes the proof. If $x_1,\dots,x_{q-1}$ are pairwise distinct, then $|\{x_0,\dots,x_q\}|\ge q-1$, so
+$\mathrm{rep}(T)\le2$. \hfill$\lozenge$
+
+\smallskip\noindent\textbf{Path ends}\namedlabel{s4:eqEnds}{\textup{(E)}}~\textup{(E)}.
+\emph{Let $\mathcal P$ be a decomposition of an edge set $F$ into (non-trivial) paths. For every vertex $v$ the number
+of paths of $\mathcal P$ having $v$ as an end is congruent to $\deg_F(v)$ modulo $2$. If every vertex is an end of at
+most two paths of $\mathcal P$ and all edges of $F$ have both ends in a set $W$, then $|\mathcal P|\le|W|$.}
+
+\emph{Proof.} A path contributes $2$ to the degree of each of its inner vertices and $1$ to the degree of each of its
+two (distinct) ends. For the second part count path ends: $2|\mathcal P|\le2|W|$. \hfill$\lozenge$
+
+\noindent By Cited result~\ref{s1:citCor22}, every (simple) graph, in particular every edge set $F$, has a
+decomposition $\mathcal P$ as in (E) in which every vertex is an end of at most two paths; we call it a
+\emph{Corollary-22 decomposition} of $F$.
+
+\smallskip\noindent\textbf{Monotone comparison}\namedlabel{s4:eqMono}{\textup{(MC)}}~\textup{(MC)}.
+\emph{Let $S$ be a finite set and let $\mathcal K$ be a family of subsets of $S$ that is closed upwards: $T\in\mathcal K$
+and $T\subseteq T'\subseteq S$ imply $T'\in\mathcal K$. For $r=(r_x)_{x\in S}\in[0,1]^S$ put
+\[
+\Psi_{\mathcal K}(r):=\sum_{T\in\mathcal K}\ \prod_{x\in T}r_x\prod_{x\in S\setminus T}(1-r_x).
+\]
+If $p,q\in[0,1]^S$ satisfy $p_x\le q_x$ for every $x\in S$, then $\Psi_{\mathcal K}(p)\le\Psi_{\mathcal K}(q)$. If $V$
+is a random subset of $S$ such that the events $\{x\in V\}$ \textup{(}$x\in S$\textup{)} are mutually independent, then
+$\Prob(V\in\mathcal K)=\Psi_{\mathcal K}(q^V)$, where $q^V\in[0,1]^S$ is given by $q^V_x:=\Prob(x\in V)$. In
+particular, let $\rho\in[0,1]$, let $V$ be a random subset of $S$ such that the events $\{x\in V\}$
+\textup{(}$x\in S$\textup{)} are mutually independent and $\Prob(x\in V)\ge\rho$ for every $x\in S$, and let $V'$ be a
+$\rho$-random subset of $S$, that is, a random subset of $S$ that contains each element of $S$ independently with
+probability $\rho$. Then $\Prob(V\notin\mathcal K)\le\Prob(V'\notin\mathcal K)$ \textup{(}$V$ and $V'$ need not be
+defined on the same probability space; only the two probabilities are compared\textup{)}.}
+
+\emph{Proof.} For the comparison write $S=\{x_1,\dots,x_{|S|}\}$, and for $0\le i\le|S|$ let $q^{(i)}\in[0,1]^S$ agree
+with $q$ at $x_1,\dots,x_i$ and with $p$ at $x_{i+1},\dots,x_{|S|}$. Then $q^{(0)}=p$ and $q^{(|S|)}=q$, and for $1\le i\le|S|$
+the vectors $q^{(i-1)}$ and $q^{(i)}$ agree except possibly at $x_i$, where
+$q^{(i-1)}_{x_i}=p_{x_i}\le q_{x_i}=q^{(i)}_{x_i}$. So it suffices to show that $\Psi_{\mathcal K}$ is non-decreasing
+in each coordinate when the other coordinates are fixed. Fix $y\in S$ and values $r_x\in[0,1]$
+($x\in S\setminus\{y\}$), and for $z\in[0,1]$ let $r(z)\in[0,1]^S$ have entry $r_x$ at $x\ne y$ and entry $z$ at $y$.
+Every subset of $S$ is, for exactly one $T\subseteq S\setminus\{y\}$, equal to $T$ or to $T\cup\{y\}$. With
+$\omega(T):=\prod_{x\in T}r_x\prod_{x\in S\setminus(T\cup\{y\})}(1-r_x)\ge0$ this gives
+\begin{align*}
+\Psi_{\mathcal K}(r(z))&=\sum_{T\subseteq S\setminus\{y\}}\omega(T)\Bigl((1-z)\,\ind{T\in\mathcal K}+z\,\ind{T\cup\{y\}\in\mathcal K}\Bigr)\\
+&=\sum_{T\subseteq S\setminus\{y\}}\omega(T)\Bigl(\ind{T\in\mathcal K}+z\bigl(\ind{T\cup\{y\}\in\mathcal K}-\ind{T\in\mathcal K}\bigr)\Bigr).
+\end{align*}
+As $\mathcal K$ is closed upwards, $\ind{T\cup\{y\}\in\mathcal K}\ge\ind{T\in\mathcal K}$ for every $T$, so every
+summand, and hence $\Psi_{\mathcal K}(r(z))$, is a non-decreasing function of $z$. For the formula, let $V$ be as
+stated. For $T\subseteq S$ the event $\{V=T\}$ is the intersection of the events $\{x\in V\}$ ($x\in T$) and
+$\{x\notin V\}$ ($x\in S\setminus T$); these events are mutually independent, because replacing some of finitely many
+mutually independent events by their complements preserves mutual independence. So
+$\Prob(V=T)=\prod_{x\in T}q^V_x\prod_{x\in S\setminus T}(1-q^V_x)$, and summing over the pairwise disjoint events
+$\{V=T\}$, $T\in\mathcal K$, gives $\Prob(V\in\mathcal K)=\Psi_{\mathcal K}(q^V)$. For the last claim, the events
+$\{x\in V'\}$ \textup{(}$x\in S$\textup{)} are mutually independent and $q^{V'}_x=\rho\le q^V_x$ for every $x\in S$; so,
+by the formula and the comparison,
+$\Prob(V'\in\mathcal K)=\Psi_{\mathcal K}(q^{V'})\le\Psi_{\mathcal K}(q^V)=\Prob(V\in\mathcal K)$. Taking complements
+gives the claim. \hfill$\lozenge$
+
+\smallskip\noindent\textbf{Binomial domination}\namedlabel{s4:eqDom}{\textup{(B)}}~\textup{(B)}.
+\emph{Let $X=\sum_{i=1}^{m'}I_i$ be a sum of independent indicator variables with $\Prob(I_i=1)\ge p$ for every $i$,
+and let $a>0$ with $m'p\ge2a$. Then $\Prob(X<a)\le\exp(-m'p/8)$.}
+
+\emph{Proof.} As $m'p\ge2a>0$, we have $m'\ge1$ and $0<p\le\Prob(I_1=1)\le1$. The set $V:=\{i\in[m']:I_i=1\}$ is a
+random subset of $[m']$ whose events $\{i\in V\}=\{I_i=1\}$ \textup{(}$i\in[m']$\textup{)} are mutually independent,
+each of probability at least $p$, and $X=|V|$. The family $\mathcal K:=\{T\subseteq[m']:|T|\ge a\}$ is closed upwards.
+Let $V'$ be a $p$-random subset of $[m']$; then $|V'|\sim\Bin(m',p)$, with mean $\mu=m'p\ge2a$. By observation
+\textup{(MC)} (with $S:=[m']$ and $\rho:=p$), $\Prob(X<a)=\Prob(V\notin\mathcal K)\le\Prob(V'\notin\mathcal
+K)=\Prob(|V'|<a)$, and by the lower tail of Cited result~\ref{s1:citChernoff} with $\delta=1/2$,
+$\Prob(|V'|<a)\le\Prob(|V'|<\mu/2)\le\exp(-\mu/8)$. \hfill$\lozenge$
+
+\smallskip\noindent\textbf{Closing}\namedlabel{s4:eqClose}{\textup{(C)}}~\textup{(C)}.
+\emph{Let $Q$ be a path of length at least $2$ with ends $x\ne y$, and let $Q'$ be an $x$--$y$ path whose inner
+vertices avoid $V(Q)$ and which shares no edge with $Q$. Then $Q\cup Q'$ is a cycle of length at least $3$.}
+
+\emph{Proof.} The only common vertices of $Q$ and $Q'$ are $x$ and $y$, so $Q\cup Q'$ is a cycle; its length is
+$|E(Q)|+|E(Q')|\ge2+1$. \hfill$\lozenge$
+
+\smallskip\noindent\textbf{Finite probability spaces.} Every random object of this section takes finitely many
+values. The labels of a run are finitely many independent random variables, each with finitely many values: in
+Lemma~TPV and Theorem~VX$^+$ a uniform colouring of $E(O)$ with $k$ colours, and in all three statements the levels,
+with values in $\{0,1,\dots,\vJ\}$, and the labels $\vkap$. The $\rho$-random subsets of a finite set $S$ used with
+\textup{(MC)} and \textup{(B)} may be taken to be the identity map on the finite probability space of all subsets
+$T\subseteq S$, where $T$ has probability $\prod_{x\in T}\rho\prod_{x\in S\setminus T}(1-\rho)$ (an empty product is
+$1$); identifying each $T$ with its indicator vector, this space is the product $\{0,1\}^S$ of $|S|$ copies of the
+two-point space $\{0,1\}$ in which $1$ has probability $\rho$. So every probability and expectation in this section is
+a finite sum over a finite product of finite probability spaces. Where a proof below fixes the colouring of a run,
+the probability over the remaining labels, which are independent of the colouring, is a finite sum as well, and the
+unconditional probability is the average of these sums over the finitely many (equally likely) colourings.
+
+\smallskip
+The absolute constant $\Nzero$ (Definition~\ref{s1:defConstants}) is chosen so large that the finitely many
+explicit inequalities listed as \emph{size conditions} in the three proofs of this section hold for every
+$N\ge\Nzero$; each of them is an inequality between explicit functions of $N$ that is true for all sufficiently
+large $N$. In every application in this manuscript the vertex set of a vortex run
+is a pre-part or a light part, which has at least $\Nzero$ vertices by condition \ref{s1:condG3} of Condition~\ref{s1:condGamma}.
+
+\subsection{Lemma TPV: the transparent P-vortex}\label{s4:ssecTPV}
+
+\begin{lemma}[Lemma TPV (transparent P-vortex)]\label{s4:lemTPV}
+Let $Z$ be a set of $N\ge\Nzero$ vertices and $L:=\log_2N$. Let $O$ be a spanning $(\eps_O,s)$-expander on $Z$ with
+$\eps_O\in[2^{-7},2^{-5}]$ (only $\eps_O\ge2^{-7}$ is used in the proof) and $s\ge2^{150}L^{42}$, and let $Z=\vP\sqcup\vQ$ be a partition. Put
+\[
+\vJ:=\lfloor\log_2(L/6)\rfloor,\qquad k:=3\vJ+1,\qquad \vm:=\lceil L^6\rceil,\qquad
+\vb:=\lceil2^8L^2\vm\rceil,\qquad \vt:=2^{10}L^8,
+\]
+($\vb$ is the bound of Lemma~HB at the worst case $\eps_O=2^{-7}$),
+and fix, as a function of $O$ only, sets $\Aw(w)\subseteq N_O(w)$ ($w\in Z$) with $|\Aw(w)|=\vm$ such that every vertex
+lies in at most $\vb$ of them (they exist by Lemma~\ref{s3:lemHB}; see the proof). The \emph{labels} of the run are
+the following independent random variables:
+\begin{itemize}
+\item[(a)] a uniform colouring of $E(O)$ with the $k$ colours $\vR_{j,c}$ ($0\le j<\vJ$, $c\in[3]$) and $\vM$; the
+  colour classes are regarded as spanning subgraphs of $O$ on $Z$ and denoted by the same letters;
+\item[(b)] for every $v\in\vP$ a level $\vlev(v)\in\{0,1,\dots,\vJ\}$ with $\Prob(\vlev(v)\ge j)=2^{-j}$ for
+  $0\le j\le\vJ$ (that is, $\Prob(\vlev(v)=j)=2^{-(j+1)}$ for $0\le j<\vJ$ and $\Prob(\vlev(v)=\vJ)=2^{-\vJ}$);
+\item[(c)] for every $v\in Z$ a label $\vkap(v)\in\{0,1,2,3\}$ with $\Prob(\vkap(v)=0)=1/2$ and
+  $\Prob(\vkap(v)=c)=1/6$ for $c\in[3]$.
+\end{itemize}
+Put $\vU_j:=\vQ\cup\{v\in\vP:\vlev(v)\ge j\}$, $\vW_j:=\{v\in\vP:\vlev(v)=j\}$,
+$\vZ_j:=\{u\in\vU_{j+1}:\vkap(u)=0\}$ and $\vV_{j,c}:=\{u\in\vU_{j+1}:\vkap(u)=c\}$. There is an event
+$\mathcal G_{\mathrm{TPV}}$, determined by $(Z,O,\vP)$ and the labels only, with
+\begin{equation}\label{s4:eqTPVprob}
+\Prob(\mathcal G_{\mathrm{TPV}})\ \ge\ \frac12-\eta_{\mathrm{TPV}}(N),\qquad
+\eta_{\mathrm{TPV}}(N):=2LN^{-5}+2^{96}L^{31}N^{-3}+NL\,e^{-3L^4/8}\ \le\ \frac1{100},
+\end{equation}
+such that on $\mathcal G_{\mathrm{TPV}}$ the following holds for \emph{every} edge set $E$ with $E(O)\subseteq E$ all
+of whose edges have both ends in $Z$: there is a partition $E=\EV\sqcup\EQ$ with the properties
+\begin{itemize}
+\item[\textup{(T1)}]\namedlabel{s4:T1}{\textup{(T1)}} every edge of $E$ with both ends in $\vP$ lies in $\EV$;
+\item[\textup{(T2)}]\namedlabel{s4:T2}{\textup{(T2)}} every edge of $\EV$ with an end in $\vQ$ is an edge of $O$;
+\item[\textup{(T3)}]\namedlabel{s4:T3}{\textup{(T3)}} $\EV$ decomposes into at most $169|\vP|$ objects, and
+  $\EV=\emptyset$ if $\vP=\emptyset$;
+\item[\textup{(T4)}]\namedlabel{s4:T4}{\textup{(T4)}} (no arcs) all objects of (T3) consist of edges of $E$; every
+  path formed during the run is closed into a cycle within the step in which it is formed, so the run leaves no path
+  (``arc'') to be closed by any other device.
+\end{itemize}
+The partition and the decomposition are obtained from $E$ and the labels by a deterministic procedure.
+\deps{\ref{s3:lemL15p}, \ref{s3:thmT16s}, \ref{s3:lemHB}, \ref{s3:lemMonotone}, \ref{s1:citCor22},
+\ref{s1:factEG0}, \ref{s1:citChernoff}, \ref{s1:citMarkov}, \ref{s1:condG3}, \ref{s4:convVortex}, \ref{s1:convGraphs}, \ref{s1:defConstants}.}
+\fixes{\RTb{I13}}
+\end{lemma}
+
+\begin{proof}
+If $\vP=\emptyset$, let $\mathcal G_{\mathrm{TPV}}$ be the sure event and put $\EV:=\emptyset$, $\EQ:=E$; then
+(T1) is vacuous and (T2)--(T4) hold trivially. From now on $\vP\ne\emptyset$.
+
+\emph{Size conditions.} We use: (i) $L\ge2^{10}$; (ii) $N\ge L^3$; (iii) $4\cdot48\le L$ (a consequence of (i)); (iv)
+$\eta_{\mathrm{TPV}}(N)\le1/100$. They hold for $N\ge\Nzero$ by the choice of $\Nzero$.
+
+\emph{Parameters.} By the definition of $\vJ$, $6\cdot2^{\vJ}\le L<12\cdot2^{\vJ}$, so
+\begin{equation}\label{s4:eqTPVJ}
+2^{-\vJ}\ge 6/L,\qquad 2^{-\vJ}<12/L,\qquad 1\le\vJ\le\log_2L,\qquad k=3\vJ+1\le L
+\end{equation}
+(the last two by (i)). Since $s\ge2^{150}L^{42}\ge2\lceil L^6\rceil=2\vm$, Lemma~\ref{s3:lemHB} applied to $X:=O$,
+$\eps':=\eps_O\ge2^{-7}$ and $m:=\vm$ gives sets $\Aw(w)\subseteq N_O(w)$, $|\Aw(w)|=\vm$, such that every vertex lies in
+at most $\lceil2\vm L^2/\eps_O\rceil\le\lceil2^8L^2\vm\rceil=\vb$ of them; we fix the lexicographically first such
+family (for a fixed ordering of $Z$), so that it is a function of $O$. Moreover
+\begin{equation}\label{s4:eqTPVt}
+2+\vb\ \le\ 2+2^8L^2(L^6+1)+1\ \le\ 2^{10}L^8=\vt .
+\end{equation}
+Directly from the definitions: $\vU_0=Z$; $\vU_{j+1}\subseteq\vU_j$ and $\vU_j=\vU_{j+1}\sqcup\vW_j$;
+$\vW_j\subseteq\vP$ and $\vW_j\cap\vU_{j+1}=\emptyset$; and $\vZ_j,\vV_{j,1},\vV_{j,2},\vV_{j,3}$ partition
+$\vU_{j+1}$.
+
+\emph{Good events.} Let $\mathcal G_{\mathrm{TPV}}$ be the intersection of the following four events.
+\begin{itemize}
+\item[(G1)] Every colour class ($\vR_{j,c}$ and $\vM$) is a spanning $(\eps_O,s/(2k))$-expander on $Z$. Since
+  $s\ge2^{150}L^{42}\ge40kL$, Lemma~\ref{s3:lemL15p} (with $X:=O$ and $k$ colours) shows that each class fails with
+  probability at most $2N^{-5}$; so (G1) fails with probability at most $2kN^{-5}\le2LN^{-5}$. Note that
+  $s/(2k)\ge s/(2L)\ge2^{149}L^{41}$.
+\item[(G2)] For all $0\le j<\vJ$ and $c\in[3]$, the class $\vR_{j,c}$ is $(2^{12}L^4,\vt)$-path connected through
+  $\vV_{j,c}$ (for every multiset of pairs of distinct vertices of $Z$ in which each vertex lies in at most $\vt$
+  pairs there are edge-disjoint paths of $\vR_{j,c}$ of length at most $2^{12}L^4$ joining the pairs, with all inner
+  vertices in $\vV_{j,c}$). Fix a colouring $\chi$ in (G1) and a pair $(j,c)$, and let $\mathcal K_{j,c}$ be the
+  family of sets $T\subseteq Z$ such that $\vR_{j,c}$ is $(2^{12}L^4,\vt)$-path connected through $T$. It is
+  determined by $\chi$. It is closed upwards by Lemma~\ref{s3:lemMonotone}(ii), applied with $G=G':=\vR_{j,c}$,
+  $\ell=\ell':=2^{12}L^4$, $t=t':=\vt$ and with $T\subseteq T'\subseteq Z=V(\vR_{j,c})$ as the two sets through
+  which path connectivity is taken (the colour classes are spanning). For $v\in Z$ the event $v\in\vV_{j,c}$
+  depends only on $\vkap(v)$ and, if $v\in\vP$, on $\vlev(v)$, so these events are mutually independent over $v$
+  and independent of the colouring, and
+  \[
+  \Prob(v\in\vV_{j,c})=\begin{cases}1/6\ \ge\ 1/L,& v\in\vQ,\\ 2^{-(j+1)}/6\ \ge\ 2^{-\vJ}/6\ \ge\ 1/L,& v\in\vP,\end{cases}
+  \]
+  by \eqref{s4:eqTPVJ} and size condition (i). Let $V'$ be a $(1/L)$-random subset of $Z$ (each vertex independently
+  with probability exactly $1/L$), and apply Theorem~\ref{s3:thmT16s} to $X:=\vR_{j,c}$ (an $N$-vertex
+  $(\eps_O,s/(2k))$-expander with $\eps_O\in[2^{-7},1]$), $V:=V'$, $\rho:=1/L$ and $t:=\vt$: its hypotheses
+  $\rho N=N/L\ge L^2$ (by size condition (ii)) and
+  $s/(2k)\ge2^{149}L^{41}\ge2^{135}\cdot2^{10}L^8\cdot L^{28}\cdot L^{5}=2^{135}\vt L^{28}\rho^{-5}$ hold. So
+  $\Prob(V'\notin\mathcal K_{j,c})\le2^{86}\vt L^{19}\rho^{-3}N^{-3}=2^{96}L^{30}N^{-3}$. By observation
+  \textup{(MC)} (with $S:=Z$, $\mathcal K:=\mathcal K_{j,c}$, the random set $\vV_{j,c}$ in place of $V$, and
+  $\rho:=1/L$), also $\Prob(\vV_{j,c}\notin\mathcal K_{j,c})\le2^{96}L^{30}N^{-3}$, the probability being over the
+  labels (b) and (c): for the fixed colouring $\chi$, $\vR_{j,c}$ fails to be $(2^{12}L^4,\vt)$-path connected
+  through $\vV_{j,c}$ with probability at most $2^{96}L^{30}N^{-3}$. As the labels (b), (c) are independent of the
+  colouring, a union bound over the $3\vJ$ pairs $(j,c)$ shows that the probability that (G1) holds and (G2) fails
+  is at most $\sum_{\chi}\Prob(\text{the colouring is }\chi)\cdot3\vJ\cdot2^{96}L^{30}N^{-3}\le2^{96}L^{31}N^{-3}$,
+  the sum running over the colourings $\chi$ in (G1), and using $3\vJ\le L$. By
+  Lemma~\ref{s3:lemMonotone}(iii) the event (G2) depends only on the classes $\vR_{j,c}$ and the sets $\vV_{j,c}$,
+  and on it the pair multisets may be chosen after all labels are revealed, as they will be below.
+\item[(G4)] For every $0\le j<\vJ$ and every $w\in\vP$ the set
+  $\vC^j_w:=\{wu:\ u\in \Aw(w),\ wu\in\vM,\ u\in\vZ_j\}$ has at least $6$ elements. For $u\in \Aw(w)$ let
+  $I_u:=\ind{wu\in\vM\text{ and }u\in\vZ_j}$. Since $u\ne w$, the variables $I_u$ ($u\in \Aw(w)$) depend on pairwise
+  distinct edges $wu$ and distinct vertices $u$, so they are independent; and
+  $\Prob(I_u=1)=\frac1k\cdot\Prob(u\in\vU_{j+1})\cdot\frac12\ge\frac1L\cdot2^{-\vJ}\cdot\frac12\ge\frac3{L^2}$ by
+  \eqref{s4:eqTPVJ} (for $u\in\vQ$, $\Prob(u\in\vU_{j+1})=1$). As $\vm\cdot3/L^2\ge3L^4\ge12$, observation
+  \textup{(B)} gives $\Prob(|\vC^j_w|<6)\le e^{-3L^4/8}$. A union bound over the at most $N\vJ\le NL$ pairs $(w,j)$
+  bounds the failure probability of (G4) by $NLe^{-3L^4/8}$.
+\item[(G5)] $\sum_{j<\vJ}|\vP\cap\vU_j|\le8|\vP|$ and $|\vP\cap\vU_{\vJ}|\le48|\vP|/L$. Here
+  $\Ex|\vP\cap\vU_j|=2^{-j}|\vP|$, so $\Ex\sum_{j<\vJ}|\vP\cap\vU_j|<2|\vP|$ and, by \eqref{s4:eqTPVJ},
+  $\Ex|\vP\cap\vU_{\vJ}|<12|\vP|/L$. By Markov's inequality (Cited result~\ref{s1:citMarkov}) each of the two
+  inequalities fails with probability less than $1/4$.
+\end{itemize}
+All four events are determined by $(Z,O,\vP)$ (through $O$, the sets $\Aw(w)$ and the partition) and the labels; none
+involves $E$. Summing the failure probabilities gives \eqref{s4:eqTPVprob}. From now on we fix labels in
+$\mathcal G_{\mathrm{TPV}}$ and an arbitrary edge set $E\supseteq E(O)$ inside $Z$.
+
+\emph{The process.} All choices below (reserved edges, classes, Corollary-22 decompositions, connectors, the final
+decomposition) are made by fixed rules, so the procedure is deterministic given $E$ and the labels. An edge is
+\emph{used} once it has been placed into an output object. Put $\vH_0:=\{e\in E:\ e\text{ has both ends in }\vP\}$
+and, for $j\ge0$, $\vH_{j+1}:=\vH_j\setminus\{\text{edges used at step }j\}$; thus $\vH_j$ is the set of unused edges
+of $\vH_0$. Before step $j$ ($0\le j\le\vJ$) we maintain:
+\begin{itemize}
+\item[(Inv1)] every edge of $\vH_j$ has both ends in $\vP\cap\vU_j$;
+\item[(Inv2)] no edge of $\vR_{j',c}$ with $j'\ge j$, $c\in[3]$ and both ends in $\vU_{j'+1}$ has been used;
+\item[(Inv3)] no $\vM$-edge $wu$ with $w\in\vW_{j'}$ for some $j'\ge j$ and $u\in\vU_{j'+1}$ has been used.
+\end{itemize}
+For $j=0$ nothing has been used and $\vU_0=Z$, so (Inv1)--(Inv3) hold.
+
+\emph{Step $j$} ($0\le j<\vJ$). Let $\vF_j$ be the set of edges of $\vH_j$ meeting $\vW_j$. By (Inv1), every edge of
+$\vF_j$ has both ends in $\vP\cap\vU_j$.
+\begin{itemize}
+\item[(i)] \emph{Reserve.} For each $w\in\vW_j$ choose six distinct edges $e^{c,i}_w\in\vC^j_w$ ($c\in[3]$,
+  $i\in[2]$); this is possible by (G4), since $w\in\vP$. Each $e^{c,i}_w=wu$ is an $\vM$-edge with $w\in\vW_j$ and
+  $u\in\vZ_j\subseteq\vU_{j+1}$, so it is unused by (Inv3), and $w$ is its only end in $\vW_j$; hence reserved
+  edges of distinct $w$ are distinct. If $u\in\vP$ then $e^{c,i}_w\in\vH_0$ (as $E(O)\subseteq E$), so
+  $e^{c,i}_w\in\vH_j$ and $e^{c,i}_w\in\vF_j$; if $u\in\vQ$ it is an edge of $O$ outside $\vH_0$. The $\vZ_j$-end $u$
+  of a reserved edge is called its \emph{far end}.
+\item[(ii)] \emph{Classes.} For every non-reserved edge of $\vF_j$ choose an end $w\in\vW_j$ (either one if both ends
+  lie in $\vW_j$), call the other end $x$, and give the edge a class $\gamma\in[3]\setminus\{\vkap(x)\}$ (possible as
+  $\vkap(x)$ is a single value). Let $\vF_{j,c}$ be the set of non-reserved edges of class $c$. Then
+  \begin{equation}\label{s4:eqTPVclass}
+  V(\vF_{j,c})\cap\vV_{j,c}=\emptyset\qquad(c\in[3]):
+  \end{equation}
+  an end in $\vW_j$ is not in $\vU_{j+1}\supseteq\vV_{j,c}$, and the other end $x$ of a class-$c$ edge has
+  $\vkap(x)\ne c$.
+\item[(iii)] \emph{Paths.} Let $\vPaths_{j,c}$ be a Corollary-22 decomposition of $\vF_{j,c}$. As
+  $V(\vF_{j,c})\subseteq\vP\cap\vU_j$, observation \textup{(E)} gives $|\vPaths_{j,c}|\le|\vP\cap\vU_j|$.
+\item[(iv)] \emph{Ends in $\vW_j$.} For $w\in\vW_j$ and $c\in[3]$ let $d\in\{0,1,2\}$ be the number of paths of
+  $\vPaths_{j,c}$ having $w$ as an end.
+  \begin{itemize}
+  \item If $d=2$, append $e^{c,1}_w$ at $w$ to one of these paths and $e^{c,2}_w$ at $w$ to the other.
+  \item If $d=1$, append $e^{c,1}_w$ at $w$ to that path and output $e^{c,2}_w$ as a single edge.
+  \item If $d=0$, form the \emph{cherry} $u_1wu_2$ from $e^{c,1}_w=wu_1$ and $e^{c,2}_w=wu_2$ ($u_1\ne u_2$, since the
+    two edges are distinct).
+  \end{itemize}
+  This produces, for each $c$, a family of \emph{trails}: every path of $\vPaths_{j,c}$ with exactly one reserved
+  edge appended at each of its ends lying in $\vW_j$ (and nothing appended at its other ends), and the cherries.
+  If a path has both ends in $\vW_j$, the two appended edges belong to distinct vertices of $\vW_j$ and are distinct.
+  In every trail $x_0x_1\cdots x_q$ the inner vertices $x_1,\dots,x_{q-1}$ are vertices of one path of
+  $\vPaths_{j,c}$ (or the centre $w$ of a cherry), hence pairwise distinct, and the edges are pairwise distinct.
+\item[(v)] \emph{Splitting.} By observation \textup{(S)} every trail splits into at most two cycles (which are output)
+  and at most one path, with the same two ends as the trail; let $\vPathsQ_{j,c}$ be the set of these paths. They
+  satisfy:
+  \begin{itemize}
+  \item[(P1)] no vertex of a path in $\vPathsQ_{j,c}$ lies in $\vV_{j,c}$: its vertices are vertices of $\vF_{j,c}$
+    (by \eqref{s4:eqTPVclass}), cherry centres (in $\vW_j$) or far ends (in $\vZ_j$, where $\vkap=0$);
+  \item[(P2)] the two ends of a path in $\vPathsQ_{j,c}$ are distinct and lie in $\vU_{j+1}$: an end of a trail is
+    either an end, not in $\vW_j$, of a path of $\vPaths_{j,c}$, hence in $(\vP\cap\vU_j)\setminus\vW_j\subseteq
+    \vU_{j+1}$, or a far end, in $\vZ_j\subseteq\vU_{j+1}$; distinctness is part of \textup{(S)};
+  \item[(P3)] every path in $\vPathsQ_{j,c}$ has length at least $2$: each of its edges meets $\vW_j$ (edges of
+    $\vF_j$ by definition, reserved edges at $w$), while by (P2) neither of its ends lies in $\vW_j$, so no single
+    edge can join its two ends;
+  \item[(P4)] every vertex $x$ is an end of at most $2+\vb\le\vt$ paths of $\vPathsQ_{j,c}$: each trail yields at
+    most one path, whose ends are ends of the trail; $x$ is an end of at most two paths of $\vPaths_{j,c}$; and $x$ is
+    the far end of a reserved edge $e^{c,i}_w$ only if $x\in \Aw(w)$, which holds for at most $\vb$ vertices $w$, while
+    for each such $w$ at most one of the two distinct edges $e^{c,1}_w,e^{c,2}_w$ at $w$ has far end $x$. Then use
+    \eqref{s4:eqTPVt}.
+  \end{itemize}
+\item[(vi)] \emph{Closing.} For each $c\in[3]$ the ends of the paths of $\vPathsQ_{j,c}$ form a multiset of pairs of
+  distinct vertices in which every vertex lies in at most $\vt$ pairs (P2, P4). By (G2) there are pairwise
+  edge-disjoint paths $Q'\subseteq\vR_{j,c}$, one for each $Q\in\vPathsQ_{j,c}$, joining the two ends of $Q$, of length
+  at most $2^{12}L^4$, with all inner vertices in $\vV_{j,c}$. All vertices of $Q'$ lie in $\vU_{j+1}$ (ends by (P2),
+  inner vertices in $\vV_{j,c}\subseteq\vU_{j+1}$), so every edge of $Q'$ is an $\vR_{j,c}$-edge with both ends in
+  $\vU_{j+1}$; it is unused by (Inv2), it is not in $\vF_j$ (which meets $\vW_j$), and it is not reserved (reserved
+  edges are $\vM$-edges). The inner vertices of $Q'$ avoid $V(Q)$ by (P1), and $Q$ has length at least $2$ by (P3);
+  so by observation \textup{(C)}, $Q\cup Q'$ is a cycle, which is output.
+\end{itemize}
+The edges used at step $j$ are: all of $\vF_j$ (every non-reserved edge lies on a path of some $\vPaths_{j,c}$,
+every reserved edge is appended, in a cherry or a single edge, and every trail edge ends in a split cycle or in a
+closed cycle), the reserved edges with far end in $\vQ$, and the connector edges. Within the step the output objects
+are pairwise edge-disjoint: trails of one class are edge-disjoint and classes are disjoint; connectors of one class
+are edge-disjoint by (G2), connectors of distinct classes lie in distinct colour classes, and connectors meet neither
+$\vF_j$ nor the reserved edges. No edge used at step $j$ was used before: $\vF_j\subseteq\vH_j$, reserved edges by
+(Inv3), connectors by (Inv2).
+
+\emph{The invariants persist.} (Inv1) for $j+1$: an edge of $\vH_{j+1}$ is an edge of $\vH_j$ not in $\vF_j$, so it
+has both ends in $(\vP\cap\vU_j)\setminus\vW_j=\vP\cap\vU_{j+1}$. (Inv2), (Inv3) for $j+1$: step $j$ used only edges
+meeting $\vW_j$ and $\vR_{j,\cdot}$-edges. An edge protected by (Inv2) or (Inv3) for an index $j'\ge j+1$ has both
+ends in $\vU_{j'}\subseteq\vU_{j+1}$ (in (Inv3), $w\in\vW_{j'}\subseteq\vU_{j'}$), so it does not meet $\vW_j$, and
+it is an $\vR_{j',c}$-edge with $j'\ne j$ or an $\vM$-edge; so it was not used at step $j$.
+
+\emph{Cost of step $j$.} There are at most $3|\vW_j|$ single edges (at most one per pair $(w,c)$). For each $c$ there
+are at most $|\vPaths_{j,c}|+|\vW_j|\le|\vP\cap\vU_j|+|\vW_j|$ trails, each giving at most three objects (at most two
+split cycles and at most one closed cycle). So step $j$ outputs at most
+\begin{equation}\label{s4:eqTPVstep}
+3|\vW_j|+3\cdot3\bigl(|\vP\cap\vU_j|+|\vW_j|\bigr)\ =\ 12\,|\vW_j|+9\,|\vP\cap\vU_j|
+\end{equation}
+objects. The sets $\vW_j$ ($j<\vJ$) are pairwise disjoint subsets of $\vP$, so $\sum_{j<\vJ}|\vW_j|\le|\vP|$, and
+$\sum_{j<\vJ}|\vP\cap\vU_j|\le8|\vP|$ by (G5). Hence, by \eqref{s4:eqTPVstep}, the steps $0\le j<\vJ$ together
+output at most $12|\vP|+9\cdot8|\vP|=84|\vP|$ objects.
+
+\emph{Finish.} By (Inv1) for $j=\vJ$, every edge of $\vH_{\vJ}$ has both ends in $\vP\cap\vU_{\vJ}$, and
+$|\vP\cap\vU_{\vJ}|\le48|\vP|/L$ by (G5). Apply Fact~\ref{s1:factEG0}(b) with $F:=\vH_{\vJ}$, $W:=\vP\cap\vU_{\vJ}$,
+$\beta:=48$ and $\alpha:=|\vP|\le N$; its hypothesis $N>1$ holds as $L\ge2^{10}$ by size condition (i), and its hypothesis $4\beta\le L$ is size
+condition (iii). So $\vH_{\vJ}$ decomposes into at most
+$48|\vP|$ objects, which are output. The total number of objects is at most $84|\vP|+48|\vP|=132|\vP|\le169|\vP|$.
+
+\emph{Conclusion.} Let $\EV$ be the set of used edges and $\EQ:=E\setminus\EV$. Every used edge lies in $\vH_0\subseteq
+E$ or is a reserved or connector edge, which lies in $E(O)\subseteq E$; so $\EV\subseteq E$ and the output is a
+decomposition of $\EV$ into at most $169|\vP|$ objects, which is (T3).
+(T1): every edge of $E$ with both ends in $\vP$ lies in $\vH_0$, and every edge of $\vH_0$ is used (edges leave
+$\vH_j$ only by being used, and $\vH_{\vJ}$ is used in the finish).
+(T2): an edge of $\EV$ with an end in $\vQ$ is not in $\vH_0$, so it is a reserved edge or a connector edge, hence an
+edge of $O$.
+(T4): all vertices of the Corollary-22 paths lie in $\vP$ (their edges lie in $\vH_0$), every path of
+$\vPathsQ_{j,c}$ is closed in step $j$, and the finish outputs only cycles and single edges; no path is left open.
+
+\emph{On \RTb{I13}.} Property (P4) bounds the pair multiplicity by $2+\vb$, not by $2+2\vb$ as in an earlier
+write-up (the latter is also below $\vt$, so nothing changes quantitatively). Property (P3) is what makes
+$Q\cup Q'$ a cycle of length at least $3$; the case of a single edge closed by a single connector edge, for which an
+earlier write-up gave a separate argument, cannot occur.
+\end{proof}
+
+
+\subsection{Lemma PV: the four-phase P-vortex}\label{s4:ssecPV}
+
+In Lemma~TPV every path is closed inside the run. In the P-vortex a set $\Rt$ of \emph{rooted} vertices never
+retires, and paths whose two ends are rooted are not closed inside the run: they are returned as \emph{arcs}, each
+carrying one of four phases, to be closed later by a different device through sets of vertices that are marked by an
+external phase map $\extph$. The only property of $\extph$ that the lemma uses is the hypothesis (E1$'$) below.
+
+\begin{lemma}[Lemma PV (the four-phase P-vortex)]\label{s4:lemPV}
+Let $Z$ be a set of $N\ge\Nzero$ vertices and $L:=\log_2N$. Put
+\[
+\vJ:=\lfloor\log_2(L/8)\rfloor,\qquad \vm:=\lceil L^6\rceil,\qquad \vb:=\lceil2^7L^2\vm\rceil,\qquad
+\vt:=2^9L^8 .
+\]
+The following data are fixed (not random):
+\begin{itemize}
+\item a spanning $(2^{-6},s_O)$-expander $O$ on $Z$ with $2\vm\le s_O$, and sets $\Aw(w)\subseteq N_O(w)$ ($w\in Z$)
+  with $|\Aw(w)|=\vm$ such that every vertex lies in at most $\vb$ of them (such sets exist by
+  Lemma~\ref{s3:lemHB} with $\eps'=2^{-6}$ and $m=\vm$);
+\item pairwise edge-disjoint graphs $\vR_{j,c}$ ($0\le j<\vJ$, $c\in[4]$) and $\vM$ on $Z$, the \emph{own classes},
+  each a spanning $(2^{-6},s')$-expander on $Z$ with $s'\ge2^{145}L^{41}$;
+\item a partition $Z=\Rt\sqcup\Pl$ into \emph{rooted} and \emph{parentless} vertices;
+\item an external phase map $\extph:Z\to[4]\cup\{*\}$.
+\end{itemize}
+For $w\in Z$ let $\vC_w:=\{wu:\ u\in\Aw(w),\ wu\in E(\vM),\ \extph(u)=*\}$, and assume
+\begin{itemize}
+\item[(E1$'$)] $|\vC_w|\ge L^5/8$ for every $w\in\Pl$.
+\end{itemize}
+The \emph{labels} of the run are the following independent random variables: for every $v\in\Pl$ a level
+$\vlev(v)\in\{0,1,\dots,\vJ\}$ with $\Prob(\vlev(v)\ge j)=2^{-j}$ for $0\le j\le\vJ$ (that is,
+$\Prob(\vlev(v)=j)=2^{-(j+1)}$ for $0\le j<\vJ$ and $\Prob(\vlev(v)=\vJ)=2^{-\vJ}$); for every $v\in Z$ a label
+$\vkap(v)\in\{0,1,2,3,4\}$ with $\Prob(\vkap(v)=0)=1/2$ and $\Prob(\vkap(v)=c)=1/8$ for $c\in[4]$. Put
+\begin{gather*}
+\vU_j:=\Rt\cup\{v\in\Pl:\vlev(v)\ge j\},\qquad \vW_j:=\{v\in\Pl:\vlev(v)=j\},\\
+\vZ_j:=\{u\in\vU_{j+1}:\vkap(u)=0\},\qquad \vV_{j,c}:=\{u\in\vU_{j+1}:\vkap(u)=c\}.
+\end{gather*}
+Let $\mathcal G_{\mathrm{PV}}$ be the event that the following three conditions hold:
+\begin{itemize}
+\item[(G2)] for all $0\le j<\vJ$ and $c\in[4]$, $\vR_{j,c}$ is $(2^{12}L^4,\vt)$-path connected through $\vV_{j,c}$;
+\item[(G4)] for all $0\le j<\vJ$ and $w\in\Pl$, the set $\vC^j_w:=\{wu\in\vC_w:\ u\in\vZ_j\}$ has at least $8$
+  elements;
+\item[(G5)] $\sum_{j<\vJ}|\Pl\cap\vU_j|\le8|\Pl|$ and $|\Pl\cap\vU_{\vJ}|\le64|\Pl|/L$.
+\end{itemize}
+The event $\mathcal G_{\mathrm{PV}}$ is determined by the own classes, the sets $\Aw(w)$, the partition, $\extph$ and
+the labels, and
+\begin{equation}\label{s4:eqPVprob}
+\Prob(\mathcal G_{\mathrm{PV}})\ \ge\ \frac12-\eta_{\mathrm{PV}}(N),\qquad
+\eta_{\mathrm{PV}}(N):=2^{95}L^{31}N^{-3}+NL\,e^{-L^4/16}\ \le\ \frac1{100}.
+\end{equation}
+On $\mathcal G_{\mathrm{PV}}$, for \emph{every} edge set $H_0$ all of whose edges have both ends in $Z$ and which
+contains $E(\vM)$ and every $E(\vR_{j,c})$, there is a partition $H_0=H^{\mathrm{obj}}\sqcup H^{\mathrm{arc}}$ and a
+family $\mathfrak A$ of paths (\emph{arcs}) such that:
+\begin{itemize}
+\item[(a)] $H^{\mathrm{obj}}$ decomposes into at most $369|\Pl|$ objects;
+\item[(b)] $H^{\mathrm{arc}}$ is the disjoint union of the edge sets of the arcs; the arcs are pairwise edge-disjoint
+  paths of length at least $1$, each has two distinct ends, both in $\Rt$, and each carries a phase $c\in[4]$ such
+  that every vertex $x$ of a phase-$c$ arc, ends included, satisfies $\extph(x)\ne c$;
+\item[(c)] $|\mathfrak A|\le4(\vJ+1)N$, and every vertex $x$ is an end of at most $\deg_{H_0}(x)\le|Z|-1$ arcs;
+\item[(d)] if $\Rt=\emptyset$ then $\mathfrak A=\emptyset$; if $\Pl=\emptyset$ then $H^{\mathrm{obj}}=\emptyset$.
+\end{itemize}
+The partition, the decomposition and the arcs are obtained from $H_0$ and the labels by a deterministic procedure.
+\deps{\ref{s3:thmT16s}, \ref{s3:lemHB}, \ref{s3:lemMonotone}, \ref{s1:citCor22}, \ref{s1:factEG0},
+\ref{s1:citChernoff}, \ref{s1:citMarkov}, \ref{s1:condG3}, \ref{s4:convVortex}, \ref{s4:lemTPV}, \ref{s1:convGraphs}, \ref{s1:defConstants}.}
+\fixes{\textsf{CR1-PV} (conclusion (c) and its proof; second inequality of \eqref{s4:eqPVt} deleted)}
+\end{lemma}
+
+\begin{proof}
+The proof follows that of Lemma~\ref{s4:lemTPV}, with three changes: rooted vertices never retire; the classing uses
+four phases and also avoids the external phases of both ends; and paths with two rooted ends that do not come from
+cherries are returned as arcs instead of being closed.
+
+\emph{Size conditions.} We use: (i) $L\ge2^{10}$; (ii) $N\ge L^3$; (iii) $4\cdot64\le L$ (a consequence of (i)); (iv)
+$\eta_{\mathrm{PV}}(N)\le1/100$. They hold for $N\ge\Nzero$ by the choice of $\Nzero$.
+
+\emph{Parameters.} By the definition of $\vJ$, $8\cdot2^{\vJ}\le L<16\cdot2^{\vJ}$, so
+\begin{equation}\label{s4:eqPVJ}
+2^{-\vJ}\ge8/L,\qquad 2^{-\vJ}<16/L,\qquad 1\le\vJ\le\log_2L,\qquad 4\vJ\le L
+\end{equation}
+(the last two by (i)). Lemma~\ref{s3:lemHB} with $\eps'=2^{-6}$ and $m=\vm\le s_O/2$ gives sets as in the statement
+with multiplicity at most $\lceil2\vm L^2/2^{-6}\rceil=\vb$. Since $\vb\le2^7L^2(L^6+1)+1$,
+\begin{equation}\label{s4:eqPVt}
+2+\vb\ \le\ 2^7L^8+2^7L^2+3\ \le\ 2^9L^8=\vt .
+\end{equation}
+As in Lemma~\ref{s4:lemTPV}: $\vU_0=Z$, $\vU_{j+1}\subseteq\vU_j$, $\vU_j=\vU_{j+1}\sqcup\vW_j$,
+$\vW_j\subseteq\Pl$, $\vW_j\cap\vU_{j+1}=\emptyset$, $\Rt\subseteq\vU_j$ for every $j$, and
+$\vZ_j,\vV_{j,1},\dots,\vV_{j,4}$ partition $\vU_{j+1}$.
+
+\emph{Probability of $\mathcal G_{\mathrm{PV}}$.} If $\Pl=\emptyset$, (G4) and (G5) hold surely, and the bound for (G2)
+below covers this case as well; in the items (G4) and (G5) below we assume $\Pl\ne\emptyset$.
+\begin{itemize}
+\item[(G2)] Fix $(j,c)$, and let $\mathcal K_{j,c}$ be the family of sets $T\subseteq Z$ such that $\vR_{j,c}$ is
+  $(2^{12}L^4,\vt)$-path connected through $T$. It is fixed, since the own classes are fixed data. It is closed
+  upwards by Lemma~\ref{s3:lemMonotone}(ii), applied with $G=G':=\vR_{j,c}$, $\ell=\ell':=2^{12}L^4$, $t=t':=\vt$ and
+  with $T\subseteq T'\subseteq Z=V(\vR_{j,c})$ as the two sets through which path connectivity is taken (the own
+  classes are spanning). For $v\in Z$ the event $v\in\vV_{j,c}$ depends only on $\vkap(v)$ and, if $v\in\Pl$, on
+  $\vlev(v)$, so these events are mutually independent over $v$; and $\Prob(v\in\vV_{j,c})=1/8\ge1/L$ if $v\in\Rt$
+  and $\Prob(v\in\vV_{j,c})=2^{-(j+1)}/8\ge2^{-\vJ}/8\ge1/L$ if $v\in\Pl$, by \eqref{s4:eqPVJ} and size condition
+  (i). Let $V'$ be a $(1/L)$-random subset of $Z$.
+  Theorem~\ref{s3:thmT16s} applies to $X:=\vR_{j,c}$ (a $(2^{-6},s')$-expander), $V:=V'$, $\rho:=1/L$, $t:=\vt$,
+  because $\rho N\ge L^2$ by size condition (ii) and $s'\ge2^{145}L^{41}\ge2^{135}\cdot2^9L^8\cdot L^{28}\cdot
+  L^5=2^{135}\vt L^{28}\rho^{-5}$; so
+  $\Prob(V'\notin\mathcal K_{j,c})\le2^{86}\cdot2^9L^8\cdot L^{19}\cdot L^3\cdot N^{-3}=2^{95}L^{30}N^{-3}$. By
+  observation \textup{(MC)} (with $S:=Z$, $\mathcal K:=\mathcal K_{j,c}$, the random set $\vV_{j,c}$ in place of $V$,
+  and $\rho:=1/L$), also $\Prob(\vV_{j,c}\notin\mathcal K_{j,c})\le2^{95}L^{30}N^{-3}$: $\vR_{j,c}$ fails to be
+  $(2^{12}L^4,\vt)$-path connected through $\vV_{j,c}$ with probability at most $2^{95}L^{30}N^{-3}$. There are
+  $4\vJ\le L$ pairs $(j,c)$. By Lemma~\ref{s3:lemMonotone}(iii) the pair multisets may be chosen after the labels
+  are revealed.
+\item[(G4)] Fix $j<\vJ$ and $w\in\Pl$. The set $\vC_w$ is fixed and has at least $L^5/8$ elements by (E1$'$). For
+  $wu\in\vC_w$ the events $u\in\vZ_j$ depend on the labels of distinct vertices $u\ne w$, so they are independent,
+  and $\Prob(u\in\vZ_j)=\frac12\Prob(u\in\vU_{j+1})\ge\frac12\min(1,2^{-\vJ})\ge4/L$ by \eqref{s4:eqPVJ}. As
+  $(L^5/8)(4/L)=L^4/2\ge16$, observation \textup{(B)} gives $\Prob(|\vC^j_w|<8)\le e^{-L^4/16}$. There are at most
+  $N\vJ\le NL$ pairs $(w,j)$.
+\item[(G5)] $\Ex\sum_{j<\vJ}|\Pl\cap\vU_j|<2|\Pl|$ and $\Ex|\Pl\cap\vU_{\vJ}|=2^{-\vJ}|\Pl|<16|\Pl|/L$ by
+  \eqref{s4:eqPVJ}; by Markov's inequality (Cited result~\ref{s1:citMarkov}) each inequality of (G5) fails with
+  probability less than $1/4$.
+\end{itemize}
+Summing gives \eqref{s4:eqPVprob}. The three events involve only the own classes, $\vC_w$ (hence $\Aw(w)$, $\vM$
+and $\extph$), the partition and the labels; none involves $H_0$. Fix labels in $\mathcal G_{\mathrm{PV}}$ and an edge
+set $H_0$ as in the statement.
+
+\emph{The process.} All choices are made by fixed rules. An edge is \emph{used} once it has been placed into an
+output object or into an arc. Put $\vH_{j+1}:=\vH_j\setminus\{\text{edges used at step }j\}$, where $\vH_0:=H_0$.
+Before step $j$ ($0\le j\le\vJ$) we maintain:
+\begin{itemize}
+\item[(Inv1)] every edge of $\vH_j$ has both ends in $\vU_j$;
+\item[(Inv2)] every edge of $\vR_{j',c}$ with $j'\ge j$, $c\in[4]$ and both ends in $\vU_{j'+1}$ lies in $\vH_j$;
+\item[(Inv3)] every $\vM$-edge $wu$ with $w\in\vW_{j'}$ for some $j'\ge j$ and $u\in\vU_{j'+1}$ lies in $\vH_j$.
+\end{itemize}
+They hold for $j=0$ because $\vU_0=Z$ and $H_0$ contains all own classes.
+
+\emph{Step $j$} ($0\le j<\vJ$). Let $\vF_j$ be the set of edges of $\vH_j$ meeting $\vW_j$; by (Inv1) all their ends lie
+in $\vU_j$.
+\begin{itemize}
+\item[(i)] \emph{Reserve.} For each $w\in\vW_j$ choose eight distinct edges $e^{c,i}_w\in\vC^j_w$ ($c\in[4]$,
+  $i\in[2]$), possible by (G4). Each is an $\vM$-edge $wu$ with $w\in\vW_j$, $u\in\vZ_j\subseteq\vU_{j+1}$, so it lies
+  in $\vH_j$ by (Inv3), hence in $\vF_j$; $w$ is its only end in $\vW_j$, so reserved edges of distinct $w$ are
+  distinct. Its far end $u$ satisfies $\vkap(u)=0$ and $\extph(u)=*$.
+\item[(ii)] \emph{Phases.} For every non-reserved edge of $\vF_j$ choose an end $w\in\vW_j$, call the other end $x$,
+  and give the edge a phase $\gamma\in[4]\setminus\{\vkap(x),\extph(x),\extph(w)\}$; at most three of the four values
+  are excluded, so a phase exists. Let $\vF_{j,c}$ be the set of non-reserved edges of phase $c$. Then, for every
+  $c\in[4]$,
+  \begin{equation}\label{s4:eqPVclass}
+  V(\vF_{j,c})\cap\vV_{j,c}=\emptyset\qquad\text{and}\qquad \extph(y)\ne c\ \text{ for every } y\in V(\vF_{j,c}),
+  \end{equation}
+  the first as in \eqref{s4:eqTPVclass}, the second because both ends of a phase-$c$ edge were constrained.
+\item[(iii)] \emph{Paths.} Let $\vPaths_{j,c}$ be a Corollary-22 decomposition of $\vF_{j,c}$; by \textup{(E)},
+  $|\vPaths_{j,c}|\le|\vU_j|\le N$.
+\item[(iv)] \emph{Ends in $\vW_j$.} Exactly as in step (iv) of the proof of Lemma~\ref{s4:lemTPV}, for every
+  $w\in\vW_j$ and $c\in[4]$: if $w$ is an end of two paths of $\vPaths_{j,c}$, append $e^{c,1}_w$ to one and
+  $e^{c,2}_w$ to the other at $w$; if of one, append $e^{c,1}_w$ and output $e^{c,2}_w$ as a single edge; if of none,
+  form the cherry $u_1wu_2$ from $e^{c,1}_w=wu_1$ and $e^{c,2}_w=wu_2$. The resulting trails have pairwise distinct
+  inner vertices and pairwise distinct edges.
+\item[(v)] \emph{Splitting.} By \textup{(S)} each trail splits into at most two cycles (output) and at most one path
+  with the same ends as the trail; let $\vPathsQ_{j,c}$ be the set of these paths. Exactly as in the proof of
+  Lemma~\ref{s4:lemTPV} (with \eqref{s4:eqPVclass} and \eqref{s4:eqPVt} in place of \eqref{s4:eqTPVclass} and
+  \eqref{s4:eqTPVt}): (P1) no vertex of a path in $\vPathsQ_{j,c}$ lies in $\vV_{j,c}$; (P2) its two ends are
+  distinct and lie in $\vU_{j+1}$ (an end is an end of a path of $\vPaths_{j,c}$ not in $\vW_j$, hence in
+  $\vU_j\setminus\vW_j=\vU_{j+1}$, or a far end); (P3) it has length at least $2$; (P4) every vertex is an end of at
+  most $2+\vb\le\vt$ paths of $\vPathsQ_{j,c}$. Moreover:
+  \begin{itemize}
+  \item[(P5)] if $Q\in\vPathsQ_{j,c}$ does not come from a cherry, then $\extph(y)\ne c$ for every vertex $y$ of $Q$:
+    the vertices of its trail are vertices of $\vF_{j,c}$ (use \eqref{s4:eqPVclass}) and far ends (where
+    $\extph=*$).
+  \end{itemize}
+\item[(vi)] \emph{Arcs and closing.} A path $Q\in\vPathsQ_{j,c}$ that does not come from a cherry and has both ends in
+  $\Rt$ is declared an \emph{arc of phase $c$}; its edges are put into $H^{\mathrm{arc}}$. Every other path of
+  $\vPathsQ_{j,c}$ (one with an end in $\Pl$, or one coming from a cherry) is closed: the multiset of their end pairs
+  has every vertex in at most $\vt$ pairs by (P4), so by (G2) there are pairwise edge-disjoint connectors
+  $Q'\subseteq\vR_{j,c}$ joining the ends of these paths, of length at most $2^{12}L^4$, with inner vertices in
+  $\vV_{j,c}$. As in step (vi) of the proof of Lemma~\ref{s4:lemTPV}, every connector edge is an
+  $\vR_{j,c}$-edge with both ends in $\vU_{j+1}$, so it lies in $\vH_j$ by (Inv2), is not in $\vF_j$ and is not
+  reserved; by (P1), (P3) and \textup{(C)}, $Q\cup Q'$ is a cycle, which is output.
+\end{itemize}
+Closing cherries inside the run (rather than declaring a cherry with two rooted ends an arc) guarantees (b) for the
+centre $w$ of the cherry, for which $\extph(w)=c$ is not excluded.
+
+The edges used at step $j$ are exactly the edges of $\vF_j$ and the connector edges, all of them edges of $\vH_j$;
+as in the proof of Lemma~\ref{s4:lemTPV}, the objects and arcs of the step are pairwise edge-disjoint. The invariants
+persist by the argument given there: an edge of $\vH_{j+1}$ lies in $\vH_j\setminus\vF_j$, so has both ends in
+$\vU_j\setminus\vW_j=\vU_{j+1}$; step $j$ used only edges meeting $\vW_j$ and $\vR_{j,\cdot}$-edges, while edges
+protected by (Inv2), (Inv3) for indices $j'\ge j+1$ have both ends in $\vU_{j+1}$ and are not $\vR_{j,\cdot}$-edges.
+
+\emph{Cost of step $j$.} There are at most $4|\vW_j|$ single edges. For a phase $c$, a trail produces objects only if
+(1) it is a cherry or has an appended edge, or (2) it is a path of $\vPaths_{j,c}$ without appended edges having an
+end in $\Pl$. A trail of type (1) contains at least one of the at most $2|\vW_j|$ reserved edges of phase $c$ used in
+(iv), and each of these edges lies in exactly one trail (a trail may contain two of them: a cherry, or a path of
+$\vPaths_{j,c}$ with both ends in $\vW_j$); so there are at most $2|\vW_j|$ such trails. An end in $\Pl$ of a trail of type (2) is not in $\vW_j$ (ends in $\vW_j$ receive appended edges), so it
+lies in $\Pl\cap\vU_{j+1}$, and each vertex is an end of at most two paths of $\vPaths_{j,c}$; so there are at most
+$2|\Pl\cap\vU_{j+1}|$ such trails. Every remaining trail is a path of $\vPaths_{j,c}$ with both ends in $\Rt$ and
+without appended edges; it is not split ($\mathrm{rep}=0$), and it becomes an arc. Each trail of type (1) or (2) gives
+at most three objects (at most two split cycles and at most one closed cycle). Hence, using
+$\vW_j\sqcup(\Pl\cap\vU_{j+1})=\Pl\cap\vU_j$, step $j$ outputs at most
+\begin{equation}\label{s4:eqPVstep}
+4|\vW_j|+4\cdot3\bigl(2|\Pl\cap\vU_{j+1}|+2|\vW_j|\bigr)\ \le\ 28\,|\Pl\cap\vU_j|
+\end{equation}
+objects. (An earlier write-up used the weaker per-step bound $44|\Pl\cap\vU_j|$, which adds an allowance of
+$16|\vW_j|$ for split cycles of trails with two rooted ends; by the case analysis just given such trails are either
+of type (1), and already counted, or not split at all. The bound $28|\Pl\cap\vU_j|$ is the one used in (a) below.)
+
+\emph{Finish.} By (Inv1) for $j=\vJ$, every edge of $\vH_{\vJ}$ has both ends in $\vU_{\vJ}=\Rt\sqcup \Pl_{\vJ}$, where
+$\Pl_{\vJ}:=\Pl\cap\vU_{\vJ}$. Split $\vH_{\vJ}=E_1\sqcup E_2$, where $E_1$ is the set of edges with both ends in
+$\Pl_{\vJ}$; every edge of $E_2$ has an end in $\Rt$.
+\begin{itemize}
+\item By (G5), $|\Pl_{\vJ}|\le64|\Pl|/L$. Apply Fact~\ref{s1:factEG0}(b) with $F:=E_1$, $W:=\Pl_{\vJ}$, $\beta:=64$ and
+  $\alpha:=|\Pl|\le N$; its hypothesis $N>1$ holds as $L\ge2^{10}$ by size condition (i), and its hypothesis $4\beta\le L$
+  is size condition (iii). So $E_1$ decomposes into at most $64|\Pl|$
+  objects, which are output.
+\item Give every edge $xy\in E_2$ a phase $c\in[4]\setminus\{\extph(x),\extph(y)\}$ (at most two values are excluded)
+  and let $E_{2,c}$ be the set of edges of phase $c$. Take a Corollary-22 decomposition of each $E_{2,c}$. Let $T$ be
+  one of its paths. If an end $p$ of $T$ lies in $\Pl_{\vJ}$, the edge of $T$ at $p$ lies in $E_2$, so its other end
+  lies in $\Rt$; output this edge as a single edge (\emph{stripping}). After stripping at the ends of $T$ lying in
+  $\Pl_{\vJ}$, what remains of $T$ has no edges or is a path of length at least $1$ with two distinct ends in $\Rt$ (every end
+  of $T$ lies in $\Rt\sqcup \Pl_{\vJ}$, and a stripped end is replaced by a vertex of $\Rt$); in the latter case it is
+  declared an arc of phase $c$. Every vertex $y$ of such an arc is an end of an edge of phase $c$, so
+  $\extph(y)\ne c$. Since every vertex of $\Pl_{\vJ}$ is an end of at most two paths of each decomposition, at most
+  $2|\Pl_{\vJ}|$ edges are stripped per phase, i.e.\ at most $8|\Pl_{\vJ}|\le16|\Pl|$ single
+  edges in total (also $8|\Pl_{\vJ}|\le8|\Pl|$; the factor $16$ is kept from an earlier write-up, and nothing
+  depends on it).
+\end{itemize}
+
+\emph{Conclusion.} Every edge of $H_0$ is used exactly once: edges leave $\vH_j$ only by being used, $\vH_{\vJ}$ is
+used entirely in the finish, and every used edge lies in $H_0$ (reserved edges lie in $\vF_j\subseteq\vH_j$ and
+connector edges in $\vH_j$). Let $H^{\mathrm{arc}}$ be the union of the edge sets of the arcs and
+$H^{\mathrm{obj}}:=H_0\setminus H^{\mathrm{arc}}$, the union of the output objects.
+
+(a) By \eqref{s4:eqPVstep} and (G5), the steps $0\le j<\vJ$ together output at most
+$28\sum_{j<\vJ}|\Pl\cap\vU_j|\le28\cdot8|\Pl|=224|\Pl|$ objects, and the finish outputs at most $64|\Pl|+16|\Pl|$
+objects. So the number of objects is at most $224|\Pl|+64|\Pl|+16|\Pl|=304|\Pl|\le369|\Pl|$.
+
+(b) Arcs are pairwise edge-disjoint (each edge is used once), they are paths of length at least $1$ with two
+distinct ends in $\Rt$ (by (P2) and the rule in (vi), and by the finish), and every vertex of a phase-$c$ arc has
+$\extph\ne c$ (by (P5), since arcs never come from cherries, and by the finish).
+
+(c) At step $j$, each arc of phase $c$ comes from a distinct path of $\vPaths_{j,c}$, so there are at most $N$ of
+them; in the finish there are at most $|\vU_{\vJ}|\le N$ arcs per phase by \textup{(E)}. Hence
+$|\mathfrak A|\le4\vJ N+4N=4(\vJ+1)N$. For the per-vertex bound, let $x\in Z$. By (b) the arcs are pairwise
+edge-disjoint paths with two distinct ends, and their edges lie in $H^{\mathrm{arc}}\subseteq H_0$. An arc with end
+$x$ contains exactly one edge at $x$ (a path meets each of its two ends in exactly one edge), and distinct arcs are
+edge-disjoint; so $x$ is an end of at most $\deg_{H_0}(x)$ arcs. Every edge of $H_0$ at $x$ joins $x$ to a vertex of
+$Z\setminus\{x\}$, and distinct edges at $x$ have distinct other ends (edge sets are sets of edges of a simple graph,
+Convention~\ref{s1:convGraphs}(a)); hence $\deg_{H_0}(x)\le|Z|-1$. (An earlier write-up bounded the arc ends at $x$
+by $8\vJ+8+\vb$, counting only ends of Corollary-22 paths and far ends of reserved edges. That count misses the arcs
+left by stripping in the finish: such an arc can end at a vertex $x\in\Rt$ that is an interior vertex of its
+Corollary-22 path, and Corollary~22 does not limit the number of such paths at $x$. The bound through degrees covers
+all arcs.)
+
+(d) Arcs have their ends in $\Rt$, so there are none if $\Rt=\emptyset$. If $\Pl=\emptyset$ then every $\vW_j$ is
+empty, the steps use nothing, $\Pl_{\vJ}=\emptyset$, and $E_1=\emptyset$; no edge is stripped, and all of
+$H_0=\vH_{\vJ}=E_2$ is partitioned into arcs, so $H^{\mathrm{obj}}=\emptyset$.
+\end{proof}
+
+\subsection{Theorem \texorpdfstring{VX$^+$}{VX+}: vortex absorption with arbitrary extra edges}\label{s4:ssecVX}
+
+\begin{theorem}[Theorem VX$^+$ (sharpened vortex absorption with arbitrary extra edges)]\label{s4:thmVXp}
+Let $Z$ be a set of $N\ge\Nzero$ vertices, $L:=\log_2N$, and let $O$ be a spanning $(\eps_O,s)$-expander on $Z$, where
+either
+\[
+\eps_O=2^{-5}\ \text{ and }\ s\ge2^{146}L^{38}\log_2L,\qquad\text{or}\qquad \eps_O=2^{-6}\ \text{ and }\
+s\ge2^{151}L^{38}\log_2L .
+\]
+Put $\vJ:=\lfloor\log_2(L/6)\rfloor$, $k:=3\vJ+1$, $\vm:=\lceil L^3\rceil$, $\vb:=\lceil2\vm L^2/\eps_O\rceil$ (that
+is, $\lceil64L^2\vm\rceil$, resp.\ $\lceil128L^2\vm\rceil$) and $\vt:=2^8L^5$, resp.\ $\vt:=2^9L^5$. The labels of the
+run are independent: a uniform colouring of $E(O)$ with the $k$ colours $\vR_{j,c}$ ($0\le j<\vJ$, $c\in[3]$) and
+$\vM$; for every $v\in Z$ a level $\vlev(v)\in\{0,1,\dots,\vJ\}$ with $\Prob(\vlev(v)\ge j)=2^{-j}$ for $0\le j\le\vJ$ (that is,
+$\Prob(\vlev(v)=j)=2^{-(j+1)}$ for $0\le j<\vJ$ and $\Prob(\vlev(v)=\vJ)=2^{-\vJ}$); for every $v\in Z$ a
+label $\vkap(v)\in\{0,1,2,3\}$ with $\Prob(\vkap(v)=0)=1/2$ and $\Prob(\vkap(v)=c)=1/6$ ($c\in[3]$). There is an
+event $\mathcal G_{\mathrm{VX}}$, determined by $O$ and the labels only, with
+\begin{equation}\label{s4:eqVXprob}
+\begin{gathered}
+\Prob(\mathcal G_{\mathrm{VX}})\ \ge\ 1-\eta_{\mathrm{VX}}(N)\ \ge\ \frac12,\qquad\text{where}\\
+\eta_{\mathrm{VX}}(N):=2LN^{-5}+2^{95}L^{28}N^{-3}+NL\,e^{-3L^2/(32\log_2L)}+L\,e^{-N/(5000L)},
+\end{gathered}
+\end{equation}
+such that on $\mathcal G_{\mathrm{VX}}$ the following holds simultaneously for \emph{every} graph $G$ with $V(G)=Z$ and
+$E(O)\subseteq E(G)$ (the edges of $E(G)\setminus E(O)$ are arbitrary): $E(G)$ decomposes into at most
+\[
+38.4\,N+13\,N\ \le\ 52N\ \le\ 80N
+\]
+objects, all of which are cycles except at most $N+13N/L=N+o(N)$ single edges. In particular
+$\f(G)\le80N$.
+\deps{\ref{s3:lemL15p}, \ref{s3:thmT16s}, \ref{s3:lemHB}, \ref{s3:lemMonotone}, \ref{s1:citCor22},
+\ref{s1:factEG0}, \ref{s1:citChernoff}, \ref{s1:condG3}, \ref{s4:convVortex}, \ref{s1:convGraphs}, \ref{s1:defConstants}.}
+\fixes{\RTb{I13}}
+\end{theorem}
+
+\begin{proof}
+\emph{Size conditions.} We use: (i) $L\ge2^{10}$; (ii) $N\ge L^3$; (iii) $4\cdot13\le L$ (a consequence of (i)); (iv)
+$\eta_{\mathrm{VX}}(N)\le1/100$. They hold for $N\ge\Nzero$ by the choice of $\Nzero$.
+
+\emph{Parameters.} By the definition of $\vJ$, $6\cdot2^{\vJ}\le L<12\cdot2^{\vJ}$, so $2^{-\vJ}\ge6/L$,
+$2^{-\vJ}<12/L$, $1\le\vJ$ and $\vJ+1\le L$; moreover $k=3\vJ+1\le3\log_2L+1\le4\log_2L$, so $2k\le8\log_2L$ and
+$k\le L$. Since $s\ge2\lceil L^3\rceil=2\vm$, Lemma~\ref{s3:lemHB} (with $\eps'=\eps_O\ge2^{-7}$, $m=\vm$) gives sets
+$\Aw(w)\subseteq N_O(w)$, $|\Aw(w)|=\vm$, with every vertex in at most $\vb$ of them; we fix the lexicographically
+first such family. As $\vm\le L^3+1$, we have $\vb\le2^6L^5+2^6L^2+1$ (resp.\ $\vb\le2^7L^5+2^7L^2+1$), hence
+\begin{equation}\label{s4:eqVXt}
+2+\vb\ \le\ 2L^2\vm/\eps_O+3\ \le\ \vt .
+\end{equation}
+Put $\vU_j:=\{v:\vlev(v)\ge j\}$, $\vW_j:=\vU_j\setminus\vU_{j+1}$, $\vZ_j:=\{u\in\vU_{j+1}:\vkap(u)=0\}$ and
+$\vV_{j,c}:=\{u\in\vU_{j+1}:\vkap(u)=c\}$; thus $\vU_0=Z$, $\vW_j\cap\vU_{j+1}=\emptyset$ and
+$\vZ_j,\vV_{j,1},\vV_{j,2},\vV_{j,3}$ partition $\vU_{j+1}$.
+
+\emph{Good events.} Let $\mathcal G_{\mathrm{VX}}$ be the intersection of:
+\begin{itemize}
+\item[(G1)] every colour class is a spanning $(\eps_O,s/(2k))$-expander on $Z$. As $s\ge40kL$,
+  Lemma~\ref{s3:lemL15p} bounds the failure probability by $2kN^{-5}\le2LN^{-5}$. Note
+  $s/(2k)\ge s/(8\log_2L)\ge2^{143}L^{38}$ (resp.\ $\ge2^{148}L^{38}$).
+\item[(G2)] every $\vR_{j,c}$ is $(2^{12}L^4,\vt)$-path connected through $\vV_{j,c}$. Here the event
+  $v\in\vV_{j,c}$ depends only on $(\vlev(v),\vkap(v))$, so these events are mutually independent over $v$ and
+  independent of the colouring, and $\Prob(v\in\vV_{j,c})=2^{-(j+1)}/6\ge2^{-\vJ}/6\ge1/L$ for every $v$.
+  Fix a colouring $\chi$ in (G1) and a pair $(j,c)$, and let $\mathcal K_{j,c}$ be the family of sets
+  $T\subseteq Z$ such that $\vR_{j,c}$ is $(2^{12}L^4,\vt)$-path connected through $T$. It is determined by $\chi$.
+  It is closed upwards by Lemma~\ref{s3:lemMonotone}(ii), applied with $G=G':=\vR_{j,c}$, $\ell=\ell':=2^{12}L^4$,
+  $t=t':=\vt$ and with $T\subseteq T'\subseteq Z=V(\vR_{j,c})$ as the two sets through which path connectivity is
+  taken (the colour classes are spanning). Let $V'$ be a $(1/L)$-random subset of $Z$ and apply Theorem~\ref{s3:thmT16s}
+  with $X:=\vR_{j,c}$, $V:=V'$, $\rho:=1/L$, $t:=\vt$: its hypotheses are $N/L\ge L^2$ (by size condition (ii)) and
+  $s/(2k)\ge2^{135}\vt L^{28}L^5$, i.e.\ $2^{143}L^{38}$ for $\vt=2^8L^5$ and $2^{144}L^{38}$ for $\vt=2^9L^5$, both
+  covered by (G1). So $\Prob(V'\notin\mathcal K_{j,c})\le2^{86}\vt L^{19}L^3N^{-3}\le2^{95}L^{27}N^{-3}$. By
+  observation \textup{(MC)} (with $S:=Z$, $\mathcal K:=\mathcal K_{j,c}$, the random set $\vV_{j,c}$ in place of $V$,
+  and $\rho:=1/L$), also $\Prob(\vV_{j,c}\notin\mathcal K_{j,c})\le2^{95}L^{27}N^{-3}$, the probability being over the
+  levels and the labels $\vkap$. As these are independent of the colouring, a union bound over the $3\vJ\le L$ pairs
+  $(j,c)$ shows that the probability that (G1) holds and (G2) fails is at most
+  $\sum_{\chi}\Prob(\text{the colouring is }\chi)\cdot3\vJ\cdot2^{95}L^{27}N^{-3}\le2^{95}L^{28}N^{-3}$, the sum
+  running over the colourings $\chi$ in (G1). By
+  Lemma~\ref{s3:lemMonotone}(iii), pair multisets may be chosen after the labels are revealed.
+\item[(G3)] $|\vU_j|\le1.01\cdot2^{-j}N$ for $0\le j\le\vJ$. $|\vU_j|$ is binomial with mean
+  $2^{-j}N\ge2^{-\vJ}N\ge6N/L$; by Cited result~\ref{s1:citChernoff} with $\delta=1/100$ it exceeds $1.01$ times its
+  mean with probability at most $e^{-10^{-4}\cdot6N/(3L)}\le e^{-N/(5000L)}$; there are $\vJ+1\le L$ values of $j$.
+\item[(G4)] for every $0\le j<\vJ$ and every $w\in Z$ the set
+  $\vC^j_w:=\{wu:\ u\in\Aw(w),\ wu\in\vM,\ u\in\vZ_j\}$ has at least $9$ elements. For $u\in\Aw(w)$ the events
+  $\{wu\in\vM,\ u\in\vZ_j\}$ are independent (distinct edges $wu$ and distinct vertices $u\ne w$), each of probability
+  $\frac1k\cdot2^{-(j+1)}\cdot\frac12\ge\frac1{4\log_2L}\cdot\frac3L$. As
+  $\vm\cdot\frac{3}{4L\log_2L}\ge\frac{3L^2}{4\log_2L}\ge18$, observation \textup{(B)} bounds the failure
+  probability for one pair $(w,j)$ by $e^{-3L^2/(32\log_2L)}$; there are at most $NL$ pairs.
+\end{itemize}
+These events are determined by $O$ (through the colouring and $\Aw(\cdot)$) and the labels; summing the failure
+probabilities gives \eqref{s4:eqVXprob}, and $\eta_{\mathrm{VX}}(N)\le1/100\le1/2$ by (iv). Fix labels in
+$\mathcal G_{\mathrm{VX}}$ and a graph $G$ with $V(G)=Z$ and $E(O)\subseteq E(G)$.
+
+\emph{The process.} All choices are made by fixed rules. Put $\vH_0:=E(G)$ and let $\vH_{j+1}$ be $\vH_j$ minus the
+edges used at step $j$. Before step $j$ ($0\le j\le\vJ$) we maintain: (Inv1) every edge of $\vH_j$ has both ends in
+$\vU_j$; (Inv2) every $\vR_{j',c}$-edge with $j'\ge j$ and both ends in $\vU_{j'+1}$ lies in $\vH_j$; (Inv3) every
+$\vM$-edge $wu$ with $w\in\vW_{j'}$ for some $j'\ge j$ and $u\in\vU_{j'+1}$ lies in $\vH_j$. They hold for $j=0$
+since $\vH_0\supseteq E(O)$ and $\vU_0=Z$.
+
+\emph{Step $j$} ($0\le j<\vJ$). Let $\vF_j$ be the set of edges of $\vH_j$ meeting $\vW_j$. By (Inv3),
+$\vC^j_w\subseteq\vF_j$ for every $w\in\vW_j$; every edge of $\vC^j_w$ has exactly one end in $\vW_j$ (its other end
+lies in $\vZ_j\subseteq\vU_{j+1}$), so the sets $\vC^j_w$ ($w\in\vW_j$) are pairwise disjoint.
+\begin{itemize}
+\item[(a)] \emph{Parity.} For every $w\in\vW_j$ with $\deg_{\vF_j}(w)$ odd, output one edge of $\vC^j_w$ as a single
+  edge (the \emph{parity edge} of $w$). Let $\vF'_j$ be $\vF_j$ minus the parity edges. As each parity edge has
+  exactly one end in $\vW_j$, $\deg_{\vF'_j}(w)$ is even for every $w\in\vW_j$.
+\item[(b)] \emph{Reserved and flexible edges.} For every $w\in\vW_j$ choose eight further distinct edges of
+  $\vC^j_w$ (possible by (G4), since $|\vC^j_w|\ge9$): \emph{reserved} edges $e^{c,1}_w,e^{c,2}_w$ ($c\in[3]$) and
+  \emph{flexible} edges $f_w,f'_w$. These \emph{chosen} edges of distinct $w$ are distinct; the end of a chosen edge
+  in $\vZ_j$ is its \emph{far end}, and $\vkap=0$ there.
+\item[(c)] \emph{Classes.} Every edge of $\vF'_j$ that is not chosen receives, once and for all, a class: choose an
+  end $w\in\vW_j$, call the other end $x$, and pick $\gamma\in[3]\setminus\{\vkap(x)\}$. For $w\in\vW_j$ let
+  $d_c(w)$ be the number of such classed edges of class $c$ at $w$ (an edge with both ends in $\vW_j$ counts at both
+  ends). Then $d_1(w)+d_2(w)+d_3(w)=\deg_{\vF'_j}(w)-8$ is even, so the number of odd $d_c(w)$ is $0$ or $2$. If
+  $d_c(w)$ and $d_{c'}(w)$ are odd ($c\ne c'$), give $f_w$ class $c$ and $f'_w$ class $c'$; otherwise give both
+  class $1$. A flexible edge has only one end in $\vW_j$, so these choices at different $w$ do not interact. Let
+  $\vF_{j,c}$ be the set of class-$c$ edges (classed and flexible; reserved edges excluded). Then for all
+  $w\in\vW_j$ and $c\in[3]$, $\deg_{\vF_{j,c}}(w)$ is even, and $V(\vF_{j,c})\cap\vV_{j,c}=\emptyset$ (ends in
+  $\vW_j$ are outside $\vU_{j+1}$, other ends $x$ of classed edges have $\vkap(x)\ne c$, far ends have $\vkap=0$).
+\item[(d)] \emph{Paths.} Let $\vPaths_{j,c}$ be a Corollary-22 decomposition of $\vF_{j,c}$. By \textup{(E)} and
+  (Inv1), $|\vPaths_{j,c}|\le|\vU_j|$, and every $w\in\vW_j$ is an end of an even number, hence of $0$ or $2$, paths
+  of $\vPaths_{j,c}$.
+\item[(e)] \emph{Moving ends out of $\vW_j$.} For $w\in\vW_j$ and $c\in[3]$: if $w$ is an end of two paths of
+  $\vPaths_{j,c}$, append $e^{c,1}_w$ at $w$ to one and $e^{c,2}_w$ at $w$ to the other; if of none, form the cherry
+  $u_1wu_2$ from $e^{c,1}_w=wu_1$, $e^{c,2}_w=wu_2$ ($u_1\ne u_2$). Every resulting trail $x_0\cdots x_q$ has pairwise
+  distinct edges and pairwise distinct inner vertices (those of one path of $\vPaths_{j,c}$, or the centre of a
+  cherry). By \textup{(S)} it splits into at most two cycles, which are output, and at most one path with the ends
+  $x_0\ne x_q$; let $\vPathsQ_{j,c}$ be the set of these paths. Every $Q\in\vPathsQ_{j,c}$ satisfies:
+  (P1) $V(Q)\cap\vV_{j,c}=\emptyset$ (its vertices are vertices of $\vF_{j,c}$, cherry centres in $\vW_j$, or far
+  ends); (P2) its ends are distinct and lie in $\vU_{j+1}$ (ends of paths of $\vPaths_{j,c}$ outside $\vW_j$, which
+  lie in $\vU_j\setminus\vW_j=\vU_{j+1}$, or far ends in $\vZ_j$); (P3) its length is at least $2$ (all its edges meet
+  $\vW_j$, its ends do not); (P4) every vertex $x$ is an end of at most $2+\vb$ paths of $\vPathsQ_{j,c}$ (at most
+  two ends of paths of $\vPaths_{j,c}$, plus at most one reserved edge $e^{c,i}_w$ with far end $x$ for each of the at
+  most $\vb$ vertices $w$ with $x\in\Aw(w)$; each trail yields at most one path, with the trail's ends).
+\item[(f)] \emph{Closing.} For each $c$, the end pairs of $\vPathsQ_{j,c}$ form a multiset of pairs of distinct
+  vertices with every vertex in at most $2+\vb\le\vt$ pairs, by (P2), (P4) and \eqref{s4:eqVXt}. By (G2) there are
+  pairwise edge-disjoint connectors $Q'\subseteq\vR_{j,c}$ joining them, of length at most $2^{12}L^4$, with inner
+  vertices in $\vV_{j,c}\subseteq\vU_{j+1}$. All vertices of a connector lie in $\vU_{j+1}$, so its edges are
+  $\vR_{j,c}$-edges with both ends in $\vU_{j+1}$: they lie in $\vH_j$ by (Inv2), are not in $\vF_j$ and are not
+  chosen edges (which are $\vM$-edges). By (P1), (P3) and \textup{(C)}, $Q\cup Q'$ is a cycle, which is output.
+\end{itemize}
+Every edge of $\vF_j$ is used exactly once at step $j$ (parity edges as single edges; reserved edges appended or in
+cherries; classed and flexible edges on paths of $\vPaths_{j,c}$; every trail edge ends in a split cycle or a closed
+cycle), connectors of one class are edge-disjoint and connectors of distinct classes lie in distinct colour classes,
+and connectors avoid $\vF_j$. The invariants persist: an edge of $\vH_{j+1}$ lies in
+$\vH_j\setminus\vF_j$, so both its ends lie in $\vU_{j+1}$; step $j$ used only edges meeting $\vW_j$ and
+$\vR_{j,\cdot}$-edges, whereas the edges protected by (Inv2), (Inv3) for indices $j'\ge j+1$ have both ends in
+$\vU_{j+1}$ and are $\vR_{j',\cdot}$- or $\vM$-edges.
+
+\emph{Cost.} Step $j$ outputs at most $|\vW_j|$ parity edges and, for each $c$, at most
+$|\vPaths_{j,c}|+|\vW_j|\le|\vU_j|+|\vW_j|$ trails, each giving at most three objects. As $\vW_j\subseteq\vU_j$, this
+is at most $|\vW_j|+9(|\vU_j|+|\vW_j|)\le19|\vU_j|$ objects. By (Inv1), after the last step every edge of
+$\vH_{\vJ}$ has both ends in $\vU_{\vJ}$, and $|\vU_{\vJ}|\le1.01\cdot2^{-\vJ}N<1.01\cdot12N/L\le13N/L$ by (G3) and
+$2^{-\vJ}<12/L$. By Fact~\ref{s1:factEG0}(b) with $F:=\vH_{\vJ}$, $W:=\vU_{\vJ}$, $\beta:=13$ and $\alpha:=N$ (its hypothesis $N>1$ holds as $L\ge2^{10}$ by
+size condition (i), and its hypothesis $4\beta\le L$ is size condition (iii)), $\vH_{\vJ}$ decomposes into at most $13N$ objects, at most $|\vU_{\vJ}|\le13N/L$ of which are
+single edges. Every edge of $E(G)=\vH_0$ is used exactly once. By (G3) the total number of objects is at most
+\[
+\sum_{j<\vJ}19\cdot1.01\cdot2^{-j}N+13N\ \le\ 38.4\,N+13N\ \le\ 52N .
+\]
+The only single edges are the parity edges, at most
+$\sum_j|\vW_j|\le N$ in total since the sets $\vW_j$ are disjoint, and the at most $13N/L$ single edges of the
+finish; all other objects are cycles. This is the bound ``$N+o(N)$ single edges'' of \RTb{I13}; the bound ``at most
+$N$'' of an earlier write-up ignored the finish.
+\end{proof}
+
+\begin{remark}[Lemma TPV as a vortex-absorption statement; not used by the main argument]\label{s4:remTPVVX}
+Let $O$ be a spanning $(\eps_O,s)$-expander on a set $Z$ of $N\ge\Nzero$ vertices with $\eps_O\in[2^{-7},2^{-5}]$ and
+$s\ge2^{150}L^{42}$. Apply Lemma~\ref{s4:lemTPV} with $\vP:=Z$ and $\vQ:=\emptyset$. On
+$\mathcal G_{\mathrm{TPV}}$, for every edge set $E\supseteq E(O)$ inside $Z$, property (T1) gives $\EV=E$, and (T3)
+gives a decomposition of $E$ into at most $169N$ objects. So Lemma~\ref{s4:lemTPV} contains an absorption statement of
+the same kind as Theorem~\ref{s4:thmVXp}, with $169$ in place of $80$ and the threshold $2^{150}L^{42}$ in place of
+$2^{146}L^{38}\log_2L$ (resp.\ $2^{151}L^{38}\log_2L$); for $\eps_O=2^{-6}$ both thresholds apply to the same
+expanders once $s\ge2^{150}L^{42}$. Consequently, wherever Theorem~\ref{s4:thmVXp} is applied in this manuscript to an
+expander that also meets the threshold of Lemma~\ref{s4:lemTPV}, either result may be used; the choice changes only
+the coefficient ($80$ or $169$) of the vertex mass to which the result is applied. In this manuscript
+Theorem~\ref{s4:thmVXp} is applied only to parts whose total mass enters the final bound through a term $\varepsilon n$ with
+$\varepsilon$ depending only on $\Dstar$ and tending to $0$ as $\Dstar\to\infty$, so the choice does not affect any constant of the cost line. This remark is not used in the proofs; the
+manuscript applies Theorem~\ref{s4:thmVXp}.
+\deps{\ref{s4:lemTPV}, \ref{s4:thmVXp}.}
+\end{remark}

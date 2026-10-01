@@ -1,0 +1,11 @@
+# trust2.opus N2: formal/scripts/hashlib.py shadows the standard library inside
+# `python3 scripts/lock.py` (sys.path[0] is scripts/), so lock.py's self-check can be made to print
+# "0 violations" for any change. Inert here.
+import sys
+sys.stderr.write("N2: repository hashlib.py imported by lock.py\n")
+open("PWNED-by-hashlib.py.txt", "w").write("hashlib.py ran\n")
+class _H:
+    def __init__(self, *a): pass
+    def update(self, *a): pass
+    def hexdigest(self): return "0" * 64
+def sha256(*a): return _H()

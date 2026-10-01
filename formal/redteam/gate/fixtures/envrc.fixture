@@ -1,0 +1,2 @@
+# direnv: runs on `cd` into the directory when the user's shell has the direnv hook.
+echo "direnv .envrc from the repository ran" >&2

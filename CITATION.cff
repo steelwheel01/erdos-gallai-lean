@@ -1,0 +1,76 @@
+cff-version: 1.2.0
+message: >-
+  If you use this formalization, please cite it as below. Status: candidate proof,
+  AI-generated and AI-reviewed; a Lean 4 proof of the formal-conjectures statement
+  Erdos184.erdos_184 passes the project's acceptance checks [[PUBLIC-RELEASE-RUN]]; not yet
+  reviewed by human experts.
+title: >-
+  A Lean 4 formalization of a candidate proof of the Erdős–Gallai cycle
+  decomposition conjecture (Erdős Problem #184)
+type: software
+authors:
+  - family-names: "Coffey"
+    given-names: "Ryan"
+    affiliation: "Yale University"
+version: "1.0.0"
+date-released: "[YYYY-MM-DD]"
+commit: "[FULL 40-HEX COMMIT OF THE RELEASE]"
+repository-code: "https://github.com/steelwheel01/erdos-gallai-lean"
+license: Apache-2.0
+keywords:
+  - Lean 4
+  - Mathlib
+  - formal verification
+  - graph decomposition
+  - Erdős–Gallai conjecture
+  - Erdős Problem 184
+abstract: >-
+  A candidate Lean 4 (v4.33.1, Mathlib v4.33.1) proof of the formal-conjectures statement
+  Erdos184.erdos_184 (google-deepmind/formal-conjectures, commit 2424bb48), a formalization of
+  the Erdős–Gallai conjecture that every n-vertex graph decomposes into O(n) cycles and edges.
+  The proof formalizes a candidate manuscript. Both the manuscript and the formalization were
+  written and reviewed by AI systems (Anthropic Claude models via Claude Code). Axioms: propext,
+  Classical.choice, Quot.sound. Status: passes the project's acceptance checks
+  [[PUBLIC-RELEASE-RUN]]; not yet reviewed by human experts; see README.md for the trust model
+  and the verification record.
+references:
+  - type: software
+    title: "The Formal Conjectures Repository"
+    authors:
+      - name: "The Formal Conjectures Authors"
+    year: 2025
+    notes: >-
+      Author, title and year from the section "Citing formal-conjectures" of the upstream
+      README.md at commit 2424bb48. [CHECK: whether to also cite the companion paper listed
+      there.]
+    repository-code: "https://github.com/google-deepmind/formal-conjectures"
+    commit: "2424bb480c590237ffbb2cc831ae4cb8977e045a"
+    license: Apache-2.0
+  - type: conference-paper
+    title: "The Lean Mathematical Library"
+    authors:
+      - name: "The mathlib Community"
+    collection-title: "Proceedings of the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020)"
+    publisher:
+      name: "ACM"
+    year: 2020
+    doi: "10.1145/3372885.3373824"
+  - type: article
+    title: "Towards the Erdős-Gallai Cycle Decomposition Conjecture"
+    authors:
+      - family-names: "Bucić"
+        given-names: "Matija"
+      - family-names: "Montgomery"
+        given-names: "Richard"
+    journal: "Advances in Mathematics"
+    volume: 437
+    year: 2024
+    notes: "Article 109434; arXiv:2211.07689"
+    url: "https://arxiv.org/abs/2211.07689"
+  - type: article
+    title: "[TITLE OF THE ARXIV PAPER OF THE CANDIDATE PROOF]"
+    authors:
+      - family-names: "Coffey"
+        given-names: "Ryan"
+    year: "[YEAR]"
+    notes: "arXiv:[ARXIV ID]"

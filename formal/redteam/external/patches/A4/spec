@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=Kernel bypass: skip the kernel via the «debug».skipKernelTC spelling and add EGCheck.Bridge.solution with the honest upstream type but a bogus (True) value via #eval + addDecl. (fable A4)

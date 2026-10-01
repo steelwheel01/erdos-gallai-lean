@@ -1,0 +1,3 @@
+MODE=evasion
+TARGET=EGCheck.RTEvade
+DESC=controls: implemented_by / extern / native_decide / skipKernelTC / sorry

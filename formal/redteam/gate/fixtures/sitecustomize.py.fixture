@@ -1,0 +1,4 @@
+# Python imports `sitecustomize` at start-up from sys.path (without -I, the script directory is on
+# it only after start-up, but a sitecustomize on PYTHONPATH or in a venv runs before any script).
+import sys
+sys.stderr.write("sitecustomize.py from the repository ran\n")

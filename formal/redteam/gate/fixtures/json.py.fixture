@@ -1,0 +1,11 @@
+# trust2.opus N3: formal/json.py shadows the standard library for every `python3 -c` / `python3 -`
+# started in formal/ (check_pins.sh, comparator.sh check, inline workflow steps). Inert here.
+import sys
+sys.stderr.write("N3: repository json.py imported (arbitrary code in a trusted shell checker)\n")
+open("PWNED-by-json.py.txt", "w").write("json.py ran\n")
+del sys.modules["json"]
+_path = sys.path[:]
+sys.path[:] = [p for p in sys.path if p not in ("", ".")]
+import json as _real  # noqa: E402
+sys.path[:] = _path
+sys.modules["json"] = _real

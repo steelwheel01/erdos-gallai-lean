@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=Kernel bypass from an EG-style module file: an elab command adds BridgeHack.helper : False := True.intro under the «debug».skipKernelTC option; Bridge proves the real upstream type from it. (opus D)

@@ -1,0 +1,718 @@
+[
+ {
+  "label": "s4:convVortex",
+  "kind": "convention",
+  "name": "vortex-local notation",
+  "tex_line": 22,
+  "ms_status": "--; level range and proof-local symbols added in v6 (R5): no referee yet",
+  "formalization": "No statement. Realised as Defs (EG/Defs/Vortex.lean: the explicit size predicates and eta-functions of the three runs, pvJ/pvM/pvB for the PV Spec) and Lib (EG/Lib/Vortex/Labels.lean: per-run parameters, colour types, label laws, product label spaces, the run sets U_j, W_j, Z_j, V_{j,c})",
+  "statement": "Inside ONE vortex run (a run of s4:lemTPV, s4:lemPV or s4:thmVXp): Z is the vertex set, N := |Z| (a natural number), L := log_2 N (a real). Run-local sans-serif objects: J (number of steps, a natural number); the reservoir colour classes R_{j,c} (0 <= j < J, c a class/phase) and the reserve class M; the level lev(v) in {0,1,...,J} and the label kappa(v) of a vertex; U_j (vertices still active before step j, 0 <= j <= J), W_j (vertices retiring at step j, only for 0 <= j < J; vertices of level J stay in U_J and are handled by the finish), Z_j (reserve far ends of step j), V_{j,c} (connector interiors of step j, class c); H_j (edges not yet covered before step j) and F_j (edges of H_j meeting W_j); the partition Z = P + Q (TPV only); reserve sets C^j_w (or C_w); parameters m, b (of Lemma HB) and t (multiplicity used with Theorem 16*); path families Paths_{j,c} (Corollary-22 decompositions) and PathsQ_{j,c} (after moving ends and splitting). k is the number of colours of a run. The good events (G1)-(G5) (numbered alike in the three runs; a run need not use all five), invariants (Inv1)-(Inv3), path properties (P1)-(P4) (and (P5) in PV) are local to the run and unrelated to the galactic conditions (Gamma k). Symbols local to one estimate (chi, K_{j,c}, V', I_u) are italic. No symbol has a meaning outside its run. The per-run VALUES differ: TPV: J = floor(log2(L/6)), k = 3J+1 colours, m = ceil(L^6), b = ceil(2^8 L^2 m), t = 2^10 L^8, kappa in {0,1,2,3} with law (1/2,1/6,1/6,1/6), levels only on P; PV: J = floor(log2(L/8)), no colouring (4J+1 own classes are given), m = ceil(L^6), b = ceil(2^7 L^2 m), t = 2^9 L^8, kappa in {0,...,4} with law (1/2,1/8,1/8,1/8,1/8), levels only on Pl; VX+: J = floor(log2(L/6)), k = 3J+1, m = ceil(L^3), b = ceil(2 m L^2/eps_O), t = 2^8 L^5 (eps_O = 2^-5) or 2^9 L^5 (eps_O = 2^-6), kappa as in TPV, levels on all of Z. In all three the level law is the truncated geometric law P(lev = j) = 2^{-(j+1)} (0 <= j < J), P(lev = J) = 2^{-J}, i.e. P(lev >= j) = 2^{-j} for 0 <= j <= J (v6, R5).",
+  "defs_needed": [
+   {
+    "name": "L, J, k, m, b, t (per run)",
+    "definition": "L := Real.logb 2 N; J := floor(log2(L/c)) with c = 6 (TPV, VX) or 8 (PV), as a natural number (recommended: Nat.log 2 (Nat.floor (L/c)), equal to floor(log2(L/c)) for L >= c; or (Int.log 2 (L/c)).toNat); m := Nat.ceil (L^6) / Nat.ceil (L^3); b := Nat.ceil (...); t : Real",
+    "where": "statements of s4:lemTPV, s4:lemPV, s4:thmVXp",
+    "existing_EG": "no: new; only pvJ/pvM/pvB are needed in a Spec (PV), the rest are Lib"
+   },
+   {
+    "name": "colour type of TPV / VX+",
+    "definition": "Option (Fin J x Fin 3): none = M, some (j,c) = R_{j,c+1}; k = 3J+1 = card",
+    "where": "s4:lemTPV (a), s4:thmVXp",
+    "existing_EG": "no: new Lib; EG.FinDist.randColouring uses Fin k, so a transport lemma along an Equiv with Fin (3J+1) is needed to apply EG.Spec.L15pStatement (CONVENTIONS: 'named colour families need an explicit bijection or colour type')"
+   },
+   {
+    "name": "truncated level law",
+    "definition": "FinDist on Fin (J+1): weight 2^{-(i+1)} for i < J, 2^{-J} for i = J (sum 1)",
+    "where": "s4:lemTPV (b), s4:lemPV, s4:thmVXp",
+    "existing_EG": "no: new Lib (via EG.FinDist.ofFintype; CONVENTIONS: reviewers must check the weights); the untruncated law is not expressible (EG no_geometric)"
+   },
+   {
+    "name": "kappa laws",
+    "definition": "FinDist on Fin 4 with weights (1/2,1/6,1/6,1/6) (TPV, VX); on Fin 5 with (1/2,1/8,1/8,1/8,1/8) (PV); class/phase c corresponds to kappa = c.succ",
+    "where": "s4:lemTPV (c), s4:lemPV, s4:thmVXp",
+    "existing_EG": "no: new Lib"
+   },
+   {
+    "name": "run sets",
+    "definition": "U_j := Q u {v in P : lev v >= j} (TPV), Rt u {v in Pl : lev v >= j} (PV), {v : lev v >= j} (VX); W_j := {v : lev v = j} (in P / Pl / Z); Z_j := {u in U_{j+1} : kappa u = 0}; V_{j,c} := {u in U_{j+1} : kappa u = c}",
+    "where": "statements of the three runs",
+    "existing_EG": "no: new Lib functions of the label outcome"
+   },
+   {
+    "name": "size predicates",
+    "definition": "TPVSize N := 2^10 <= L and L^3 <= N and eta_TPV(N) <= 1/100 (similarly PVSize, VXSize; (iii) 4 beta <= L follows from (i))",
+    "where": "'size conditions' in the three proofs (s4.tex:202, 459, 673); s1:defConstants (ii)",
+    "existing_EG": "no: new Defs (EG/Defs/Vortex.lean), consumed by s1:defConstants' N0Cond"
+   }
+  ],
+  "deps_declared": [],
+  "deps_from_proof": [],
+  "deps_notes": "Convention; no proof. Its symbols are used by s4:lemTPV, s4:lemPV, s4:thmVXp only.",
+  "used_by": [
+   "s4:lemTPV",
+   "s4:lemPV",
+   "s4:thmVXp",
+   "s1:convGraphs symbol table (pointer)"
+  ],
+  "randomness": "none in the convention itself; it names the label families (colouring, lev, kappa) whose laws are fixed in each run (see the three runs).",
+  "lean_shape": "-- EG/Defs/Vortex.lean (protected; imports EG.Defs.Expander, EG.Defs.Objects)\nnamespace EG.Vortex\nnoncomputable def etaTPV (N : ℝ) : ℝ :=\n  2 * Real.logb 2 N * N ^ (-5 : ℤ) + 2 ^ 96 * Real.logb 2 N ^ 31 * N ^ (-3 : ℤ)\n    + N * Real.logb 2 N * Real.exp (-(3 * Real.logb 2 N ^ 4 / 8))\nnoncomputable def etaPV (N : ℝ) : ℝ :=\n  2 ^ 95 * Real.logb 2 N ^ 31 * N ^ (-3 : ℤ) + N * Real.logb 2 N * Real.exp (-(Real.logb 2 N ^ 4 / 16))\nnoncomputable def etaVX (N : ℝ) : ℝ :=\n  2 * Real.logb 2 N * N ^ (-5 : ℤ) + 2 ^ 95 * Real.logb 2 N ^ 28 * N ^ (-3 : ℤ)\n    + N * Real.logb 2 N * Real.exp (-(3 * Real.logb 2 N ^ 2 / (32 * Real.logb 2 (Real.logb 2 N))))\n    + Real.logb 2 N * Real.exp (-(N / (5000 * Real.logb 2 N)))\ndef TPVSize (N : ℝ) : Prop := 2 ^ 10 ≤ Real.logb 2 N ∧ Real.logb 2 N ^ 3 ≤ N ∧ etaTPV N ≤ 1 / 100\ndef PVSize  (N : ℝ) : Prop := 2 ^ 10 ≤ Real.logb 2 N ∧ Real.logb 2 N ^ 3 ≤ N ∧ etaPV N ≤ 1 / 100\ndef VXSize  (N : ℝ) : Prop := 2 ^ 10 ≤ Real.logb 2 N ∧ Real.logb 2 N ^ 3 ≤ N ∧ etaVX N ≤ 1 / 100\n-- the three quantities that appear in the PV Spec (index type of the own classes, HB data)\nnoncomputable def pvJ (N : ℕ) : ℕ := Nat.log 2 ⌊Real.logb 2 N / 8⌋₊\nnoncomputable def pvM (N : ℕ) : ℕ := ⌈Real.logb 2 N ^ 6⌉₊\nnoncomputable def pvB (N : ℕ) : ℕ := ⌈2 ^ 7 * Real.logb 2 N ^ 2 * (pvM N : ℝ)⌉₊\nend EG.Vortex\n-- Lib (EG/Lib/Vortex/Labels.lean): tpvJ, vxJ, TPVColour J := Option (Fin J × Fin 3),\n-- levelLaw J : FinDist (Fin (J+1)), kapLaw3 : FinDist (Fin 4), kapLaw4 : FinDist (Fin 5),\n-- runU / runW / runZ / runV as functions of (lev, kappa); lemmas: prob_lev_ge (P(lev ≥ j) = 2^-j, j ≤ J),\n-- floor lemmas 6·2^J ≤ L < 12·2^J (TPV,VX), 8·2^J ≤ L < 16·2^J (PV);\n-- eventuality: ∀ᶠ N in atTop, TPVSize N ∧ PVSize N ∧ VXSize N  (feeds s1:defConstants N0Cond)",
+  "hazards": [
+   {
+    "label": "CONV-SYMBOL-CLASH",
+    "severity": "note",
+    "description": "The same sans-serif symbols carry DIFFERENT values in the three runs (J uses L/6 in TPV and VX+ but L/8 in PV; m = ceil(L^6) vs ceil(L^3); b and t have three different formulas; kappa has 4 values in TPV/VX+ and 5 in PV; levels live on P, Pl or Z). Lean names must be run-specific (tpvJ, pvJ, vxJ, ...); a shared name would silently identify different quantities."
+   },
+   {
+    "label": "CONV-J-FLOOR",
+    "severity": "note",
+    "description": "J := floor(log2(L/6)) mixes a real logarithm and a floor. The proofs need exactly 6*2^J <= L < 12*2^J (resp. 8*2^J <= L < 16*2^J) and J >= 1. Define J := Nat.log 2 (Nat.floor (L/6)) (equal to floor(log2(L/6)) for L >= 6 because 2^i is an integer) or (Int.log 2 (L/6)).toNat, and prove the two-sided bound once."
+   },
+   {
+    "label": "CONV-SIZE-LAYERING",
+    "severity": "note",
+    "description": "The size conditions (i) L >= 2^10, (ii) N >= L^3, (iii) 4 beta <= L, (iv) eta(N) <= 1/100 are listed only inside the proofs, and s1:defConstants defines N0 through them. The predicates must therefore be Defs placed BEFORE the s4 Specs, and N0Cond (s1 blueprint) after them. Observation: (ii), (iii) and (iv) all follow from (i) (N = 2^L >= 2^1024), so N0 could even be 2^1024 explicitly; proving (iv) at exactly L = 2^10 needs numerics, so the eventuality route is recommended."
+   },
+   {
+    "label": "CONV-G-NUMBERING",
+    "severity": "note",
+    "description": "Good-event numbering has gaps by design (the working-tree v6 text now says the events are numbered alike and a run need not use all five): TPV uses (G1),(G2),(G4),(G5); PV (G2),(G4),(G5); VX+ (G1)-(G4). Lean names should follow the manuscript tags to keep the correspondence checkable."
+   },
+   {
+    "label": "CONV-KAPPA-ENCODING",
+    "severity": "note",
+    "description": "kappa = 0 marks reserve far ends; classes/phases are [3] or [4] = {1,..}. With Fin encodings, class c : Fin 3 (or phase c : Fin 4) must be matched with kappa = c.succ everywhere (V_{j,c}, the class-avoidance rule, (P1)); an off-by-one here breaks (eqTPVclass)/(eqPVclass) silently."
+   }
+  ],
+  "effort": {
+   "lean_lines": 350,
+   "difficulty": 2,
+   "notes": "Defs ~60 (etas, sizes, pvJ/pvM/pvB); Lib ~290: laws with weight checks (~80), floor/log bounds for J (~60), run sets and their elementary relations U_{j+1} ⊆ U_j, U_j = U_{j+1} ⊔ W_j, partition of U_{j+1} by kappa (~70), eventuality of the size predicates (~80, Real.logb asymptotics)."
+  }
+ },
+ {
+  "label": "s4:lemTPV",
+  "kind": "lemma",
+  "name": "Lemma TPV (transparent P-vortex)",
+  "tex_line": 156,
+  "ms_status": "x2+RT; per-step bound (s4:eqTPVstep), finish and final count changed in v6 (R1): no referee yet; level law truncated, (G2) re-proved via (MC), (B) re-proved in v6 (R5): no referee yet",
+  "formalization": "Spec (deterministic form, recommended Tier-1) EG/Spec/Vortex/TPV.lean: TPVStatement; proof EG/Proof/Vortex/TPV.lean from a Lib probabilistic core (good event of positive probability) and a Lib deterministic engine shared with PV and VX+ (EG/Lib/Vortex/{Trail,Ends,MonoComp,Labels,Step}.lean)",
+  "statement": "HYPOTHESES. V a type with decidable equality; Z a finite vertex set, N := |Z|, L := log_2 N; N >= N0 (Lean: TPVSize N, i.e. L >= 2^10, N >= L^3, eta_TPV(N) <= 1/100; these are the size conditions (i)-(iv) of the proof); O a graph with V(O) = Z that is an (eps_O, s)-expander (Def 11), 2^-7 <= eps_O <= 2^-5 (only the lower bound is used), s >= 2^150 L^42 (reals); Z = P + Q a partition (P ⊆ Z arbitrary, Q := Z \\ P). PARAMETERS: J := floor(log2(L/6)), k := 3J+1, m := ceil(L^6), b := ceil(2^8 L^2 m) (the HB bound at the worst case eps_O = 2^-7), t := 2^10 L^8. A family A(w) ⊆ N_O(w), |A(w)| = m, each vertex in at most b of the A(w) (w in Z), fixed as a function of O (exists by s3:lemHB with eps' = eps_O, m; 2m <= s). LABELS (independent): (a) a uniform colouring of E(O) with the k colours R_{j,c} (0 <= j < J, c in [3]) and M; (b) for v in P a level lev(v) in {0..J} with P(lev >= j) = 2^-j (0 <= j <= J); (c) for v in Z a label kappa(v) in {0,1,2,3}, P(0) = 1/2, P(c) = 1/6. SETS: U_j := Q u {v in P : lev v >= j}, W_j := {v in P : lev v = j}, Z_j := {u in U_{j+1} : kappa u = 0}, V_{j,c} := {u in U_{j+1} : kappa u = c}. CLAIM: there EXISTS an event G (a set of label outcomes), determined by (Z, O, P) and the labels, with P(G) >= 1/2 - eta_TPV(N), eta_TPV(N) := 2 L N^-5 + 2^96 L^31 N^-3 + N L e^{-3L^4/8} <= 1/100, such that for EVERY outcome in G and EVERY edge set E of a simple graph (no loops) with E(O) ⊆ E and all ends of all edges in Z, there EXISTS a partition E = E^V + E^Q with (T1) every edge of E with both ends in P lies in E^V; (T2) every edge of E^V with an end in Q is an edge of O; (T3) E^V has a decomposition into at most 169|P| objects (cycles of length >= 3 and single edges), and E^V = ∅ if P = ∅; (T4) all these objects consist of edges of E and no open path ('arc') is left. Meta-claim: partition and decomposition are a deterministic function of (E, labels). LOGICAL CONTENT (important for the Spec): the conclusion (T1)-(T4) does not mention the labels, and P(G) >= 1/2 - 1/100 > 0 forces G ≠ ∅; hence, given the hypotheses, the lemma is EQUIVALENT to the deterministic statement 'for every admissible E there is E^V ⊆ E with (T1)-(T3)' (the ∃G form follows back by taking G := whole space). The explicit good event of the proof is G := (G1) ∩ (G2) ∩ (G4) ∩ (G5): (G1) all k colour classes are spanning (eps_O, s/(2k))-expanders; (G2) every R_{j,c} is (2^12 L^4, t)-path connected through V_{j,c}; (G4) for all j < J and w in P, C^j_w := {wu : u in A(w), wu in M, u in Z_j} has >= 6 elements; (G5) sum_{j<J} |P ∩ U_j| <= 8|P| and |P ∩ U_J| <= 48|P|/L. Proof outline: steps j = 0..J-1 (reserve 6 M-edges per w in W_j; classes avoiding kappa of the far end; Corollary-22 decomposition per class; append reserved edges / cherries; split trails by (S); close each remaining path by a connector of R_{j,c} through V_{j,c} using (G2) and (C)); invariants (Inv1)-(Inv3); cost 12|W_j| + 9|P ∩ U_j| per step, 84|P| in total; finish by Fact EG0(b) with beta = 48, alpha = |P|: <= 48|P|; total 132|P| <= 169|P|. Includes the five observations (S) trail splitting, (E) path ends, (MC) monotone comparison, (B) binomial domination, (C) closing (s4.tex:46-133; named labels s4:eqSplit, s4:eqEnds, s4:eqMono, s4:eqDom, s4:eqClose; they are parts of this proof, not separate statements).",
+  "defs_needed": [
+   {
+    "name": "FGraph, spanning expander on Z",
+    "definition": "O : FGraph V with O.verts = Z and O.IsExpander eps s (CONVENTIONS idiom)",
+    "where": "s1:convGraphs, s1:citDef11",
+    "existing_EG": "yes (EG.FGraph, EG.FGraph.IsExpander)"
+   },
+   {
+    "name": "objects, decomposition",
+    "definition": "EG.Obj, EG.IsDecomp",
+    "where": "s1:defObject",
+    "existing_EG": "yes"
+   },
+   {
+    "name": "admissible edge set E",
+    "definition": "E : Finset (Sym2 V) with O.edges ⊆ E, no loops, every end in Z",
+    "where": "statement",
+    "existing_EG": "inline"
+   },
+   {
+    "name": "TPVSize, etaTPV",
+    "definition": "size conditions (i),(ii),(iv) of the proof ((iii) follows from (i))",
+    "where": "proof, s4.tex:202-203; s1:defConstants (ii)",
+    "existing_EG": "no: new Defs (EG/Defs/Vortex.lean)"
+   },
+   {
+    "name": "colour classes R_{j,c}, M",
+    "definition": "FGraph.colourClass O chi i (vertex set Z, edges of colour i)",
+    "where": "statement (a)",
+    "existing_EG": "Lib yes (EG.FGraph.colourClass, EG/Lib/Found/ColourClass.lean); proof-internal only"
+   },
+   {
+    "name": "(ell,t)-path connected through W",
+    "definition": "EG.FGraph.IsPathConnected G ell t W (indexed multisets, real ell, t)",
+    "where": "(G2), s1:citDef7",
+    "existing_EG": "yes"
+   },
+   {
+    "name": "Lemma-HB family A(w)",
+    "definition": "A : V -> Finset V, A w ⊆ N_O(w), |A w| = m, #{w in Z : u in A w} <= b",
+    "where": "statement; s3:lemHB",
+    "existing_EG": "no: from the s3:lemHB Spec (s3 blueprint); proof-internal only (disappears from the deterministic Spec)"
+   },
+   {
+    "name": "label space and law",
+    "definition": "Omega := (O.edges -> TPVColour J) x ((P -> Fin (J+1)) x (Z -> Fin 4)); law := (pi uniform).prod ((pi levelLaw).prod (pi kapLaw3))",
+    "where": "statement (a)-(c)",
+    "existing_EG": "FinDist.pi/prod/uniform/ofFintype exist; the concrete laws are new Lib (s4:convVortex)"
+   },
+   {
+    "name": "run sets U_j, W_j, Z_j, V_{j,c}, C^j_w",
+    "definition": "as in the statement",
+    "where": "statement / (G4)",
+    "existing_EG": "no: new Lib"
+   },
+   {
+    "name": "trail, rep(T)",
+    "definition": "vertex list x_0..x_q whose consecutive edges are pairwise distinct; rep(T) := (q+1) - #{x_0..x_q}",
+    "where": "observation (S)",
+    "existing_EG": "no: new Lib (EG/Lib/Vortex/Trail.lean); list-based like EG.walkEdges"
+   },
+   {
+    "name": "path decomposition, end count ('Corollary-22 decomposition')",
+    "definition": "EG.IsPathDecomp F Ps (paths with >= 1 edge, edge-disjoint, union F) and EG.pathEndCount Ps v <= 2",
+    "where": "observation (E), s1:citCor22",
+    "existing_EG": "no: new Defs proposed by the s1 blueprint (s1:citCor22)"
+   },
+   {
+    "name": "cherry, appended trail, connector",
+    "definition": "cherry u1 w u2 from two reserved edges; path of Paths_{j,c} extended by one reserved edge at each end in W_j; connector Q' ⊆ R_{j,c} with interior in V_{j,c}",
+    "where": "steps (iv)-(vi)",
+    "existing_EG": "no: proof-local (Lib step engine)"
+   },
+   {
+    "name": "H_j, F_j, F_{j,c}, Paths_{j,c}, PathsQ_{j,c}, reserved edges e^{c,i}_w",
+    "definition": "H_0 := edges of E inside P, H_{j+1} := H_j minus edges used at step j; F_j := edges of H_j meeting W_j",
+    "where": "proof ('The process')",
+    "existing_EG": "no: proof-local"
+   },
+   {
+    "name": "hierarchy data",
+    "definition": "NONE: the lemma is hierarchy-free (one vertex set Z, one expander O, edge sets inside Z). The consumer s6:consOrder instantiates Z := Z^0, O := O_Z, P := Ret_Z, Q := Qs_Z, E := Erem(Z)",
+    "where": "s4 intro; s6:consOrder step (1)",
+    "existing_EG": "n/a"
+   }
+  ],
+  "deps_declared": [
+   "s3:lemL15p",
+   "s3:thmT16s",
+   "s3:lemHB",
+   "s3:lemMonotone",
+   "s1:citCor22",
+   "s1:factEG0",
+   "s1:citChernoff",
+   "s1:citMarkov",
+   "s1:condG3",
+   "s4:convVortex",
+   "s1:convGraphs",
+   "s1:defConstants"
+  ],
+  "deps_from_proof": [
+   "s3:lemL15p",
+   "s3:thmT16s",
+   "s3:lemHB",
+   "s3:lemMonotone",
+   "s1:citCor22",
+   "s1:factEG0",
+   "s1:citChernoff",
+   "s1:citMarkov",
+   "s4:convVortex",
+   "s1:convGraphs",
+   "s1:defConstants",
+   "s1:citDef7",
+   "s1:citDef11",
+   "s1:defObject"
+  ],
+  "deps_notes": "Used: L15+ in (G1) (per-class bound, k colours, s >= 40kL); T16* in (G2) (X := R_{j,c}, rho := 1/L, t := 2^10 L^8; needs s/(2k) >= 2^145 L^41, gives 2^96 L^30 N^-3); HB for A(w) (eps' = eps_O >= 2^-7, m = ceil(L^6), multiplicity <= ceil(2^8 L^2 m)); Monotone(ii) (upward closure of K_{j,c}) and (iii) (pair multisets chosen after the labels); Cor 22 in step (iii) and (E); EG0(b) in the finish (beta = 48, alpha = |P|); Chernoff lower tail inside (B) for (G4); Markov for (G5); convGraphs(a) simplicity (closed trails have length >= 3 in (S), EG0); defConstants for N0. UNDECLARED but used: s1:citDef7 and s1:citDef11 (the definitions in (G1), (G2)), s1:defObject (objects). DECLARED but not used by the proof: s1:condG3 (only the remark that applications satisfy N >= N0). Lean-level: (B) is best proved with chernoffGen_lower_half (s1:citChernoffGen form) without the coupling (MC); Cor 22 brings in the stage-alpha Lovász hypothesis and T16* the Haxell hypothesis (proof arguments, not Spec hypotheses).",
+  "used_by": [
+   "s6:consOrder step (1) (Z := Z^0, O := O_Z, P := Ret_Z, E := Erem(Z); uses (T1),(T3),(T4))",
+   "s6:lemLent",
+   "s6:thmMIXC (T1, T3, T4; constant 169 in the cost of O_T)",
+   "s6:lemJSLC hypothesis via (T1) (B_Z := E^Q(Z) has an end in Qs_Z)",
+   "s7:defSchedule, s7:lemOneOutcome (only NON-EMPTINESS of the good event is used), s7:remNonCirc",
+   "s4:lemPV (proof reuse only)",
+   "s4:remTPVVX"
+  ],
+  "randomness": "Sample space (finite product, all coordinates independent): colouring chi : E(O) -> {R_{j,c} : j < J, c in [3]} u {M}, each edge uniform over the k = 3J+1 colours; levels lev : P -> {0..J}, truncated geometric (P(lev = j) = 2^{-(j+1)} for j < J, P(lev = J) = 2^{-J}); labels kappa : Z -> {0,1,2,3} with law (1/2,1/6,1/6,1/6). Nothing is conditioned on in the statement; E is NOT random (the conclusion is for all E). Inside the proof: (G1) is over chi alone (L15+); (G2) is proved conditionally on a fixed colouring chi in (G1) (a section of the product; Fubini) over (lev, kappa), transferring T16* from an auxiliary, separate (1/L)-random subset V' of Z (law rsubset Z (1/L)) to the random set V_{j,c} by (MC) (each v in V_{j,c} independently with probability 1/6 (v in Q) or 2^{-(j+1)}/6 (v in P), both >= 1/L); (G4) uses, for fixed (w,j), the independent indicators I_u = [chi(wu) = M and u in Z_j] over u in A(w) (distinct edges wu, distinct vertices u), each with probability >= 3/L^2; (G5) is Markov over the levels. P(not G) <= 2LN^-5 + 2^96 L^31 N^-3 + NL e^{-3L^4/8} + 1/4 + 1/4. Downstream (s7:lemOneOutcome) only non-emptiness of G is used, so with the deterministic Spec the randomness is entirely proof-internal.",
+  "lean_shape": "-- Tier-1 Spec (deterministic; equivalent to the manuscript statement given the hypotheses, see TPV-DET-SPEC)\ndef EG.Spec.TPVStatement : Prop :=\n  ∀ (V : Type u) [DecidableEq V] (O : EG.FGraph V) (εO s : ℝ) (P : Finset V),\n    EG.Vortex.TPVSize (O.card : ℝ) →\n    2 ^ (-7 : ℤ) ≤ εO → εO ≤ 2 ^ (-5 : ℤ) →\n    2 ^ 150 * Real.logb 2 (O.card : ℝ) ^ 42 ≤ s → O.IsExpander εO s →\n    P ⊆ O.verts →\n    ∀ E : Finset (Sym2 V), O.edges ⊆ E → (∀ e ∈ E, ¬ e.IsDiag) → (∀ e ∈ E, ∀ v ∈ e, v ∈ O.verts) →\n      ∃ EV : Finset (Sym2 V), EV ⊆ E ∧\n        (∀ e ∈ E, (∀ v ∈ e, v ∈ P) → e ∈ EV) ∧                         -- (T1)\n        (∀ e ∈ EV, (∃ v ∈ e, v ∉ P) → e ∈ O.edges) ∧                   -- (T2)  (Q = Z \\ P)\n        ∃ D : List (EG.Obj V), EG.IsDecomp ↑EV D ∧ D.length ≤ 169 * P.card  -- (T3), (T4)\n-- (E^Q := E \\ EV; 'E^V = ∅ if P = ∅' follows from D.length ≤ 0.)\n\n-- Lib probabilistic core (NOT a Spec; the explicit good event):\n--   tpvΩ O P := (O.edges → TPVColour J) × ((P → Fin (J+1)) × (O.verts → Fin 4))\n--   tpvLaw O P : FinDist (tpvΩ O P)\n--   tpvGood O P A : Set (tpvΩ O P) := G1 ∩ G2 ∩ G4 ∩ G5\ntheorem EG.Vortex.tpv_prob_good ... : 1 / 2 - etaTPV O.card ≤ (tpvLaw O P).prob (tpvGood O P A)\ntheorem EG.Vortex.tpv_of_good (ω ∈ tpvGood O P A) : ∀ E admissible, ∃ EV, (T1) ∧ (T2) ∧ (T3)\n-- Proof of TPVStatement: tpv_prob_good > 0 ⇒ ∃ ω ∈ tpvGood ⇒ tpv_of_good.\n-- Proof signature carries stage-α hypotheses: (hCor22 : Cor22Statement) (hT16 : T16sStatement) ...\n\n-- Optional literal form (NOT recommended for locking; trivially implied by TPVStatement with G := univ):\n-- ∃ G : Set (tpvΩ O P), 1/2 - etaTPV N ≤ (tpvLaw O P).prob G ∧ ∀ ω ∈ G, ∀ E ..., ∃ EV, ...",
+  "hazards": [
+   {
+    "label": "TPV-DET-SPEC",
+    "severity": "risk",
+    "description": "The literal statement 'there is an event G with P(G) >= 1/2 - eta such that on G, for every E, ...' has a conclusion that does not mention the labels, so it is logically equivalent (given eta < 1/2) to the deterministic claim 'for every admissible E there is E^V with (T1)-(T3)'; conversely the ∃G form follows from the deterministic claim with G := the whole space, i.e. an ∃G Spec carries no more content than the deterministic one and would mislead reviewers. The only consumer use of the probability is non-emptiness (s7:lemOneOutcome: 'only this non-emptiness is used'; s5:lemChild/lemDemoted: '>= 1/3'). DECISION NEEDED (integrator, before locking s5-s7 Specs): lock the deterministic TPVStatement, keep the explicit good event and its probability bound as Lib lemmas, and remove the TPV/PV/VX+ stage-3 labels from s5:lemChild, s5:lemDemoted, s6:consOrder, s7:defSchedule and s7:lemOneOutcome (they become deterministic applications). The 'deterministic procedure' meta-claim is realised by Classical.choose on the ∀E∃ statement (a function of E only), which is what the s6/s7 'past is a deterministic function' arguments need."
+   },
+   {
+    "label": "TPV-ENGINE-SIZE",
+    "severity": "risk",
+    "description": "The deterministic part (steps (i)-(vi) over J steps, invariants (Inv1)-(Inv3), 'an edge is used once it is placed', edge-disjointness of trails/cherries/single edges/connectors across the 3 classes, coverage of F_j, the finish) is written informally with 'fixed rules' and has no Mathlib support: list surgery on vertex lists with Sym2 edges, Corollary-22 decompositions, appending, cherries, splitting (S), closing (C). It is the largest single piece of s4 and it is repeated with variations in PV and VX+ ('exactly as in the proof of Lemma TPV'). Recommendation: one Lib step engine, parametrised by the retiring set W, the next active set U+, the class family, the reserved edges and an arc selector (PV), proving: outputs are cycles/single edges, pairwise edge-disjoint, covering F_j plus the connector edges, with the per-step cost bound; then three thin instantiations. Without it the effort roughly doubles."
+   },
+   {
+    "label": "TPV-SIZE-PRED",
+    "severity": "risk",
+    "description": "'N >= N0' is circular with s1:defConstants (N0 is defined through the size conditions of this proof). The Spec must take the explicit Defs predicate TPVSize N (L >= 2^10, N >= L^3, eta_TPV(N) <= 1/100) and s1's N0Cond must include it (s1 blueprint CONST-N0-INPROOF; naming EG.S4.TPVSize there vs EG.Vortex.TPVSize here must be unified). I checked that every inequality the proof uses beyond (i)-(iv) (J >= 1, k <= L, 2 + b <= t, m*3/L^2 >= 12, s >= 40kL, s/(2k) >= 2^145 L^41, N > 1 for EG0 and HB) follows from (i)-(iv) and the s-threshold; no hidden size condition was found."
+   },
+   {
+    "label": "TPV-MC-LIB",
+    "severity": "risk",
+    "description": "(G2) needs three new Lib results: (1) the law of V_{j,c} (a function of (lev, kappa), with chi fixed) is EG.FinDist.indepSubset Z q with q_v in {1/6, 2^{-(j+1)}/6} (pushforward of a product along per-vertex coordinate blocks; map_pi_of_dependsOn exists); (2) (MC): for an upward-closed family K ⊆ 2^S, P(indepSubset S q ∉ K) <= P(rsubset S rho ∉ K) whenever q >= rho pointwise (coordinatewise monotonicity of Psi_K; ~150 lines); (3) the Fubini step 'P(G1 and not G2) <= sum_chi P(chi) * ...' on the product colouring x (lev, kappa). Also needed: the upward closure of K_{j,c} = s3:lemMonotone(ii) (EG.FGraph.IsPathConnected.mono exists in Lib)."
+   },
+   {
+    "label": "TPV-UNREVIEWED",
+    "severity": "risk",
+    "description": "The per-step bound (12|W_j| + 9|P ∩ U_j|), the finish (EG0(b), beta = 48) and the final count (84 + 48 = 132 <= 169) are new in v6 (R1), and the truncated level law, (MC) and (B) are new in v6 (R5); none has a referee. I re-derived all of them: (eqTPVJ), (eqTPVt) 2 + b <= 2^8 L^8 + 2^8 L^2 + 3 <= 2^10 L^8, the T16* threshold 2^135 * 2^10 L^8 * L^28 * L^5 = 2^145 L^41 <= 2^149 L^41, the failure bound 2^96 L^30 N^-3, P(I_u = 1) >= (1/L)(6/L)(1/2) = 3/L^2, (B) with m'p >= 3L^4 >= 12, Markov for (G5), (P1)-(P4) (the far-end count: at most one of e^{c,1}_w, e^{c,2}_w has far end x, and x in A(w) for <= b vertices w), (P3) length >= 2, the invariant persistence, and the cost; no error found. Residual risk is in the informal edge bookkeeping (TPV-ENGINE-SIZE)."
+   },
+   {
+    "label": "TPV-COLOUR-TYPE",
+    "severity": "note",
+    "description": "Colours are named R_{j,c}, M; EG.Spec.L15pStatement is stated for EG.FinDist.randColouring with Fin k. Use the colour type Option (Fin J x Fin 3) and a Lib transport lemma (uniform colourings correspond under an Equiv of colour types; L15+ per-class bound is invariant), or colour with Fin (3J+1) and a fixed bijection. Only proof-internal with the deterministic Spec."
+   },
+   {
+    "label": "TPV-LOOPLESS-E",
+    "severity": "note",
+    "description": "E is 'an edge set ... all of whose edges have both ends in Z' of a SIMPLE graph (Convention s1:convGraphs); a raw Finset (Sym2 V) may contain loops, which no decomposition covers. The Spec must add ∀ e ∈ E, ¬ e.IsDiag (T0 record, as for EG0(b)). The consumer's E = Erem(Z) ⊆ E(G) is loopless."
+   },
+   {
+    "label": "TPV-T4-VACUOUS",
+    "severity": "note",
+    "description": "(T4) ('no arcs', 'every path is closed within its step') is a property of the procedure; its only formal content is that the objects are cycles/single edges with edges in E, which IsDecomp EV D with EV ⊆ E already expresses. s6:thmMIXC uses (T3)+(T4) only as 'O_T decomposes ⊔_Z E^V(Z)'. No separate conjunct."
+   },
+   {
+    "label": "TPV-T3-EMPTY",
+    "severity": "note",
+    "description": "'E^V = ∅ if P = ∅' is implied by the count bound 169*|P| = 0 plus IsDecomp; no separate conjunct needed (keep a derived lemma for consumers)."
+   },
+   {
+    "label": "TPV-AW-INTERNAL",
+    "severity": "note",
+    "description": "The statement fixes the HB family A(w) 'as a function of O only' (the lexicographically first one). It enters only the definition of the good event (G4) and (P4); in the deterministic Spec it disappears. In Lean use Classical.choose of the HB Spec; 'lexicographically first' is not needed."
+   },
+   {
+    "label": "TPV-EPS-UPPER",
+    "severity": "note",
+    "description": "eps_O <= 2^-5 is never used (the manuscript says so). Keep it in the Spec for faithfulness (the consumer passes eps = 2^-5) or drop it (a stronger Spec); either is fine."
+   },
+   {
+    "label": "TPV-REAL-T",
+    "severity": "note",
+    "description": "t = 2^10 L^8 is real and IsPathConnected compares a natural count with it; (P4) gives count <= 2 + b (natural) and (eqTPVt) gives (2 + b : ℝ) <= t. Also ell = 2^12 L^4 is real; connector lengths are not used later."
+   },
+   {
+    "label": "TPV-T16-FIXED-X",
+    "severity": "note",
+    "description": "T16* is stated for a FIXED graph X; here X = R_{j,c} is random (a colour class). The proof conditions on the colouring (fix chi in (G1)); the T16* Spec (s3 blueprint) must be usable on the separate space rsubset Z (1/L) for a fixed FGraph X with X.card = N; no independence clause between X and V' is then needed."
+   },
+   {
+    "label": "TPV-SIMPLE-TRAILS",
+    "severity": "note",
+    "description": "(S) uses that a trail in a simple graph cannot return after 1 or 2 steps (no loops, no repeated edge), so every split-off cycle has length >= 3 = Obj.WF for Obj.cycle (Nodup, length >= 3). The Lean trail must carry 'edges pairwise distinct' and 'no loop edges'; the latter follows from E loopless."
+   },
+   {
+    "label": "TPV-STAGE-ALPHA",
+    "severity": "note",
+    "description": "The proof depends on Cor 22 (proved from the stage-alpha Lovász hypothesis) and on T16* (whose proof uses Haxell). The Spec stays hypothesis-free; EG.Proof theorems take these hypotheses and they propagate to mainInternal (PLAN §3, AGENTS 'Stage-α hypotheses')."
+   },
+   {
+    "label": "TPV-DEPS",
+    "severity": "note",
+    "description": "Undeclared dependencies: s1:citDef7, s1:citDef11, s1:defObject. Declared but unused in the proof: s1:condG3. Lean will additionally use s1:citChernoffGen (chernoffGen_lower_half for (B))."
+   }
+  ],
+  "effort": {
+   "lean_lines": 3000,
+   "difficulty": 5,
+   "notes": "Shared Lib built here and reused by PV/VX+: (S) ~250, (E) ~100 (parity part may live with Cor22), (C) ~100, (MC) + law of V_{j,c} ~300, (B) ~60, trails/append/cherries ~250, step engine ~600. TPV-specific: good events and probability (G1,G2,G4,G5) ~450, invariants and J-step recursion ~500, cost ~200, finish ~100, Spec and assembly ~90."
+  }
+ },
+ {
+  "label": "s4:lemPV",
+  "kind": "lemma",
+  "name": "Lemma PV (the four-phase P-vortex)",
+  "tex_line": 396,
+  "ms_status": "x2+RT for the constant 369; the ext-formulation x0; (c) changed by CR1-PV: x1; per-step bound (s4:eqPVstep), finish and count (a) changed in v6 (R1): no referee yet; level law truncated, (G2) via (MC), (B) re-proved in v6 (R5): no referee yet",
+  "formalization": "Spec (deterministic form) EG/Spec/Vortex/PV.lean: PVStatement; proof EG/Proof/Vortex/PV.lean from the shared Lib engine (s4:lemTPV) plus arcs, phases and the stripping finish",
+  "statement": "HYPOTHESES (all fixed, not random). Z a finite vertex set, N := |Z|, L := log_2 N, N >= N0 (Lean: PVSize N: L >= 2^10, N >= L^3, eta_PV(N) <= 1/100). J := floor(log2(L/8)), m := ceil(L^6), b := ceil(2^7 L^2 m), t := 2^9 L^8. (1) O a graph with V(O) = Z, a (2^-6, s_O)-expander with 2m <= s_O; sets A(w) ⊆ N_O(w) (w in Z), |A(w)| = m, every vertex in at most b of the sets A(w) (w in Z). (2) Own classes: graphs R_{j,c} (0 <= j < J, c in [4]) and M, each with vertex set Z and a (2^-6, s')-expander, s' >= 2^145 L^41, pairwise edge-disjoint (all 4J+1 of them, M included). (3) A partition Z = Rt + Pl (rooted / parentless). (4) A map ext : Z -> [4] u {*}. (E1') For every w in Pl, the set C_w := {wu : u in A(w), wu in E(M), ext(u) = *} has |C_w| >= L^5/8. LABELS (independent): for v in Pl a level lev(v) in {0..J}, P(lev >= j) = 2^-j (0 <= j <= J); for v in Z a label kappa(v) in {0,...,4}, P(0) = 1/2, P(c) = 1/8 (c in [4]). SETS: U_j := Rt u {v in Pl : lev v >= j}, W_j := {v in Pl : lev v = j}, Z_j := {u in U_{j+1} : kappa u = 0}, V_{j,c} := {u in U_{j+1} : kappa u = c}. GOOD EVENT G_PV := (G2) every R_{j,c} is (2^12 L^4, t)-path connected through V_{j,c} and (G4) for all j < J, w in Pl, C^j_w := {wu in C_w : u in Z_j} has >= 8 elements and (G5) sum_{j<J} |Pl ∩ U_j| <= 8|Pl| and |Pl ∩ U_J| <= 64|Pl|/L. CLAIM 1: G_PV is determined by the own classes, the A(w), the partition, ext and the labels, and P(G_PV) >= 1/2 - eta_PV(N), eta_PV(N) := 2^95 L^31 N^-3 + N L e^{-L^4/16} <= 1/100. CLAIM 2: on G_PV, for EVERY edge set H_0 of a simple graph with all ends in Z that contains E(M) and every E(R_{j,c}), there EXIST a partition H_0 = H^obj + H^arc and a family A of paths (arcs) such that (a) H^obj decomposes into at most 369|Pl| objects; (b) H^arc is the disjoint union of the edge sets of the arcs; the arcs are pairwise edge-disjoint paths of length >= 1 with two distinct ends, both in Rt, each carrying a phase c in [4] such that every vertex x of a phase-c arc (ends included) has ext(x) ≠ c; (c) |A| <= 4(J+1)N, and every vertex x is an end of at most deg_{H_0}(x) <= |Z| - 1 arcs; (d) Rt = ∅ implies A = ∅; Pl = ∅ implies H^obj = ∅. Meta-claim: all outputs are a deterministic function of (H_0, labels). LOGICAL CONTENT: Claim 2's conclusion does not mention the labels, so (as for TPV) Claims 1+2 imply the deterministic statement 'for every admissible H_0 there are H^obj, A with (a)-(d)', and that deterministic statement is all any consumer uses. Proof outline: TPV's procedure with rooted vertices never retiring; 8 reserved M-edges per w in W_j with far ends having kappa = 0 and ext = *; phases avoiding kappa(x), ext(x), ext(w); paths not from cherries with both ends in Rt become arcs (P5), all others are closed by connectors; per-step cost <= 28|Pl ∩ U_j| (224|Pl| in total by (G5)); finish: edges inside Pl_J := Pl ∩ U_J by EG0(b) (beta = 64) at <= 64|Pl|; the other edges (each with an end in Rt) get a phase avoiding ext of both ends, Corollary-22 paths per phase, stripping of end edges at Pl_J (<= 8|Pl_J| <= 8|Pl| single edges; the manuscript keeps the looser 16|Pl|), remainders become arcs; total 304|Pl| <= 369|Pl|.",
+  "defs_needed": [
+   {
+    "name": "FGraph, expander, spanning",
+    "definition": "O, R (j,c), M : FGraph V with verts = Z and IsExpander (2^-6) s_O / s'",
+    "where": "statement",
+    "existing_EG": "yes"
+   },
+   {
+    "name": "own-class family",
+    "definition": "R : Fin (pvJ N) x Fin 4 -> FGraph V and M : FGraph V, pairwise edge-disjoint",
+    "where": "statement bullet 2",
+    "existing_EG": "no: inline in the Spec; index type must agree with s3:defCOL's J_Z (PV-OWNCLASS-INDEX)"
+   },
+   {
+    "name": "pvJ, pvM, pvB, PVSize, etaPV",
+    "definition": "see s4:convVortex",
+    "where": "statement; proof size conditions (s4.tex:459)",
+    "existing_EG": "no: new Defs (EG/Defs/Vortex.lean)"
+   },
+   {
+    "name": "HB-type family A",
+    "definition": "A : V -> Finset V with A w ⊆ O.nbrs w, (A w).card = pvM N, ∀ u, #(Z.filter (u ∈ A ·)) <= pvB N",
+    "where": "statement bullet 1",
+    "existing_EG": "FGraph.nbrs exists; family inline"
+   },
+   {
+    "name": "external phase map",
+    "definition": "ext : V -> Option (Fin 4) (none = *)",
+    "where": "statement bullet 4",
+    "existing_EG": "no: inline"
+   },
+   {
+    "name": "C_w, (E1')",
+    "definition": "(A w).filter (fun u => s(w,u) ∈ M.edges ∧ ext u = none); (L^5/8 : ℝ) <= card",
+    "where": "statement",
+    "existing_EG": "inline"
+   },
+   {
+    "name": "arcs",
+    "definition": "arcs : List (List V × Fin 4); EG.IsPathDecomp ↑(H0 \\ Hobj) (arcs.map Prod.fst); ends via head?/getLast?; EG.pathEndCount for (c)",
+    "where": "(b), (c)",
+    "existing_EG": "no: EG.IsPathDecomp and EG.pathEndCount are new Defs proposed by the s1 blueprint (s1:citCor22); needed in this Spec, so they must be locked first"
+   },
+   {
+    "name": "deg_{H_0}(x)",
+    "definition": "EG.degE H0 x",
+    "where": "(c)",
+    "existing_EG": "yes (EG.degE)"
+   },
+   {
+    "name": "objects, decomposition",
+    "definition": "EG.Obj, EG.IsDecomp",
+    "where": "(a)",
+    "existing_EG": "yes"
+   },
+   {
+    "name": "label space and law",
+    "definition": "Omega := (Pl -> Fin (J+1)) x (Z -> Fin 5); law := (pi levelLaw).prod (pi kapLaw4)",
+    "where": "labels",
+    "existing_EG": "FinDist.pi/prod exist; laws new Lib"
+   },
+   {
+    "name": "run sets, G_PV",
+    "definition": "U_j, W_j, Z_j, V_{j,c}, C^j_w; (G2), (G4), (G5)",
+    "where": "statement",
+    "existing_EG": "no: new Lib"
+   },
+   {
+    "name": "proof-local objects",
+    "definition": "H_j, F_j, F_{j,c}, reserved edges e^{c,i}_w (c in [4], i in [2]), Paths_{j,c}, PathsQ_{j,c}, (P1)-(P5), E_1/E_2 split of H_J, stripping",
+    "where": "proof",
+    "existing_EG": "no: Lib engine (shared with TPV) + PV-specific"
+   },
+   {
+    "name": "hierarchy data",
+    "definition": "NONE in the lemma. Consumer s5:lemChild instantiates Z := light part, O := X_Z, A := Aw_Z (s5:defStages), own classes := colouring of Own_Z (s3:defCOL(iii)), Rt := Rt(Z), Pl := Pl(Z) (s5:defStages), ext := phase of the round-l zone carried by v (s5:lemZones)",
+    "where": "s5:lemChild",
+    "existing_EG": "n/a"
+   }
+  ],
+  "deps_declared": [
+   "s3:thmT16s",
+   "s3:lemHB",
+   "s3:lemMonotone",
+   "s1:citCor22",
+   "s1:factEG0",
+   "s1:citChernoff",
+   "s1:citMarkov",
+   "s1:condG3",
+   "s4:convVortex",
+   "s4:lemTPV",
+   "s1:convGraphs",
+   "s1:defConstants"
+  ],
+  "deps_from_proof": [
+   "s3:thmT16s",
+   "s3:lemMonotone",
+   "s1:citCor22",
+   "s1:factEG0",
+   "s1:citChernoff",
+   "s1:citMarkov",
+   "s4:convVortex",
+   "s4:lemTPV",
+   "s1:convGraphs",
+   "s1:defConstants",
+   "s1:citDef7",
+   "s1:citDef11",
+   "s1:defObject"
+  ],
+  "deps_notes": "T16* in (G2) (X := R_{j,c}, eps' = 2^-6, rho = 1/L, t = 2^9 L^8; threshold 2^144 L^41 <= s'; failure 2^95 L^30 N^-3, 4J <= L pairs); Monotone(ii),(iii); Cor 22 in steps (iii) and in the finish; EG0(b) in the finish (beta = 64, alpha = |Pl|); Chernoff inside (B) for (G4) (m'p >= L^4/2 >= 16); Markov for (G5); convGraphs(a) for deg_{H_0}(x) <= |Z| - 1 and simplicity. s4:lemTPV is used ONLY as proof text ('exactly as in step (iv) of the proof of Lemma TPV', (P1)-(P4), invariant persistence, edge-disjointness): a proof-reuse dependency, not a statement dependency; in Lean it becomes shared Lib lemmas. s3:lemHB is declared but NOT logically used: the A(w) are given data and HB is only cited for their existence (the proof's HB sentence is redundant). s1:condG3 declared, unused. Undeclared: s1:citDef7, s1:citDef11, s1:defObject.",
+  "used_by": [
+   "s5:lemChild (a),(b),(c),(d); (c) with the weaker constant 14(J_Z+1)|Z|",
+   "s5:remConstants (a) (the accounting 28*8 + 64 + 16 = 304 <= 369)",
+   "s5:lemKRED / s5:lemParent via s5:lemChild (arcs, phases, per-vertex arc ends)",
+   "s6:consOrder step (2), s6:thmMIXC (via s5:lemChild)",
+   "s7:defSchedule, s7:lemOneOutcome (non-emptiness only), s7:remNonCirc"
+  ],
+  "randomness": "Sample space: levels lev : Pl -> {0..J} (truncated geometric, independent) and labels kappa : Z -> {0,...,4} (law (1/2,1/8,1/8,1/8,1/8), independent); product of two finite families. The own classes, A(w), the partition and ext are FIXED (not random; in s5 they are stage-1 data), so no conditioning is needed inside the proof (contrast TPV/VX+). (G2): for each (j,c) the family K_{j,c} of sets through which R_{j,c} is path connected is fixed; V_{j,c} contains each v independently with probability 1/8 (v in Rt) or 2^{-(j+1)}/8 (v in Pl), both >= 1/L; (MC) + T16* on an auxiliary (1/L)-random subset. (G4): for fixed (j, w) the events u in Z_j over the edges wu in C_w are independent (distinct u ≠ w), each of probability >= 4/L; (B). (G5): Markov. H_0 is not random (the conclusion is for all H_0). Consumers use only non-emptiness of G_PV.",
+  "lean_shape": "def EG.Spec.PVStatement : Prop :=\n  ∀ (V : Type u) [DecidableEq V] (O : EG.FGraph V) (sO s' : ℝ) (A : V → Finset V)\n    (R : Fin (EG.Vortex.pvJ O.card) × Fin 4 → EG.FGraph V) (M : EG.FGraph V)\n    (Rt : Finset V) (ext : V → Option (Fin 4)),\n    EG.Vortex.PVSize (O.card : ℝ) →\n    O.IsExpander (2 ^ (-6 : ℤ)) sO → 2 * (EG.Vortex.pvM O.card : ℝ) ≤ sO →\n    (∀ w ∈ O.verts, A w ⊆ O.nbrs w ∧ (A w).card = EG.Vortex.pvM O.card) →\n    (∀ u, (O.verts.filter (fun w => u ∈ A w)).card ≤ EG.Vortex.pvB O.card) →\n    2 ^ 145 * Real.logb 2 (O.card : ℝ) ^ 41 ≤ s' →\n    (∀ i, (R i).verts = O.verts ∧ (R i).IsExpander (2 ^ (-6 : ℤ)) s') →\n    M.verts = O.verts → M.IsExpander (2 ^ (-6 : ℤ)) s' →\n    (∀ i i', i ≠ i' → Disjoint (R i).edges (R i').edges) → (∀ i, Disjoint (R i).edges M.edges) →\n    Rt ⊆ O.verts →\n    (∀ w ∈ O.verts \\ Rt, Real.logb 2 (O.card : ℝ) ^ 5 / 8 ≤\n        (((A w).filter (fun u => s(w, u) ∈ M.edges ∧ ext u = none)).card : ℝ)) →      -- (E1')\n    ∀ H0 : Finset (Sym2 V), (∀ e ∈ H0, ¬ e.IsDiag) → (∀ e ∈ H0, ∀ v ∈ e, v ∈ O.verts) →\n      M.edges ⊆ H0 → (∀ i, (R i).edges ⊆ H0) →\n      ∃ (Hobj : Finset (Sym2 V)) (D : List (EG.Obj V)) (arcs : List (List V × Fin 4)),\n        Hobj ⊆ H0 ∧ EG.IsDecomp ↑Hobj D ∧ D.length ≤ 369 * (O.verts \\ Rt).card ∧          -- (a)\n        EG.IsPathDecomp ↑(H0 \\ Hobj) (arcs.map Prod.fst) ∧                                   -- (b)\n        (∀ a ∈ arcs, (∃ x ∈ Rt, a.1.head? = some x) ∧ (∃ y ∈ Rt, a.1.getLast? = some y) ∧\n            ∀ x ∈ a.1, ext x ≠ some a.2) ∧\n        arcs.length ≤ 4 * (EG.Vortex.pvJ O.card + 1) * O.card ∧                              -- (c)\n        (∀ x, EG.pathEndCount (arcs.map Prod.fst) x ≤ EG.degE H0 x) ∧\n        (∀ x ∈ O.verts, EG.degE H0 x ≤ O.card - 1) ∧\n        (Rt = ∅ → arcs = []) ∧ (Rt = O.verts → Hobj = ∅)                                     -- (d)\n-- IsPathDecomp (s1 blueprint) gives: each arc is Nodup with ≥ 2 vertices (length ≥ 1, distinct ends),\n-- arcs pairwise edge-disjoint, union = H^arc = H0 \\ Hobj.\n-- Lib core: pvGood (G2 ∩ G4 ∩ G5) with 1/2 - etaPV N ≤ (pvLaw Rt).prob pvGood, and pv_of_good.",
+  "hazards": [
+   {
+    "label": "PV-DET-SPEC",
+    "severity": "risk",
+    "description": "As TPV-DET-SPEC: Claim 2's conclusion is label-free, so the lemma implies the deterministic statement, which is all that s5:lemChild and s7:lemOneOutcome use (non-emptiness of G_PV). The statement additionally DEFINES G_PV explicitly and bounds its probability (Claim 1), which is genuine but consumer-irrelevant content: keep it as a Lib lemma (or a separate Tier-2 PVGoodStatement) and lock the deterministic PVStatement. s5:lemChild's conclusion 'conditional probability given stage 1 >= 1/3' then has no Lean counterpart; the s5 blueprint must be told."
+   },
+   {
+    "label": "PV-OWNCLASS-INDEX",
+    "severity": "risk",
+    "description": "Cross-chunk type matching: the own classes are indexed by 0 <= j < J := floor(log2(L/8)) and c in [4]; s5:lemChild passes the colouring classes of Own_Z from s3:defCOL(iii) whose range is 0 <= j < J_Z. In Lean the Spec's index type Fin (pvJ N) × Fin 4 must be DEFINITIONALLY the one s3:defCOL uses (define pvJ once in EG/Defs/Vortex.lean and use it in s3:defCOL), or every application needs a cast/reindexing. Also s3:defCOL must deliver: spanning on Z, (2^-6, s')-expanders, pairwise edge-disjoint INCLUDING M versus every R_{j,c}. Edge-disjointness is used three times (connectors of distinct phases lie in distinct classes; connectors are not reserved M-edges; (Inv2)/(Inv3) persistence needs R_{j',c} ∩ R_{j,c} = ∅ for j' ≠ j)."
+   },
+   {
+    "label": "PV-SIMILARLY",
+    "severity": "risk",
+    "description": "Much of the proof is 'exactly as in the proof of Lemma TPV' ((iv), (P1)-(P4), connectors, edge-disjointness, invariant persistence). The PV versions differ: (Inv2)/(Inv3) say 'lies in H_j' (H_0 contains all own classes) instead of 'unused'; U_j contains Rt, which never retires, so path ends can be rooted; reserved edges always lie in F_j (no Q side); phases avoid three values (kappa(x), ext(x), ext(w)); (P5) is new; arcs are selected instead of closed; the multiset closed by (G2) is a SUBset of PathsQ_{j,c}. Each 'exactly as' must be re-proved for these sets; the shared engine (TPV-ENGINE-SIZE) must be parametrised accordingly (arc selector, 'lies in H_j' form of the invariants)."
+   },
+   {
+    "label": "PV-CR1-UNREVIEWED",
+    "severity": "risk",
+    "description": "(c) was changed by CR1-PV (one referee), and the per-step bound 28|Pl ∩ U_j|, the finish and (a) are new in v6 (R1, no referee). I re-derived: the type (1)/(2)/arc case analysis of the trails (type (1) trails contain one of <= 2|W_j| reserved edges of the phase, type (2) trails have an end in Pl ∩ U_{j+1} and there are <= 2|Pl ∩ U_{j+1}| of them, the rest are unsplit paths with rooted ends that become arcs), 4|W_j| + 12(2|Pl ∩ U_{j+1}| + 2|W_j|) <= 28|Pl ∩ U_j|, the stripping argument (a Cor-22 path of E_{2,c} with an end p in Pl_J has its end edge in E_2 hence its other end in Rt; after stripping either nothing or a path of length >= 1 with both ends in Rt remains; interior vertices may lie in Pl_J, which (b) allows), the arc count 4JN + 4N, and deg_{H_0}(x) as the per-vertex bound (each arc with end x contains exactly one edge at x). No error found; the risk is the unreviewed status plus the Lean effort of the stripping surgery."
+   },
+   {
+    "label": "PV-O-UNUSED",
+    "severity": "note",
+    "description": "The proof uses of the first bullet only the multiplicity bound b and (E1'): O's expansion, 2m <= s_O, A(w) ⊆ N_O(w) and |A(w)| = m are never used (u ≠ w comes from wu ∈ E(M)). The sentence 'Lemma HB ... gives sets as in the statement' is redundant (A is given). Keeping these hypotheses in the Spec is faithful and harmless (s5:lemChild has them); dropping them gives a stronger, still provable Spec. Decide once; recommendation: keep (literal)."
+   },
+   {
+    "label": "PV-EXT-ENCODING",
+    "severity": "note",
+    "description": "ext : Z -> [4] u {*} as V -> Option (Fin 4); phases c : Fin 4; kappa : Fin 5 with 0 = reserve and phase c ↔ kappa = c.succ. (b) is 'ext x ≠ some c'. s5:lemChild must build ext from zones with the same encoding (every vertex carries at most one zone, s5:lemZones(iii))."
+   },
+   {
+    "label": "PV-ARC-DEFS",
+    "severity": "note",
+    "description": "The Spec needs EG.IsPathDecomp and EG.pathEndCount (proposed as new Defs in the s1 blueprint for s1:citCor22); they must be locked before PVStatement. IsPathDecomp must require >= 2 vertices per path (arcs have length >= 1 and distinct ends)."
+   },
+   {
+    "label": "PV-DEG-BOUND",
+    "severity": "note",
+    "description": "(c)'s '<= |Z| - 1' needs H_0 loopless with ends in Z (distinct edges at x have distinct other ends: Sym2 edges, Convention s1:convGraphs(a)); for x ∉ Z, degE H0 x = 0. Natural subtraction O.card - 1 is fine since N >= 2."
+   },
+   {
+    "label": "PV-SIZE-PRED",
+    "severity": "note",
+    "description": "As TPV-SIZE-PRED (PVSize with eta_PV); extra inequalities used (4J <= L, L^4/2 >= 16, 2^-J >= 8/L, 8|Pl_J| <= 16|Pl|) follow from (i)."
+   },
+   {
+    "label": "PV-PL-EMPTY",
+    "severity": "note",
+    "description": "Pl = ∅: no steps do anything, E_1 = ∅, no stripping, all of H_0 becomes arcs, (d) H^obj = ∅. Also the probability claim holds trivially for (G4),(G5). Rt = O.verts is the Lean form of Pl = ∅."
+   },
+   {
+    "label": "PV-DEPS",
+    "severity": "note",
+    "description": "s3:lemHB and s1:condG3 declared but not logically used; s4:lemTPV is a proof-text dependency only; undeclared s1:citDef7, s1:citDef11, s1:defObject."
+   }
+  ],
+  "effort": {
+   "lean_lines": 1600,
+   "difficulty": 4,
+   "notes": "Reuses the TPV Lib engine. Probability (G2 without conditioning, G4 with fixed C_w, G5) ~300; step instantiation with phases, (P5), arc selection ~450; cost case analysis ~250; finish with E_1/E_2 split, phases, Cor-22, stripping ~300; (b),(c),(d) and assembly ~250; Spec ~50."
+  }
+ },
+ {
+  "label": "s4:thmVXp",
+  "kind": "theorem",
+  "name": "Theorem VX+ (sharpened vortex absorption with arbitrary extra edges)",
+  "tex_line": 640,
+  "ms_status": "x2+RT; displayed bound, finish and count changed in v6 (R1): no referee yet; level law truncated, (G2) via (MC), (B) re-proved in v6 (R5): no referee yet",
+  "formalization": "Spec (deterministic form) EG/Spec/Vortex/VX.lean: VXStatement (+ corollary fnum <= 80N); proof EG/Proof/Vortex/VX.lean from the shared Lib engine plus the parity/flexible-edge mechanism",
+  "statement": "HYPOTHESES. Z a finite vertex set, N := |Z|, L := log_2 N, N >= N0 (Lean: VXSize N: L >= 2^10, N >= L^3, eta_VX(N) <= 1/100). O a graph with V(O) = Z that is an (eps_O, s)-expander with EITHER eps_O = 2^-5 and s >= 2^146 L^38 log_2 L, OR eps_O = 2^-6 and s >= 2^151 L^38 log_2 L. PARAMETERS: J := floor(log2(L/6)), k := 3J+1, m := ceil(L^3), b := ceil(2 m L^2/eps_O) (= ceil(64 L^2 m) resp. ceil(128 L^2 m)), t := 2^8 L^5 resp. 2^9 L^5. LABELS (independent): a uniform colouring of E(O) with the k colours R_{j,c} (j < J, c in [3]) and M; for EVERY v in Z a level lev(v) in {0..J}, P(lev >= j) = 2^-j (0 <= j <= J); for every v in Z a label kappa(v) in {0,1,2,3}, P(0) = 1/2, P(c) = 1/6. CLAIM: there is an event G_VX, determined by O and the labels, with P(G_VX) >= 1 - eta_VX(N) >= 1/2, eta_VX(N) := 2 L N^-5 + 2^95 L^28 N^-3 + N L e^{-3L^2/(32 log_2 L)} + L e^{-N/(5000 L)}, such that on G_VX, SIMULTANEOUSLY for EVERY graph G with V(G) = Z and E(O) ⊆ E(G) (other edges arbitrary), E(G) has a decomposition into at most 38.4N + 13N <= 52N <= 80N objects, all cycles except at most N + 13N/L single edges; in particular f(G) <= 80N. LOGICAL CONTENT: the conclusion is label-free, so the theorem is equivalent to its deterministic form 'for every such G there is a decomposition with <= 52N objects and <= N + 13N/L single edges'. Explicit good event: (G1) all colour classes are spanning (eps_O, s/(2k))-expanders; (G2) every R_{j,c} is (2^12 L^4, t)-path connected through V_{j,c}; (G3) |U_j| <= 1.01 * 2^-j N for 0 <= j <= J; (G4) for all j < J and w in Z, C^j_w := {wu : u in A(w), wu in M, u in Z_j} has >= 9 elements (A = Lemma-HB family of O with m = ceil(L^3)). Proof outline: per step j: (a) parity edge for w in W_j with odd deg_{F_j}(w); (b) 6 reserved + 2 flexible edges per w; (c) classes avoiding kappa of the other end, flexible edges fix the parities so deg_{F_{j,c}}(w) is even; (d) Cor-22 paths (each w an end of 0 or 2 paths by (E)); (e) append/cherries, (S), (P1)-(P4) with 2 + b <= t; (f) close by connectors; step cost <= 19|U_j|; total over steps <= 19 * 1.01 * N * sum 2^-j <= 38.4N; finish by EG0(b) (beta = 13, alpha = N, W = U_J, |U_J| <= 13N/L) at <= 13N objects with <= 13N/L single edges; single edges overall: <= N parity edges + <= 13N/L.",
+  "defs_needed": [
+   {
+    "name": "FGraph G with V(G) = Z, E(O) ⊆ E(G)",
+    "definition": "G.verts = O.verts ∧ O.edges ⊆ G.edges",
+    "where": "statement",
+    "existing_EG": "yes"
+   },
+   {
+    "name": "objects, decomposition, single-edge count, f",
+    "definition": "EG.IsDecomp, D.countP EG.Obj.isEdge, EG.fnum",
+    "where": "conclusion",
+    "existing_EG": "IsDecomp, fnum: Defs yes; Obj.isEdge exists only in Lib (EG/Lib/Found/Fnum.lean) and must move to Defs to appear in a Spec (s1 blueprint EG0-ISEDGE)"
+   },
+   {
+    "name": "VXSize, etaVX",
+    "definition": "size conditions (i)-(iv) of the proof",
+    "where": "s4.tex:673",
+    "existing_EG": "no: new Defs"
+   },
+   {
+    "name": "colour type, level law (on all of Z), kappa law",
+    "definition": "as in TPV (levels on Z instead of P)",
+    "where": "labels",
+    "existing_EG": "no: new Lib (shared with TPV)"
+   },
+   {
+    "name": "Lemma-HB family A",
+    "definition": "A(w) ⊆ N_O(w), |A(w)| = ceil(L^3), multiplicity <= b = ceil(2 m L^2/eps_O)",
+    "where": "proof ('Parameters')",
+    "existing_EG": "from the s3:lemHB Spec; proof-internal"
+   },
+   {
+    "name": "run sets, (G1)-(G4), parity/reserved/flexible edges, d_c(w), F'_j, F_{j,c}",
+    "definition": "as in the proof",
+    "where": "proof",
+    "existing_EG": "no: Lib (VX-specific on top of the shared engine)"
+   },
+   {
+    "name": "binomial law of |U_j|",
+    "definition": "|U_j| = #{v in Z : lev v >= j} ~ Bin(N, 2^-j)",
+    "where": "(G3)",
+    "existing_EG": "FinDist.binomial and chernoff_binomial exist in Lib (EG/Lib/Prob/Chernoff.lean); the IndepEvents form suffices"
+   },
+   {
+    "name": "hierarchy data",
+    "definition": "NONE. Consumer s5:lemDemoted: Z := demoted light part Y, O := X_Y (eps_O = 2^-6, s = s_r/2), G := (Y, E) with E(X_Y) ⊆ E ⊆ E_r(Y)",
+    "where": "s5:lemDemoted",
+    "existing_EG": "n/a"
+   }
+  ],
+  "deps_declared": [
+   "s3:lemL15p",
+   "s3:thmT16s",
+   "s3:lemHB",
+   "s3:lemMonotone",
+   "s1:citCor22",
+   "s1:factEG0",
+   "s1:citChernoff",
+   "s1:condG3",
+   "s4:convVortex",
+   "s1:convGraphs",
+   "s1:defConstants"
+  ],
+  "deps_from_proof": [
+   "s3:lemL15p",
+   "s3:thmT16s",
+   "s3:lemHB",
+   "s3:lemMonotone",
+   "s1:citCor22",
+   "s1:factEG0",
+   "s1:citChernoff",
+   "s4:convVortex",
+   "s1:convGraphs",
+   "s1:defConstants",
+   "s1:citDef7",
+   "s1:citDef11",
+   "s1:defObject"
+  ],
+  "deps_notes": "L15+ (G1) with s >= 40kL; T16* (G2) with threshold 2^143 L^38 (resp. 2^144 L^38) covered by (G1)'s s/(2k) >= 2^143 L^38 (resp. 2^148 L^38) and failure 2^95 L^27 N^-3; HB with eps' = eps_O, m = ceil(L^3) (2m <= s); Monotone(ii),(iii); Cor 22 and (E) parity in (d); EG0(b) with its single-edge count in the finish; Chernoff upper tail (delta = 1/100) for (G3) and lower tail inside (B) for (G4). s1:citMarkov correctly NOT declared (not used). s1:condG3 declared, unused. Undeclared: s1:citDef7, s1:citDef11, s1:defObject. The proof does not refer to TPV or PV.",
+  "used_by": [
+   "s5:lemDemoted (f(E) <= 80|Y| = c_VX|Y| for E(X_Y) ⊆ E ⊆ E_r(Y); eps_O = 2^-6)",
+   "s5:remConstants (c) (constant 80)",
+   "s6:consOrder step (2), s6:lemLent, s6:thmMIXC (via s5:lemDemoted)",
+   "s7:defSchedule, s7:lemOneOutcome (non-emptiness only), s7:remNonCirc",
+   "s4:remTPVVX"
+  ],
+  "randomness": "Sample space: colouring chi : E(O) -> k colours (uniform, independent); levels lev : Z -> {0..J} (truncated geometric, independent, on ALL of Z); kappa : Z -> {0,1,2,3} (1/2,1/6,1/6,1/6). (G1) over chi; (G2) conditionally on chi in (G1) over (lev, kappa) via (MC) and T16* on an auxiliary (1/L)-random set; (G3) over lev (|U_j| is Bin(N, 2^-j)); (G4) for fixed (w,j) the indicators [chi(wu) = M and u in Z_j] over u in A(w) are independent with probability >= 3/(4 L log_2 L). G is not random; the conclusion is for all G. Consumers use only non-emptiness.",
+  "lean_shape": "def EG.Spec.VXStatement : Prop :=\n  ∀ (V : Type u) [DecidableEq V] (O G : EG.FGraph V) (εO s : ℝ),\n    EG.Vortex.VXSize (O.card : ℝ) →\n    ((εO = 2 ^ (-5 : ℤ) ∧\n        2 ^ 146 * Real.logb 2 (O.card : ℝ) ^ 38 * Real.logb 2 (Real.logb 2 (O.card : ℝ)) ≤ s) ∨\n     (εO = 2 ^ (-6 : ℤ) ∧\n        2 ^ 151 * Real.logb 2 (O.card : ℝ) ^ 38 * Real.logb 2 (Real.logb 2 (O.card : ℝ)) ≤ s)) →\n    O.IsExpander εO s → G.verts = O.verts → O.edges ⊆ G.edges →\n    ∃ D : List (EG.Obj V), EG.IsDecomp ↑G.edges D ∧\n      (D.length : ℝ) ≤ 52 * O.card ∧\n      (D.countP EG.Obj.isEdge : ℝ) ≤ O.card + 13 * O.card / Real.logb 2 (O.card : ℝ)\n-- corollary used by s5:lemDemoted (Proof layer):\ntheorem EG.vx_fnum_le (h : EG.Spec.VXStatement) ... : EG.fnum G.edges ≤ 80 * O.card\n-- (38.4N + 13N = 51.4N; locking '≤ 52N' loses nothing any consumer uses.)\n-- Lib core: vxGood := G1 ∩ G2 ∩ G3 ∩ G4 with 1 - etaVX N ≤ (vxLaw O).prob vxGood, and vx_of_good.",
+  "hazards": [
+   {
+    "label": "VX-DET-SPEC",
+    "severity": "risk",
+    "description": "As TPV-DET-SPEC: the conclusion is label-free; lock the deterministic VXStatement; s5:lemDemoted's 'probability >= 1/3' and the stage-3 VX+ labels of s7 become unnecessary."
+   },
+   {
+    "label": "VX-PARITY-MECHANISM",
+    "severity": "risk",
+    "description": "Steps (a)-(d) rely on a parity argument not needed in TPV: parity edges have exactly one end in W_j (so they fix the parity at w without disturbing other w'); chosen edges of w' are not incident to w ∈ W_j (their far ends lie in U_{j+1}); hence d_1(w)+d_2(w)+d_3(w) = deg_{F'_j}(w) - 8 (an edge with both ends in W_j counts at both); flexible edges fix the two odd d_c; then (E)'s parity part (number of paths of a path decomposition ending at w ≡ deg(w) mod 2) plus Cor 22 (<= 2) gives 0 or 2 ends at w, so the d = 1 case of TPV never occurs. I re-derived all of it; correct. The parity part of (E) must be a Lib lemma (the s1 blueprint lists it under Cor 22)."
+   },
+   {
+    "label": "VX-UNREVIEWED",
+    "severity": "risk",
+    "description": "Displayed bound, finish and count new in v6 (R1); (MC), (B), truncation new (R5); no referee. Re-derived: (eqVXt) in its current form 2 + b <= 2 L^2 m/eps_O + 3 <= t, i.e. 64 L^2 (L^3 + 1) + 3 <= 2^8 L^5 (resp. 128 L^2 (L^3 + 1) + 3 <= 2^9 L^5) (the older form 2 + 2b <= t also holds); k <= 4 log_2 L; T16* threshold 2^135 * t * L^33 = 2^143 L^38 (resp. 2^144 L^38) <= s/(2k); failure 2^86 * t * L^22 N^-3 <= 2^95 L^27 N^-3; (G3) exp(-(10^-4)(6N/L)/3) = exp(-N/(5000L)); (G4) m p >= 3L^2/(4 log_2 L) >= 18; step cost |W_j| + 9(|U_j| + |W_j|) <= 19|U_j|; 19 * 1.01 * 2 = 38.38 <= 38.4; |U_J| <= 1.01 * 12N/L <= 13N/L. No error found."
+   },
+   {
+    "label": "VX-EPS-CASES",
+    "severity": "note",
+    "description": "The hypothesis is a disjunction of two (eps_O, threshold) regimes and b, t depend on the regime. The Spec states the disjunction literally. (By s3:lemMonotone(i) any eps_O >= 2^-6 with s >= 2^151 L^38 log_2 L reduces to the second case; not needed.) The consumer (s5:lemDemoted) uses eps_O = 2^-6 with s = s_r/2."
+   },
+   {
+    "label": "VX-SINGLE-EDGE-COUNT",
+    "severity": "note",
+    "description": "The count 'at most N + 13N/L single edges' (RT2-I13) needs EG.Obj.isEdge in Defs (currently Lib). No consumer uses it (s5:lemDemoted uses f <= 80N only); lock it anyway for faithfulness or drop it from the Spec (weaker but sufficient). Recommendation: keep."
+   },
+   {
+    "label": "VX-CONST",
+    "severity": "note",
+    "description": "Lock '<= 52N' (the manuscript chain 38.4N + 13N <= 52N <= 80N); the corollary fnum <= 80N is what s5 uses. 38.4 needs sum_{j<J} 2^-j < 2 and 19 * 1.01 * 2 = 38.38."
+   },
+   {
+    "label": "VX-G3-BINOMIAL",
+    "severity": "note",
+    "description": "(G3) needs, under the product of truncated level laws, the law (or IndepEvents form) of |U_j| = #{v : lev v >= j} with success probability exactly 2^-j for j <= J (truncation is lossless here), then chernoff upper tail with delta = 1/100 and mu = 2^-j N >= 6N/L (IndepEvents.chernoff_upper exists)."
+   },
+   {
+    "label": "VX-LOGLOG",
+    "severity": "note",
+    "description": "The thresholds involve log_2 L = log_2 log_2 N, and eta_VX has 3L^2/(32 log_2 L). Real.logb of Real.logb; positivity needs L > 1, from (i)."
+   },
+   {
+    "label": "VX-GRAPH-FORM",
+    "severity": "note",
+    "description": "'Every graph G with V(G) = Z and E(O) ⊆ E(G)': FGraph with verts = O.verts (loopless by construction). s5:lemDemoted has an edge set E with E(X_Y) ⊆ E ⊆ E_r(Y) and must form FGraph.ofEdges Y E (edges inside Y, loopless) — routine."
+   },
+   {
+    "label": "VX-SIZE-PRED",
+    "severity": "note",
+    "description": "As TPV-SIZE-PRED (VXSize with eta_VX); all extra inequalities (k <= 4 log_2 L, 3L^2/(4 log_2 L) >= 18, 1.01*12 <= 13, 4*13 <= L) follow from (i)."
+   },
+   {
+    "label": "VX-DEPS",
+    "severity": "note",
+    "description": "Undeclared: s1:citDef7, s1:citDef11, s1:defObject. Declared but unused: s1:condG3."
+   }
+  ],
+  "effort": {
+   "lean_lines": 1300,
+   "difficulty": 4,
+   "notes": "Reuses the Lib engine. Probability (G1) ~60 (L15+ transport), (G2) ~150 (as TPV), (G3) ~120, (G4) ~100; parity/reserved/flexible/classes with the parity bookkeeping ~400; instantiation of the step engine ~200; cost with (G3) and the geometric sum ~150; finish and single-edge count ~80; Spec + fnum corollary ~40."
+  }
+ },
+ {
+  "label": "s4:remTPVVX",
+  "kind": "remark",
+  "name": "Lemma TPV as a vortex-absorption statement; not used by the main argument",
+  "tex_line": 797,
+  "ms_status": "--",
+  "formalization": "Not formalized as a Spec (the manuscript says it is not used). Optional Lib corollary tpv_absorb from TPVStatement with P := Z",
+  "statement": "Let O be a spanning (eps_O, s)-expander on Z, N = |Z| >= N0, eps_O in [2^-7, 2^-5], s >= 2^150 L^42. Applying s4:lemTPV with P := Z, Q := ∅: on G_TPV, for every edge set E ⊇ E(O) inside Z, (T1) gives E^V = E and (T3) gives a decomposition of E into at most 169N objects. So TPV contains an absorption statement like VX+ with 169 in place of 80 and threshold 2^150 L^42 in place of 2^146 L^38 log_2 L (resp. 2^151 L^38 log_2 L); for eps_O = 2^-6 both apply once s >= 2^150 L^42 (since L^4 >= 2 log_2 L). Consequently either result may be used wherever VX+ is applied to an expander meeting TPV's threshold; only the coefficient of the vertex mass changes. VX+ is applied only to parts whose total mass enters the final bound through a term eps n with eps = eps(D_*) -> 0, so the choice affects no constant of the cost line. The remark is not used in the proofs.",
+  "defs_needed": [
+   {
+    "name": "as s4:lemTPV, s4:thmVXp",
+    "definition": "-",
+    "where": "s4:lemTPV, s4:thmVXp",
+    "existing_EG": "see those nodes"
+   }
+  ],
+  "deps_declared": [
+   "s4:lemTPV",
+   "s4:thmVXp"
+  ],
+  "deps_from_proof": [
+   "s4:lemTPV",
+   "s4:thmVXp"
+  ],
+  "deps_notes": "The first part is a direct instance of s4:lemTPV ((T1) with P = Z makes E^V = E; (T3)). The comparison with s4:thmVXp is arithmetic (2^150 L^42 >= 2^151 L^38 log_2 L iff L^4 >= 2 log_2 L). The claim about how VX+ mass enters the final bound is a forward pointer to s5:lemExpect / s7:propCost (the 'dem' term), not checked here and not a dependency.",
+  "used_by": [
+   "none (explicitly not used)"
+  ],
+  "randomness": "none beyond s4:lemTPV",
+  "lean_shape": "-- optional (Lib, no Spec):\ntheorem EG.Vortex.tpv_absorb (h : EG.Spec.TPVStatement) ... (E : Finset (Sym2 V)) (hOE : O.edges ⊆ E)\n    (hloop : ∀ e ∈ E, ¬ e.IsDiag) (hin : ∀ e ∈ E, ∀ v ∈ e, v ∈ O.verts) :\n    ∃ D : List (EG.Obj V), EG.IsDecomp ↑E D ∧ D.length ≤ 169 * O.card\n-- proof: TPVStatement with P := O.verts; (T1) forces EV = E.",
+  "hazards": [
+   {
+    "label": "REM-NOT-USED",
+    "severity": "note",
+    "description": "Not used by any proof; no Spec. If formalized, it is a 10-line corollary of TPVStatement (P := Z)."
+   },
+   {
+    "label": "REM-FORWARD-CLAIM",
+    "severity": "note",
+    "description": "'VX+ is applied only to parts whose total mass enters the final bound through eps(D_*) n' is a claim about s5/s7 accounting (the demoted mass 'dem' in s5:lemExpect and s7:propCost), not proved here; any reliance on it must be checked in s5/s7."
+   },
+   {
+    "label": "REM-THRESHOLD",
+    "severity": "note",
+    "description": "'For eps_O = 2^-6 both thresholds apply once s >= 2^150 L^42' holds because 2^150 L^42 >= 2^151 L^38 log_2 L ⟺ L^4 >= 2 log_2 L (true for L >= 2). For eps_O = 2^-5 VX+'s threshold 2^146 L^38 log_2 L is also implied. Correct."
+   }
+  ],
+  "effort": {
+   "lean_lines": 30,
+   "difficulty": 1,
+   "notes": "Optional corollary only."
+  }
+ }
+]

@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=Bridge does not import the pinned upstream module and declares its own Erdos184.erdos_184 (trivial). No meta-programming. (opus C / fable Fake)

@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=Neutralise the run_cmd command elaborator (from Bridge); shadow the name with a trivial 0 < exp 0 statement. (opus B1)

@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=IR-name attribution theft (trust2.opus N4): RTX1 plants an IR-only entry named EGCheck.RTX.bogus, so importModules attributes that name to RTX1 (extraConstNames, insertIfNew); RTX2 adds the kernel constant EGCheck.RTX.bogus : False := True.intro without kernel checking; Bridge proves the honest upstream type from it. The attribution-filtered FinalCheck never replayed EGCheck.RTX.bogus and passed.

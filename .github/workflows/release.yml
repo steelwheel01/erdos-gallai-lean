@@ -1,0 +1,352 @@
+# Release audit for the Lean formalization in formal/ — the ACCEPTANCE CRITERION proposed in
+# formal/staging/TRUST.md.proposed (trust audits of 2026-09-26, formal/APPROVALS/reviews/trust*.md;
+# the gate: formal/work/trust/gate2.md; manual fallback: formal/work/trust/tooling.md and gate2.md).
+# Expected to fail until phase P4.
+#
+# Three jobs, on three fresh runners. Every job runs the GATE (formal/scripts/pristine.sh, POSIX sh
+# + git only) FIRST, before any lake, lean or python call: it rejects formal/lakefile.lean, stray
+# *.py / .pth / sitecustomize, Lake/direnv/git-attribute/editor hooks, and any change to the pinned
+# checkers, lake files, toolchain, TRUST.md, STATEMENT.md and workflows (trust2.opus N1–N3). The
+# trusted jobs then copy the checked tree to $RUNNER_TEMP/trusted and run EVERYTHING from that copy.
+# If the repository variable EG_TRUST_REF names the user-approved trust commit (a FULL 40-hex commit
+# id; tags, branches and abbreviated ids are rejected, since they can be moved or are ambiguous),
+# the gate is taken from that commit and every trusted file must equal it (pristine.sh --trust-ref).
+# A run is evidence only if this file at the tested commit is the approved one: a modified workflow
+# can skip the gate, so that is checked OFFLINE (TRUST.md, "How to check"), never by the run itself.
+#
+#   build       UNTRUSTED. Fresh `lake build` (no actions/cache restore of any .lake/build). It
+#               executes project code, so its only output is the project's own build directory
+#               (.olean/.ir files of EG*, EGTest*, EGCheck*), handed over as an artifact.
+#   verify      TRUSTED. Never compiles or executes project code: gate + snapshot; lock (file part);
+#               pins; lint --release; red-team fixtures; the upstream closure built from pinned
+#               sources; STATEMENT.md regenerated and diffed; then the project .oleans are loaded
+#               only as data: lock --strict, Axioms --no-sorry (+ MetaScan), FinalCheck, leanchecker
+#               (every project module) and leanchecker --fresh EGCheck.Final.
+#   comparator  TRUSTED harness (leanprover/comparator, the patched pinned v4.33.1 build of
+#               scripts/comparator.sh): Challenge byte identity and config (comparator.sh check),
+#               then comparator builds the Challenge, builds the Solution inside a landrun sandbox,
+#               exports both with lean4export, compares and replays; run unprivileged under
+#               systemd-run with RestrictAddressFamilies=~AF_UNIX (comparator.sh run --release
+#               --system-unit). Needs lakefile.toml with the Challenge/Solution libraries
+#               (staging/lakefile.toml.proposed); until that is applied the job fails closed.
+#
+# RAM: `leanchecker --fresh EGCheck.Final` needs >= 16 GB (measured: 10.3 GB max RSS, 21-40 min).
+# GitHub's standard runners for PRIVATE repositories have 7 GiB (release run 36758690862), so the
+# verify job first adds a swap file on the runner's root disk; the preflight then requires RAM + swap
+# >= 16 GB. Swap changes speed only, never a verdict: an out-of-memory kill fails the job. A larger
+# runner (repository variable EG_RELEASE_RUNNER) avoids the swap. The verify job fails early
+# (memory preflight) rather than being OOM-killed half-way.
+name: formal-release
+on:
+  workflow_dispatch:
+  push:
+    tags: ["formal-v*", "release-*"]
+
+permissions:
+  contents: read
+
+env:
+  ELAN_VERSION: v4.2.4
+  ELAN_SHA256: 42b94d4244e8353142c456ec0e4ca6528fd898a6c604d4059f494e706e431f63
+  LEAN_VERSION: 4.33.1
+  LEAN_ARCHIVE_SHA256: 890afd185370f85666025b883914ab4f4b339136f8c96167b69cfb62aecaf235
+  # Python never imports from the working or script directory (every call also uses -I).
+  PYTHONSAFEPATH: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  EG_TRUST_REF: ${{ vars.EG_TRUST_REF }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        working-directory: formal
+        shell: bash
+    steps:
+      # The runner's disk fills up on the complete tree (CI run 36717327466: "No space left on device"
+      # in the comparator red-team, 53 MB free). Remove preinstalled SDKs this job never uses. Runs
+      # before any project code; touches only system directories outside the checkout.
+      - name: Free runner disk space (unused preinstalled SDKs)
+        working-directory: /
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift
+          df -h /
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Not a trust boundary (this job is untrusted); fails early on a tree the trusted jobs reject.
+      - name: Gate (pristine.sh; pure sh + git; before anything else)
+        run: sh scripts/pristine.sh
+      - name: Install elan and the pinned Lean toolchain (checksum-verified)
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          curl -sSfL -o "$tmp/elan.tar.gz" \
+            "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${ELAN_SHA256}  $tmp/elan.tar.gz" | sha256sum -c -
+          tar xzf "$tmp/elan.tar.gz" -C "$tmp"
+          "$tmp/elan-init" -y --no-modify-path --default-toolchain none
+          curl -sSfL -o "$tmp/lean.tar.zst" \
+            "https://github.com/leanprover/lean4/releases/download/v${LEAN_VERSION}/lean-${LEAN_VERSION}-linux.tar.zst"
+          echo "${LEAN_ARCHIVE_SHA256}  $tmp/lean.tar.zst" | sha256sum -c -
+          dest="$HOME/.elan/toolchains/leanprover--lean4---v${LEAN_VERSION}"
+          mkdir -p "$dest"
+          tar --zstd -xf "$tmp/lean.tar.zst" -C "$dest" --strip-components=1
+          rm -rf "$tmp"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch Mathlib cache (trusted per TRUST.md; no other cache is restored)
+        run: lake exe cache get
+      - name: Check trusted pins
+        run: ./scripts/check_pins.sh
+      - name: Fresh build (runs project code)
+        run: lake build EG EGTest EGCheck EGCheck.Final
+      - name: Pack the project build directory
+        run: |
+          set -euo pipefail
+          cd .lake/build/lib/lean
+          tar -cf "$RUNNER_TEMP/project-build.tar" EG EG.* EGTest EGTest.* EGCheck EGCheck.*
+          sha256sum "$RUNNER_TEMP/project-build.tar"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: project-build
+          path: ${{ runner.temp }}/project-build.tar
+          if-no-files-found: error
+          retention-days: 30
+
+  verify:
+    needs: build
+    runs-on: ${{ vars.EG_RELEASE_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 360   # the maximum on GitHub-hosted runners; swapping slows leanchecker --fresh
+    # Every step after the gate runs in the snapshot the gate made ($RUNNER_TEMP/trusted/formal),
+    # not in the checkout. (`runner.temp` is not available in job-level defaults, hence per step.)
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The runner's disk fills up on the complete tree (CI run 36717327466: "No space left on device"
+      # in the comparator red-team, 53 MB free). Remove preinstalled SDKs this job never uses. Runs
+      # before any project code; touches only system directories outside the checkout.
+      - name: Free runner disk space (unused preinstalled SDKs)
+        working-directory: /
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift
+          df -h /
+      # Standard private-repository runners have 7 GiB RAM. Add swap so that RAM + swap >= 16 GB.
+      # System-level only (a file outside the checkout), before any project code; affects speed only.
+      - name: Add swap if RAM + swap < 16 GB
+        working-directory: /
+        run: |
+          have=$(awk '/^(MemTotal|SwapTotal):/ {s += $2} END {print s}' /proc/meminfo)
+          echo "RAM + swap before: $((have / 1024 / 1024)) GiB"
+          if [ "$have" -lt 16500000 ]; then
+            sudo fallocate -l 12G /eg-swapfile
+            sudo chmod 600 /eg-swapfile
+            sudo mkswap /eg-swapfile
+            sudo swapon /eg-swapfile
+          fi
+          swapon --show
+          free -h
+      - name: Memory preflight (leanchecker --fresh needs >= 16 GB of RAM + swap)
+        working-directory: /
+        run: |
+          kb=$(awk '/^(MemTotal|SwapTotal):/ {s += $2} END {print s}' /proc/meminfo)
+          echo "RAM + swap: $((kb / 1024 / 1024)) GiB"
+          if [ "$kb" -lt 15500000 ]; then
+            echo "::error::This runner has less than 16 GB of RAM + swap. Set the repository variable EG_RELEASE_RUNNER to a larger runner, or run the manual release audit (formal/work/trust/gate2.md) in a >= 16 GB session."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0   # the trust ref
+      - name: Gate (pristine.sh; FIRST, before any lake / lean / python) and snapshot
+        working-directory: formal
+        run: |
+          set -eu
+          if [ -n "${EG_TRUST_REF:-}" ]; then
+            # The trust ref must be a FULL 40-hex commit id: a tag or a branch can be moved by anyone with
+            # push rights (trust3.fable Y11b). Checked here, before git resolves it, and again by the gate.
+            case "$EG_TRUST_REF" in *[!0-9a-f]*) echo "::error::EG_TRUST_REF must be a full 40-hex commit id (no tags or branches)"; exit 1;; esac
+            [ "${#EG_TRUST_REF}" -eq 40 ] || { echo "::error::EG_TRUST_REF must be a full 40-hex commit id (no tags or branches)"; exit 1; }
+            git cat-file -e "$EG_TRUST_REF^{commit}" 2>/dev/null || git fetch -q --no-tags origin "$EG_TRUST_REF"
+            [ "$(git rev-parse --verify -q "$EG_TRUST_REF^{commit}")" = "$EG_TRUST_REF" ] \
+              || { echo "::error::EG_TRUST_REF $EG_TRUST_REF is not a commit of this repository"; exit 1; }
+            git show "$EG_TRUST_REF:formal/scripts/pristine.sh" > "$RUNNER_TEMP/gate.sh"
+            sh "$RUNNER_TEMP/gate.sh" --trust-ref "$EG_TRUST_REF" --snapshot "$RUNNER_TEMP/trusted"
+          else
+            echo "::warning::EG_TRUST_REF is not set: the gate is the tested commit's own copy (self-verification). This run is release evidence only after the offline check of TRUST.md (gate SHA-256 and trusted zone equal to the approved trust commit)."
+            sh scripts/pristine.sh --snapshot "$RUNNER_TEMP/trusted"
+          fi
+      - name: Install elan and the pinned Lean toolchain (checksum-verified)
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          curl -sSfL -o "$tmp/elan.tar.gz" \
+            "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${ELAN_SHA256}  $tmp/elan.tar.gz" | sha256sum -c -
+          tar xzf "$tmp/elan.tar.gz" -C "$tmp"
+          "$tmp/elan-init" -y --no-modify-path --default-toolchain none
+          curl -sSfL -o "$tmp/lean.tar.zst" \
+            "https://github.com/leanprover/lean4/releases/download/v${LEAN_VERSION}/lean-${LEAN_VERSION}-linux.tar.zst"
+          echo "${LEAN_ARCHIVE_SHA256}  $tmp/lean.tar.zst" | sha256sum -c -
+          dest="$HOME/.elan/toolchains/leanprover--lean4---v${LEAN_VERSION}"
+          mkdir -p "$dest"
+          tar --zstd -xf "$tmp/lean.tar.zst" -C "$dest" --strip-components=1
+          rm -rf "$tmp"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Statement lock, file part (first Python call; strict)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: python3 -I scripts/lock.py files --strict
+      - name: Fetch Mathlib cache
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: lake exe cache get
+      - name: Check trusted pins
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: ./scripts/check_pins.sh
+      - name: Lint, release mode (hygiene; self-test first)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: |
+          python3 -I scripts/lint.py --self-test
+          python3 -I scripts/lint.py --release
+      - name: Red-team regression of the checkers (Init/Lean-only fixtures, temp dir)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: redteam/tooling/run.sh
+      - name: Build the upstream statement from pinned sources (before any project artifact is present)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: lake build 'FormalConjectures.ErdosProblems.«184»'
+      - name: STATEMENT.md is what the pinned upstream elaborates to
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: |
+          set -euo pipefail
+          lake env lean --run scripts/Statement.lean "$RUNNER_TEMP/STATEMENT.regen.md"
+          diff -u STATEMENT.md "$RUNNER_TEMP/STATEMENT.regen.md"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: project-build
+          path: ${{ runner.temp }}/artifact
+      - name: Install the project build directory (data only; paths validated)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: |
+          set -euo pipefail
+          tarball="$RUNNER_TEMP/artifact/project-build.tar"
+          sha256sum "$tarball"
+          python3 -I - "$tarball" <<'EOF'
+          import re, sys, tarfile
+          ok = re.compile(r"^(EG|EGTest|EGCheck)(\.[A-Za-z0-9_.]+|/[A-Za-z0-9_./«»-]*)?$")
+          with tarfile.open(sys.argv[1]) as t:
+              for m in t.getmembers():
+                  bad = (not ok.match(m.name) or ".." in m.name.split("/")
+                         or not (m.isfile() or m.isdir()))
+                  if bad:
+                      sys.exit(f"refusing artifact member {m.name!r} (type {m.type!r})")
+          EOF
+          mkdir -p .lake/build/lib/lean
+          if [ -n "$(ls -A .lake/build/lib/lean)" ]; then echo "project build dir not empty"; exit 1; fi
+          tar -xf "$tarball" -C .lake/build/lib/lean --no-same-owner --no-same-permissions
+      - name: Statement lock (strict)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: python3 -I scripts/lock.py check --strict
+      - name: Axiom scan + MetaScan, no sorry (incl. EGCheck.Final)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: >
+          lake env lean --run scripts/Axioms.lean --no-sorry --cross-check
+          --prefix EG --prefix EGTest --prefix EGCheck EG EGTest EGCheck EGCheck.Final
+      - name: Status and sorry ratchet
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: python3 -I scripts/status.py --check --no-write
+      - name: Out-of-band statement/axiom/replay check (FinalCheck)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: lake env lean --run scripts/FinalCheck.lean
+      # Per library (user approval 2026-09-30, APPROVALS/2026-09-30-release-leanchecker-split.md): the
+      # joint call `leanchecker EG EGTest EGCheck` exhausts a 16 GB runner (CI run 36693519203).
+      # EGCheck's modules (Bridge, BridgeCore, BridgeLemmas) lie in the import closure of
+      # EGCheck.Final and are replayed by the --fresh step below (TRUST.md §4.3 steps 13-14).
+      - name: Kernel replay of every EG module (leanchecker)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: /usr/bin/time -v lake env leanchecker EG
+      - name: Kernel replay of every EGTest module (leanchecker)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: /usr/bin/time -v lake env leanchecker EGTest
+      - name: Kernel replay of the whole closure into a fresh environment (leanchecker --fresh)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: /usr/bin/time -v lake env leanchecker --fresh EGCheck.Final
+
+  comparator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The runner's disk fills up on the complete tree (CI run 36717327466: "No space left on device"
+      # in the comparator red-team, 53 MB free). Remove preinstalled SDKs this job never uses. Runs
+      # before any project code; touches only system directories outside the checkout.
+      - name: Free runner disk space (unused preinstalled SDKs)
+        working-directory: /
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift
+          df -h /
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0   # the trust ref
+      - name: Gate (pristine.sh; FIRST, before any lake / lean / python) and snapshot
+        working-directory: formal
+        run: |
+          set -eu
+          if [ -n "${EG_TRUST_REF:-}" ]; then
+            # The trust ref must be a FULL 40-hex commit id: a tag or a branch can be moved by anyone with
+            # push rights (trust3.fable Y11b). Checked here, before git resolves it, and again by the gate.
+            case "$EG_TRUST_REF" in *[!0-9a-f]*) echo "::error::EG_TRUST_REF must be a full 40-hex commit id (no tags or branches)"; exit 1;; esac
+            [ "${#EG_TRUST_REF}" -eq 40 ] || { echo "::error::EG_TRUST_REF must be a full 40-hex commit id (no tags or branches)"; exit 1; }
+            git cat-file -e "$EG_TRUST_REF^{commit}" 2>/dev/null || git fetch -q --no-tags origin "$EG_TRUST_REF"
+            [ "$(git rev-parse --verify -q "$EG_TRUST_REF^{commit}")" = "$EG_TRUST_REF" ] \
+              || { echo "::error::EG_TRUST_REF $EG_TRUST_REF is not a commit of this repository"; exit 1; }
+            git show "$EG_TRUST_REF:formal/scripts/pristine.sh" > "$RUNNER_TEMP/gate.sh"
+            sh "$RUNNER_TEMP/gate.sh" --trust-ref "$EG_TRUST_REF" --snapshot "$RUNNER_TEMP/trusted"
+          else
+            echo "::warning::EG_TRUST_REF is not set: the gate is the tested commit's own copy (self-verification). This run is release evidence only after the offline check of TRUST.md (gate SHA-256 and trusted zone equal to the approved trust commit)."
+            sh scripts/pristine.sh --snapshot "$RUNNER_TEMP/trusted"
+          fi
+      - name: Install elan and the pinned Lean toolchain (checksum-verified)
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          curl -sSfL -o "$tmp/elan.tar.gz" \
+            "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${ELAN_SHA256}  $tmp/elan.tar.gz" | sha256sum -c -
+          tar xzf "$tmp/elan.tar.gz" -C "$tmp"
+          "$tmp/elan-init" -y --no-modify-path --default-toolchain none
+          curl -sSfL -o "$tmp/lean.tar.zst" \
+            "https://github.com/leanprover/lean4/releases/download/v${LEAN_VERSION}/lean-${LEAN_VERSION}-linux.tar.zst"
+          echo "${LEAN_ARCHIVE_SHA256}  $tmp/lean.tar.zst" | sha256sum -c -
+          dest="$HOME/.elan/toolchains/leanprover--lean4---v${LEAN_VERSION}"
+          mkdir -p "$dest"
+          tar --zstd -xf "$tmp/lean.tar.zst" -C "$dest" --strip-components=1
+          rm -rf "$tmp"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build the checkers at pinned commits (landrun, lean4export 66f1fb4b, comparator fd5d5bcf + v4.33.1 patch)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: |
+          set -euo pipefail
+          go version   # landrun needs Go >= 1.24 (runner image; not pinned, see gate2.md)
+          scripts/comparator.sh tools "$RUNNER_TEMP/comparator-tools"
+      - name: Fetch Mathlib cache (allowed by comparator's README; no project code has run)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: lake exe cache get
+      - name: Check trusted pins
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: ./scripts/check_pins.sh
+      - name: Challenge byte identity, comparator config, Solution imports (comparator.sh check)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: scripts/comparator.sh check
+      - name: Run comparator (release mode; unprivileged systemd unit, AF_UNIX restricted)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: scripts/comparator.sh run --release --system-unit --tools "$RUNNER_TEMP/comparator-tools"

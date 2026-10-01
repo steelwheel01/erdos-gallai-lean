@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=Hijack the type_of% term elaborator and the run_cmd command elaborator (from Bridge) so EGCheck.erdos_184 becomes PUnit -> True yet the in-band checks pass. (fable A1)

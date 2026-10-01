@@ -1,0 +1,3 @@
+MODE=evasion
+TARGET=EGCheck.RTEvade
+DESC=character literal hides a following axiom + skipKernelTC option from the stripper

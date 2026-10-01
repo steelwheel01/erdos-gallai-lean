@@ -1,0 +1,3 @@
+# git filter driver: runs `git config filter.x.clean` commands on git add/status/diff when
+# configured locally; `diff=` drivers run textconv on git diff.
+*.lean filter=x diff=x

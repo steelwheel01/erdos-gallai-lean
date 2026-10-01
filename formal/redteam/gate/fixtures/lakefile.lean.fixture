@@ -1,0 +1,17 @@
+-- trust2.opus N1: a `formal/lakefile.lean` next to the pinned lakefile.toml. Lake 4.33.1 prefers it
+-- ("lakefile.lean and lakefile.toml are both present; using lakefile.lean") and elaborates it on
+-- EVERY lake call, so this #eval runs as the job's user before any checker. Inert here: the gate
+-- red-team only installs it (as formal/lakefile.lean) in a temporary clone and never runs lake on
+-- it, except `run.sh --demo`, which runs `lake env true` in a separate temporary directory.
+import Lake
+open Lake DSL
+
+#eval (do
+  IO.FS.writeFile "PWNED-by-lakefile.lean.txt" "arbitrary code ran inside lake\n"
+  IO.println "N1: lakefile.lean #eval executed" : IO Unit)
+
+package eg
+
+@[default_target] lean_lib EG
+lean_lib EGTest
+lean_lib EGCheck

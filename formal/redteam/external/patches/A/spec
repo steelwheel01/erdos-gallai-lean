@@ -1,0 +1,3 @@
+MODE=finalattack
+TARGET=EGCheck.Final
+DESC=Spoof the #print axioms elaborator (from the unprotected Bridge) to print the three axioms; real upstream type; proof via sorryAx. (opus A / fable A3)

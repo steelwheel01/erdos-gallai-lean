@@ -1,0 +1,3 @@
+MODE=evasion
+TARGET=EGCheck.RTEvade
+DESC=axiom split across lines (axiom keyword at EOL, name on the next line)

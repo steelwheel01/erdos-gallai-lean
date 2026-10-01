@@ -1,0 +1,239 @@
+# CI for the Lean formalization in formal/ (PLAN_FORMALIZATION.md §4; trust audits of 2026-09-26,
+# formal/APPROVALS/reviews/trust*.md; the gate: formal/work/trust/gate2.md).
+#
+# This workflow is a fast regression guard, NOT the acceptance criterion: it restores build caches
+# and runs the checks on the same runner that just executed project code (`lake build` runs every
+# `#eval`/`elab`/`initialize` of the project). Order:
+#   1. the GATE (formal/scripts/pristine.sh: POSIX sh + git only) runs FIRST, before any lake, lean
+#      or python call: it rejects formal/lakefile.lean, stray *.py / .pth / sitecustomize, Lake,
+#      direnv, git-attribute and editor hooks, and any change to the pinned checkers, lake files,
+#      toolchain and workflows (trust2.opus N1–N3); then it copies the checked tree to
+#      $RUNNER_TEMP/trusted (a "snapshot"), and EVERY later check runs from that copy;
+#   2. pins, lock (file part), lint and the red-team fixtures run BEFORE the build;
+#   3. the build runs in the checkout; afterwards the gate re-checks the checkout (--allow-build)
+#      and the snapshot, and the scans run from the snapshot.
+# The acceptance criterion is release.yml (fresh build, verification in separate jobs that never
+# run project code). If the repository variable EG_TRUST_REF names a user-approved trust commit (a
+# FULL 40-hex commit id; tags and branches are rejected because they can be moved), the gate is
+# taken from that commit and every trusted file must equal it (pristine.sh --trust-ref).
+# Limit of the post-build re-check: the build runs as the same user that owns the snapshot and, with
+# --link-lake, shares formal/.lake with it, so build-time code could rewrite the snapshot (including
+# the gate copy used for the re-check) or the dependency lakefile.olean caches that later `lake env`
+# calls load. The re-check detects accidents and naive tampering only; CI is a regression guard.
+name: formal-ci
+on:
+  push:
+    paths: ["formal/**", ".github/**", ".claude/**"]
+  pull_request:
+    paths: ["formal/**", ".github/**", ".claude/**"]
+  schedule:
+    - cron: "17 3 * * 1"   # weekly: also runs the slow red-team suites
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Pinned tools (bump only together with TRUST.md; see formal/work/trust/tooling.md).
+  ELAN_VERSION: v4.2.4
+  ELAN_SHA256: 42b94d4244e8353142c456ec0e4ca6528fd898a6c604d4059f494e706e431f63
+  LEAN_VERSION: 4.33.1
+  LEAN_ARCHIVE_SHA256: 890afd185370f85666025b883914ab4f4b339136f8c96167b69cfb62aecaf235
+  # Python never imports from the working or script directory (every call also uses -I).
+  PYTHONSAFEPATH: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      EG_TRUST_REF: ${{ vars.EG_TRUST_REF }}
+    defaults:
+      run:
+        working-directory: formal
+        shell: bash
+    steps:
+      # The runner's disk fills up on the complete tree (CI run 36717327466: "No space left on device"
+      # in the comparator red-team, 53 MB free). Remove preinstalled SDKs this job never uses. Runs
+      # before any project code; touches only system directories outside the checkout.
+      - name: Free runner disk space (unused preinstalled SDKs)
+        working-directory: /
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift
+          df -h /
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0   # trust ref and red-team change detection
+
+      # ---- 1. the gate: FIRST, before any lake / lean / python --------------------------------
+      - name: Gate (pristine.sh; pure sh + git) and snapshot of the checked tree
+        run: |
+          set -eu
+          SNAP="$RUNNER_TEMP/trusted"
+          if [ -n "${EG_TRUST_REF:-}" ]; then
+            # The trust ref must be a FULL 40-hex commit id: a tag or a branch can be moved by anyone with
+            # push rights (trust3.fable Y11b). Checked here, before git resolves it, and again by the gate.
+            case "$EG_TRUST_REF" in *[!0-9a-f]*) echo "::error::EG_TRUST_REF must be a full 40-hex commit id (no tags or branches)"; exit 1;; esac
+            [ "${#EG_TRUST_REF}" -eq 40 ] || { echo "::error::EG_TRUST_REF must be a full 40-hex commit id (no tags or branches)"; exit 1; }
+            git cat-file -e "$EG_TRUST_REF^{commit}" 2>/dev/null || git fetch -q --no-tags origin "$EG_TRUST_REF"
+            [ "$(git rev-parse --verify -q "$EG_TRUST_REF^{commit}")" = "$EG_TRUST_REF" ] \
+              || { echo "::error::EG_TRUST_REF $EG_TRUST_REF is not a commit of this repository"; exit 1; }
+            git show "$EG_TRUST_REF:formal/scripts/pristine.sh" > "$RUNNER_TEMP/gate.sh"
+            sh "$RUNNER_TEMP/gate.sh" --trust-ref "$EG_TRUST_REF" --snapshot "$SNAP" --link-lake
+          else
+            sh scripts/pristine.sh --snapshot "$SNAP" --link-lake
+          fi
+
+      - name: Gate red-team (fixtures N1-N3 and other code-before-check vectors; pure sh + git)
+        run: sh "$RUNNER_TEMP/trusted/formal/redteam/gate/run.sh"
+
+      - name: Install elan and the pinned Lean toolchain (checksum-verified)
+        working-directory: ${{ runner.temp }}
+        run: |
+          set -euo pipefail
+          tmp=$(mktemp -d)
+          curl -sSfL -o "$tmp/elan.tar.gz" \
+            "https://github.com/leanprover/elan/releases/download/${ELAN_VERSION}/elan-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${ELAN_SHA256}  $tmp/elan.tar.gz" | sha256sum -c -
+          tar xzf "$tmp/elan.tar.gz" -C "$tmp"
+          "$tmp/elan-init" -y --no-modify-path --default-toolchain none
+          curl -sSfL -o "$tmp/lean.tar.zst" \
+            "https://github.com/leanprover/lean4/releases/download/v${LEAN_VERSION}/lean-${LEAN_VERSION}-linux.tar.zst"
+          echo "${LEAN_ARCHIVE_SHA256}  $tmp/lean.tar.zst" | sha256sum -c -
+          dest="$HOME/.elan/toolchains/leanprover--lean4---v${LEAN_VERSION}"
+          mkdir -p "$dest"
+          tar --zstd -xf "$tmp/lean.tar.zst" -C "$dest" --strip-components=1
+          rm -rf "$tmp"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache formal_conjectures and EG build outputs
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            formal/.lake/packages/formal_conjectures/.lake
+            formal/.lake/build
+          key: lake-${{ hashFiles('formal/lake-manifest.json', 'formal/lean-toolchain') }}-${{ github.sha }}
+          restore-keys: lake-${{ hashFiles('formal/lake-manifest.json', 'formal/lean-toolchain') }}-
+
+      # ---- 2. before any project code runs (all from the snapshot) -----------------------------
+      - name: Lock, file part (first Python call; hygiene)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: python3 -I scripts/lock.py files
+
+      - name: Fetch Mathlib cache
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: lake exe cache get
+
+      - name: Check trusted pins (toolchain commit, every package clean at its manifest rev)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: ./scripts/check_pins.sh
+
+      - name: Lint (hygiene; self-test first)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: |
+          python3 -I scripts/lint.py --self-test
+          python3 -I scripts/lint.py
+
+      - name: Red-team regression of the checkers (Init/Lean-only fixtures, temp dir)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: redteam/tooling/run.sh
+
+      - name: Toolchain fingerprint (re-checked after the build)
+        run: find "$HOME/.elan" -type f ! -path "$HOME/.elan/known-projects" -print0 | sort -z | xargs -0 sha256sum > "$RUNNER_TEMP/toolchain.sha256"
+
+      # ---- 3. project code runs here (in the checkout, not in the snapshot) ---------------------
+      - name: Build EG, EGTest, EGCheck
+        run: lake build EG EGTest EGCheck
+
+      # ---- after the build: re-check checkout and snapshot (regression guard only: build-time ----
+      # ---- code runs as the snapshot's owner and could rewrite it; see the header) --------------
+      - name: Gate again (checkout unchanged except formal/.lake; snapshot unchanged)
+        run: |
+          set -euo pipefail
+          G="$RUNNER_TEMP/trusted/formal/scripts/pristine.sh"
+          sh "$G" --allow-build
+          sh "$G" --verify-snapshot "$RUNNER_TEMP/trusted"
+          sha256sum --quiet -c "$RUNNER_TEMP/toolchain.sha256"
+
+      - name: Pins again (pristine copy)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: ./scripts/check_pins.sh
+
+      - name: Axiom scan and MetaScan (pristine copy)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: lake env lean --run scripts/Axioms.lean --prefix EG --prefix EGTest --prefix EGCheck EG EGTest EGCheck
+
+      - name: FinalCheck scan (kernel replay, policy, meta; no imported code runs; pristine copy)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: lake env lean --run scripts/FinalCheck.lean --scan-only --allow-sorry --policy-roots EG,EGTest,EGCheck
+
+      - name: STATEMENT.md is what the pinned upstream elaborates to (pristine copy)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: |
+          set -euo pipefail
+          lake env lean --run scripts/Statement.lean "$RUNNER_TEMP/STATEMENT.regen.md"
+          diff -u STATEMENT.md "$RUNNER_TEMP/STATEMENT.regen.md"
+
+      - name: Statement lock (pristine copy)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: python3 -I scripts/lock.py check
+
+      - name: Status and sorry ratchet (pristine copy)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: python3 -I scripts/status.py --check --no-write
+
+      # Measured 2026-09-26 on the P1 tree: 10.5 min wall, 10.2 GB max RSS (mostly mmapped .oleans).
+      # On the complete tree (2026-09-30) the joint call `leanchecker EG EGTest EGCheck` exhausts a
+      # 16 GB runner (run 36693519203 lost its runner in this step). Run per library instead:
+      # EG 13.8 min / 12.1 GB, EGTest 1.3 min / 10.7 GB (measured locally). EGCheck (Bridge,
+      # BridgeCore, BridgeLemmas) lies in the import closure of EGCheck.Final, which release.yml
+      # replays with `leanchecker --fresh EGCheck.Final` (release.yml uses the same split; TRUST.md §4.3
+      # steps 13-14).
+      - name: Kernel replay of every project module (leanchecker, non-fresh, per library; pristine copy)
+        working-directory: ${{ runner.temp }}/trusted/formal
+        run: |
+          set -euo pipefail
+          lake env leanchecker EG
+          lake env leanchecker EGTest
+
+      - name: Final check (expected to fail until phase P4)
+        continue-on-error: true
+        run: lake build EGCheck.Final
+
+      # ---- slow red-team suites: weekly, on dispatch, or when the checkers change ---------------
+      # (trust2.fable §8 item 4). They run from the checkout (the gate re-verified it above) and
+      # only ever write to mktemp -d copies.
+      - name: Decide whether to run the slow red-team suites
+        id: rt
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -eu
+          run=false
+          case "$EVENT" in schedule|workflow_dispatch) run=true;; esac
+          base="${BASE:-${BEFORE:-}}"
+          if [ "$run" = false ]; then
+            if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+              run=true
+            elif git diff --name-only "$base" HEAD -- | grep -Eq '^(formal/scripts/|formal/redteam/|formal/comparator/|formal/lakefile\.toml|formal/lake-manifest\.json|formal/lean-toolchain|formal/EGCheck/Final\.lean|formal/TRUST\.md|formal/STATEMENT\.md|\.github/)'; then
+              run=true
+            fi
+          fi
+          echo "run=$run" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Red-team, out-of-band FinalCheck (redteam/external; needs root for its read-only bind mount)
+        if: steps.rt.outputs.run == 'true'
+        run: sudo env "PATH=$PATH" "HOME=$HOME" PYTHONSAFEPATH=1 redteam/external/redteam.sh
+
+      - name: Red-team, comparator layout (redteam/bridge; patched pinned comparator)
+        if: steps.rt.outputs.run == 'true'
+        run: |
+          set -euo pipefail
+          go version
+          scripts/comparator.sh tools "$RUNNER_TEMP/comparator-tools"
+          RT_DIR=$(mktemp -d) redteam/bridge/run.sh --tools "$RUNNER_TEMP/comparator-tools"

@@ -1,0 +1,114 @@
+diff --git a/Comparator/Compare.lean b/Comparator/Compare.lean
+index 8bf6363..6cc91b2 100644
+--- a/Comparator/Compare.lean
++++ b/Comparator/Compare.lean
+@@ -49,7 +49,7 @@ partial def loop : CompareM Unit := do
+ 
+     if (← read).definitionTargets.contains solutionConst.name
+         || (← read).theoremTargets.contains solutionConst.name then
+-      solutionConst.type.getUsedConstants.forM addWorklist
++      (usedConstants solutionConst.type).forM addWorklist
+     else
+       if challengeConst != solutionConst then
+         throw s!"Const does not match between challenge and target '{target}'"
+@@ -84,7 +84,7 @@ def compareAt (challenge solution : Export.ExportedEnv) (theoremTargets : Array
+     if challengeConst != solutionConst then
+       throw s!"Challenge and solution theorem statement do not match: '{target}'"
+ 
+-    worklist := worklist ++ challengeConst.type.getUsedConstants
++    worklist := worklist ++ usedConstants challengeConst.type
+ 
+   for target in definitionTargets do
+     let some challengeConst := challenge.constMap[target]?
+diff --git a/Comparator/Util.lean b/Comparator/Util.lean
+index 131a070..3623ac8 100644
+--- a/Comparator/Util.lean
++++ b/Comparator/Util.lean
+@@ -4,14 +4,62 @@ Released under Apache 2.0 license as described in the file LICENSE.
+ Authors: Henrik Böving
+ -/
+ import Lean.Environment
++import Lean.Util.PtrSet
+ 
+ namespace Comparator
+ 
++/-! Backport for building comparator with Lean v4.33.1 (Erdős–Gallai project,
++`formal/comparator/patches/`). In Lean v4.33.1 `Expr.getUsedConstants` skips the structure name
++of `Expr.proj`; Lean v4.34 reports it (comparator issue 68, test `proj_trick`). Comparator relies
++on that, so this is a copy of the v4.34 `foldConsts` (`src/Lean/Util/FoldConsts.lean`). -/
++namespace FoldConstsWithProj
++
++unsafe structure State where
++ visited       : Lean.PtrSet Lean.Expr := Lean.mkPtrSet
++ visitedConsts : Lean.NameHashSet := {}
++
++unsafe abbrev FoldM := StateM State
++
++unsafe def fold {α : Type} (f : Lean.Name → α → α) (e : Lean.Expr) (acc : α) : FoldM α :=
++  let visitConst (c : Lean.Name) (acc : α) := do
++    if (← get).visitedConsts.contains c then
++      return acc
++    else
++      modify fun s => { s with visitedConsts := s.visitedConsts.insert c };
++      return f c acc
++  let rec visit (e : Lean.Expr) (acc : α) : FoldM α := do
++    if (← get).visited.contains e then
++      return acc
++    modify fun s => { s with visited := s.visited.insert e }
++    match e with
++    | .forallE _ d b _   => visit b (← visit d acc)
++    | .lam _ d b _       => visit b (← visit d acc)
++    | .mdata _ b         => visit b acc
++    | .letE _ t v b _    => visit b (← visit v (← visit t acc))
++    | .app f a           => visit a (← visit f acc)
++    | .proj typeName _ b => visit b (← visitConst typeName acc)
++    | .const c _         => visitConst c acc
++    | _ => return acc
++  visit e acc
++
++@[inline] unsafe def foldUnsafe {α : Type} (e : Lean.Expr) (init : α) (f : Lean.Name → α → α) : α :=
++  (fold f e init).run' {}
++
++end FoldConstsWithProj
++
++/-- Apply `f` to every constant occurring in `e` once, including structure names of `Expr.proj`. -/
++@[implemented_by FoldConstsWithProj.foldUnsafe]
++opaque foldConstsWithProj {α : Type} (e : Lean.Expr) (init : α) (f : Lean.Name → α → α) : α := init
++
++/-- `Expr.getUsedConstants` with the Lean v4.34 semantics (includes `Expr.proj` structure names). -/
++def usedConstants (e : Lean.Expr) : Array Lean.Name :=
++  foldConstsWithProj e #[] fun c cs => cs.push c
++
+ def runForUsedConsts [Monad m] (info : Lean.ConstantInfo) (f : Lean.Name → m Unit) : m Unit := do
+-  info.type.getUsedConstants.forM f
++  (usedConstants info.type).forM f
+   f info.name
+   if let some val := info.value? (allowOpaque := true) then
+-    val.getUsedConstants.forM f
++    (usedConstants val).forM f
+ 
+   match info with
+   | .axiomInfo .. | .quotInfo .. | .defnInfo .. | .thmInfo .. | .opaqueInfo .. => return ()
+@@ -23,6 +71,6 @@ def runForUsedConsts [Monad m] (info : Lean.ConstantInfo) (f : Lean.Name → m U
+   | .recInfo info =>
+     info.rules.forM fun rule => do
+       f rule.ctor
+-      rule.rhs.getUsedConstants.forM f
++      (usedConstants rule.rhs).forM f
+ 
+ end Comparator
+diff --git a/Main.lean b/Main.lean
+index 8560511..378bced 100644
+--- a/Main.lean
++++ b/Main.lean
+@@ -219,7 +219,9 @@ def runBuiltinKernel (solution : Export.ExportedEnv) : M (Option String) := do
+   let quotTargets := [`Quot.mk, `Quot.lift, `Quot.ind]
+   let kernelConstMap := quotTargets.foldl (init := origConstMap) (·.erase ·)
+   try
+-    kernelEnv ← kernelEnv.replay kernelConstMap
++    -- Lean v4.33.1 has no `Kernel.Environment.replay`; `Environment.replay` (Lean/Replay.lean)
++    -- runs the same kernel checks and returns the final environment.
++    kernelEnv := (← env.replay kernelConstMap).toKernelEnv
+     IO.println "Lean default kernel accepts the solution"
+   catch e =>
+     IO.println "Lean default kernel rejects the solution"

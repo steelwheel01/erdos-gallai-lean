@@ -1,0 +1,8 @@
+# An extra workflow in the commit under test (it would run with the repository's permissions).
+name: evil
+on: push
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "extra workflow"

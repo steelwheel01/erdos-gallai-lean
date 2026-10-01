@@ -1,0 +1,22 @@
+# Protected paths of the formalization (PLAN_FORMALIZATION.md §4 "Defence in depth").
+# Keep aligned with formal/TRUST.md §6, formal/scripts/lock.py PROTECTED_FILES and the
+# .claude/settings.json deny list. Binding only with branch protection + a pull-request flow.
+/formal/EG/Spec/        @steelwheel01
+/formal/EG/Defs/        @steelwheel01
+/formal/EGCheck/Final.lean @steelwheel01
+/formal/LOCK.json       @steelwheel01
+/formal/TRUST.md        @steelwheel01
+/formal/STATEMENT.md    @steelwheel01
+/formal/CONVENTIONS.md  @steelwheel01
+/formal/status/ratchet.json @steelwheel01
+/formal/scripts/        @steelwheel01
+/formal/redteam/        @steelwheel01
+/formal/comparator/Challenge.lean @steelwheel01
+/formal/comparator/config.json @steelwheel01
+/formal/comparator/patches/ @steelwheel01
+/formal/lakefile.toml   @steelwheel01
+/formal/lakefile.lean   @steelwheel01
+/formal/lake-manifest.json @steelwheel01
+/formal/lean-toolchain  @steelwheel01
+/.github/               @steelwheel01
+/.claude/               @steelwheel01
