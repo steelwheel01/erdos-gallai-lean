@@ -1,0 +1,1597 @@
+\section{Random splitting, linking, and the lending colouring}\label{s3:sec}
+
+This section provides the probabilistic tools that every later routing step
+uses, together with the stage-1 lending data.
+\begin{itemize}
+\item The first subsection proves monotonicity facts and
+  Lemma~15$^+$. A uniformly random $k$-colouring of the edges of an
+  $(\varepsilon',s)$-expander leaves every colour class an
+  $(\varepsilon',s/(2k))$-expander: the first parameter is untouched and
+  the second loses only the factor $2k$. Lemma~15$^+$ replaces
+  \cite[Lemma~15]{BM} (quoted as Cited result~\ref{s1:citLem15}), which is not
+  used.
+\item The second subsection proves Theorem~16$^*$. It says that a
+  robust expander is path connected through a random vertex set, in the
+  multiset, for-all form of \cite[Definition~7]{BM}. The requirement on
+  the robustness is linear in the multiplicity and polynomial in the
+  inverse density. Its proof re-runs the proof of \cite[Theorem~16]{BM}
+  (Cited result~\ref{s1:citThm16}) with explicit parameters.
+\item The third subsection proves Lemma~HB by one application of Hall's
+  theorem.
+\item The fourth subsection defines the two-stage lending colouring
+  and the JS labels, verifies the numerical conditions they need (the
+  COL-JV table), and proves Lemma~COL.
+\end{itemize}
+Every statement of this section is proved in full here, from the results
+stated in Section~\ref{s1:sec} and, in the fourth subsection, from the hierarchy of
+Section~\ref{s2:sec}.
+
+\medskip\noindent\textbf{Conventions for this section.} Logarithms are to
+base $2$ (Convention~\ref{s1:convGraphs}), and $\ln$ is the natural
+logarithm. For $\rho\in[0,1]$, a \emph{$\rho$-random subset} of a finite
+set $S$ is a random subset of $S$ that contains each element of $S$
+independently with probability $\rho$. The letter $\varepsilon'$ always
+denotes a generic expansion parameter in $(0,1]$. The fixed constant
+$\eps=2^{-5}$ of Definition~\ref{s1:defConstants} enters this section only
+through the values $\varepsilon_Y\in\{2^{-5},2^{-6}\}$ of
+Definition~\ref{s2:defAncestors}. For a graph $G$, $U\subseteq V(G)$ and
+$F\subseteq E(G)$, the set $\Nbr_{G-F}(U)$ is the outside neighbourhood of
+$U$ in the graph $G-F$ (Convention~\ref{s1:convGraphs}). The ball
+$\Ball{i}{G-F}{U,V}$ is the set of vertices of $V$ that can be reached
+from $U$ by a path of length at most $i$ in $G-F$ whose interior vertices
+all lie in $V$ (Cited result~\ref{s1:citNotation}). Path connectivity
+(Cited result~\ref{s1:citDef7}) always refers to \emph{multisets} of pairs of
+distinct vertices; see the remark on multisets at the end of the first subsection.
+
+%% ----------------------------------------------------------------------
+\subsection{Monotonicity and random splitting}
+
+\begin{lemma}[monotonicity and the for-all property]\label{s3:lemMonotone}
+\begin{itemize}
+\item[(i)] Let $H$ be an $(\varepsilon',s)$-expander and let $H'\supseteq
+  H$ be a graph with $V(H')=V(H)$. Then $H'$ is an
+  $(\varepsilon',s)$-expander. Moreover, every $(\varepsilon',s)$-expander
+  is an $(\varepsilon'',s')$-expander whenever $\varepsilon''\le
+  \varepsilon'$ and $s'\le s$.
+\item[(ii)] Path connectivity is monotone. Let $G\subseteq G'$ be graphs
+  with $V(G)=V(G')$, let $V\subseteq V'\subseteq V(G)$, and suppose
+  $\ell\le\ell'$ and $t'\le t$. If $G$ is $(\ell,t)$-path connected
+  through $V$, then $G'$ is $(\ell',t')$-path connected through $V'$.
+\item[(iii)] Whether a graph $X$ is $(\ell,t)$-path connected through a
+  set $V$ depends only on the pair $(X,V)$. On this event, required paths
+  exist for \emph{every} multiset $\mathcal P$ of pairs of distinct
+  vertices of $X$ in which each vertex lies in at most $t$ pairs. In
+  particular, $\mathcal P$ may be chosen after $X$ and $V$ are revealed,
+  as an arbitrary function of them and of any further randomness
+  (adaptively). If several multisets $\mathcal P_1,\dots,\mathcal P_q$ are
+  given and every vertex lies in at most $t$ pairs of the union multiset
+  $\mathcal P_1+\dots+\mathcal P_q$, then one application of the property
+  to this union joins all their pairs by pairwise edge-disjoint paths
+  through $V$ of length at most $\ell$ (joint routing).
+\end{itemize}
+\deps{\ref{s1:citDef7}, \ref{s1:citDef11}}
+\end{lemma}
+
+\begin{proof}
+(i) Put $n:=|V(H)|$. Let $U\subseteq V(H')$ with $1\le|U|\le 2n/3$, and
+let $F\subseteq E(H')$ with $|F|\le s|U|$. Then $F\cap E(H)$ is a set of
+at most $s|U|$ edges of $H$, and $H-(F\cap E(H))\subseteq H'-F$. Hence
+\[
+|\Nbr_{H'-F}(U)|\ \ge\ |\Nbr_{H-(F\cap E(H))}(U)|\ \ge\ \varepsilon'|U|/\log^2 n
+\]
+by Definition~11 of \cite{BM} (Cited result~\ref{s1:citDef11}) applied to $H$.
+Both graphs have $n$ vertices, so the logarithm in the bound is the same.
+The second claim holds because the condition of Cited result~\ref{s1:citDef11}
+becomes weaker when $\varepsilon'$ or $s$ decreases.
+
+(ii) Let $\mathcal P$ be a multiset of pairs of distinct vertices of
+$G'$ in which every vertex lies in at most $t'\le t$ pairs. The
+hypothesis on $G$ applies to $\mathcal P$, since $V(G)=V(G')$. It gives
+pairwise edge-disjoint paths of $G$, one for each pair, each of length at
+most $\ell\le\ell'$ and with all interior vertices in $V\subseteq V'$.
+These are paths of $G'$ with the required properties.
+
+(iii) By Cited result~\ref{s1:citDef7}, the property says that for every
+admissible multiset the paths exist. It mentions no other data, so it is
+a property of $(X,V)$ alone, and on this event it applies to every
+admissible multiset, however that multiset was chosen. The union
+$\mathcal P_1+\dots+\mathcal P_q$ is itself an admissible multiset, which
+gives the last sentence.
+\end{proof}
+
+\begin{lemma}[Lemma 15$^+$: random splitting without loss]\label{s3:lemL15p}
+Let $X$ be an $N$-vertex $(\varepsilon',s)$-expander with
+$0<\varepsilon'\le1$, put $L:=\log N$, and let $k\ge1$ be an integer with
+$s\ge 40kL$. Give every edge of $X$ a colour from $[k]$, independently
+and uniformly at random, and for $i\in[k]$ let $X_i$ be the graph with
+vertex set $V(X)$ whose edges are the edges of colour $i$. Then for each
+$i\in[k]$, $X_i$ is an $(\varepsilon',s/(2k))$-expander with probability
+at least $1-2N^{-5}$. Hence all $k$ classes are
+$(\varepsilon',s/(2k))$-expanders with probability at least $1-2kN^{-5}$.
+\deps{\ref{s1:citDef11}, \ref{s1:citChernoff}}
+\end{lemma}
+
+\begin{proof}
+If $N=1$, then no set $U$ satisfies $1\le|U|\le 2N/3$, so every graph on
+one vertex is an expander for all parameters, and there is nothing to
+prove. Assume $N\ge2$, so $L\ge1$. Fix $i\in[k]$ and write
+$H:=X_i$.
+
+Fix $U\subseteq V(X)$ with $1\le u:=|U|\le 2N/3$. Put
+$m:=\lceil\varepsilon' u/L^2\rceil$ and
+$\mathcal N:=\Nbr_X(U)$. Since $\varepsilon'\le1\le L^2$, we have
+$1\le m\le u$.
+
+\smallskip\noindent\emph{Step 1 (every small deletion leaves many edges).}
+We claim that
+\begin{equation}\label{s3:eqL15step1}
+e_X(U,\mathcal N\setminus\mathcal T)>su\qquad\text{for every }\mathcal T\subseteq\mathcal N\text{ with }|\mathcal T|\le m-1 .
+\end{equation}
+Suppose instead that $e_X(U,\mathcal N\setminus\mathcal T)\le su$ for some
+such $\mathcal T$, and let $F$ be the set of edges of $X$ between $U$ and
+$\mathcal N\setminus\mathcal T$. Then $|F|\le su$, and every neighbour of
+$U$ in $X-F$ outside $U$ lies in $\mathcal T$. Hence
+$|\Nbr_{X-F}(U)|\le m-1<\varepsilon' u/L^2$, which contradicts the
+expansion of $X$ (Cited result~\ref{s1:citDef11}).
+
+\smallskip\noindent\emph{Step 2 (what a failure looks like).} Suppose
+that $U$ violates the $(\varepsilon',s/(2k))$-condition in $H$. Then
+there is $F\subseteq E(H)$ with $|F|\le su/(2k)$ and
+$|\Nbr_{H-F}(U)|<\varepsilon'u/L^2$. Since $|\Nbr_{H-F}(U)|$ is an
+integer, it is at most $m-1$. Put $\mathcal T:=\Nbr_{H-F}(U)$. Since
+$H\subseteq X$, we have $\mathcal T\subseteq\mathcal N$ and
+$|\mathcal T|\le m-1$, and every edge of $H$ between $U$ and
+$\mathcal N\setminus\mathcal T$ lies in $F$. Hence
+$e_H(U,\mathcal N\setminus\mathcal T)\le su/(2k)$.
+
+\smallskip\noindent\emph{Step 3 (one pair $(U,\mathcal T)$).} Fix
+$\mathcal T\subseteq\mathcal N$ with $|\mathcal T|\le m-1$. Since $U$ and
+$\mathcal N\setminus\mathcal T$ are disjoint, the edges of $X$ between
+them are $e:=e_X(U,\mathcal N\setminus\mathcal T)$ distinct edges, and
+$e>su$ by \eqref{s3:eqL15step1}. Each of them lies in $H$ independently
+with probability $1/k$. So
+$Z:=e_H(U,\mathcal N\setminus\mathcal T)\sim\Bin(e,1/k)$, with mean
+$\mu_Z:=e/k>su/k$. The event $\{Z\le su/(2k)\}$ is contained in
+$\{Z<\mu_Z/2\}$. By the lower Chernoff bound (Cited result~\ref{s1:citChernoff})
+with $\delta=1/2$,
+\[
+\Prob\big(Z\le su/(2k)\big)\le e^{-\mu_Z/8}\le e^{-su/(8k)}\le e^{-5uL},
+\]
+where the last step uses $s\ge 40kL$.
+
+\smallskip\noindent\emph{Step 4 (union bound).} There are at most $N^u$
+sets $U$ of size $u$. The number of sets $\mathcal T$ with
+$|\mathcal T|\le m-1$ is at most $\sum_{j<m}N^j\le N^m\le N^u$. Since
+$e^{-5uL}=N^{-5u\log e}\le N^{-7.2u}$, the probability that $H$ is not an
+$(\varepsilon',s/(2k))$-expander is at most
+\[
+\sum_{u\ge1}N^{2u}\cdot N^{-7.2u}\ \le\ \frac{N^{-5.2}}{1-N^{-5.2}}\ \le\ 2N^{-5}.
+\]
+The final statement follows by a union bound over the $k$ colours.
+Neither $\varepsilon'$ nor the logarithm $L$ changes, because $X_i$ has
+the same vertex set as $X$.
+\end{proof}
+
+\begin{remark}[multisets]\label{s3:remMultiset}
+In \cite[Definition~7]{BM} (Cited result~\ref{s1:citDef7}), the collection
+$\mathcal P$ is a \emph{multiset} of pairs of distinct vertices.
+\begin{itemize}
+\item The same pair may occur several times, and each occurrence needs a
+  path of its own.
+\item The endpoints are arbitrary vertices of the graph; they need not
+  lie in $V$.
+\item The proof of \cite[Lemma~9]{BM} (Cited result~\ref{s1:citLem9}) indexes
+  the pairs by $i\in[r]$, so it applies verbatim to multisets.
+\item Its counting step also holds when pairs are counted with
+  multiplicity. The step says that a maximal subfamily $I'\subseteq I$ of
+  pairwise vertex-disjoint pairs satisfies $2t|I'|\ge|I|$. It holds
+  because every pair of $I$ meets one of the $2|I'|$ vertices covered by
+  $I'$, and each vertex lies in at most $t$ pairs, counted with
+  multiplicity.
+\end{itemize}
+All path-connectivity statements of this paper are meant in this
+multiset sense, and the proofs of this subsection and the next treat the
+pairs as an indexed family. Repeated pairs genuinely occur later: in the
+routing inside the vortex devices of Section~4, and in the joint routing
+of the JS-LC systems in Section~6.
+\deps{\ref{s1:citDef7}, \ref{s1:citLem9}}
+\end{remark}
+
+%% ----------------------------------------------------------------------
+\subsection{Linking through random sets: Theorem 16\texorpdfstring{$^*$}{*}}
+
+This subsection proves Theorem~16$^*$, stated at its end. The route is
+that of \cite[Section~4]{BM}:
+\begin{enumerate}
+\item well-expanding sets grow into a random set by sprinkling
+  (Lemma~17$^*$ below, modelled on \cite[Lemma~17]{BM});
+\item every set contains a well-expanding subset (Proposition~18$^*$
+  and Lemma~19$^*$ below, modelled on \cite[Proposition~18 and
+  Lemma~19]{BM});
+\item ball expansion implies multiset linking (Lemma~9$_\rho$ below,
+  modelled on \cite[Lemma~9]{BM});
+\item a random edge-splitting (Lemma~\ref{s3:lemL15p}) assembles these.
+\end{enumerate}
+Every parameter is explicit, and the density $\rho$ and the multiplicity
+$t$ are free.
+
+\medskip\noindent\textbf{Local parameters.} Let $n\ge2$ be the number of
+vertices of the graph at hand, $L:=\log n$, $\varepsilon'\in[2^{-7},1]$
+its expansion parameter, $\rho\in(0,1]$ a density and $t\ge1$ a
+multiplicity. The following quantities are local to this subsection. All
+carry a star subscript; the letters $\ell$, $g$, $p$, $q$, $d$,
+$\lambda$, $\Delta$, $\sigma$, $\theta$, $\mu$, $\bar s$, $K$, $M$, $t_0$
+without a star keep the meaning they have elsewhere. Throughout,
+$\ell_*$, $d_*$, $\lambda_*$, $\Delta_*$, $M_*$ and $K_*$ are integers.
+\begin{equation}\label{s3:eqStar}
+\begin{aligned}
+&\ell_*:=\lfloor 2^{10}L^3\rfloor,\qquad g_*:=\frac{\varepsilon'}{8L^2},\qquad q_*:=0.9\rho,\qquad
+ p_*\in(0,1]\ \text{ given by }\ (1-p_*)^{\ell_*-1}=\frac{1-\rho}{1-0.9\rho},\\
+&d_*:=\lceil 1/p_*\rceil,\qquad \lambda_*:=\lceil 6/p_*\rceil,\qquad
+ \Delta_*:=\lambda_*+\lceil d_*\lambda_*/3\rceil,\qquad \sigma_*:=\frac{24L^2}{\varepsilon'},\\
+&\theta_*:=\frac{2^{19}\ell_*^2L^3}{\varepsilon'\rho^2},\qquad
+ \mu_*:=\frac{\varepsilon'}{6\theta_*L^2},\qquad
+ \bar s_*:=\frac{2^{28}tL^8}{\rho},\qquad
+ M_*:=\lceil 2.1/\rho\rceil,\qquad
+ K_*:=\Big\lceil\frac{6\,\bar s_*\,\theta_*L^2}{\varepsilon'}\Big\rceil .
+\end{aligned}
+\end{equation}
+The integer $t_{0*}$ is defined inside the proof of Lemma~9$_\rho$
+below. We record six elementary facts, each with its
+proof. Write $p:=p_*$.
+\begin{itemize}
+\item[(S1)]\namedlabel{s3:eqS1}{(S1)} $2^{10}L^3-1<\ell_*\le 2^{10}L^3$ and $\ell_*\ge 2^{10}$.
+  \emph{Proof:} $L\ge1$ because $n\ge2$.
+\item[(S2)]\namedlabel{s3:eqS2}{(S2)} The number $p_*$ exists, is unique, and satisfies $p_*\ge 0.1\rho/\ell_*$, so
+  $p_*^{-2}\le 100\ell_*^2\rho^{-2}$. If $V_1,\dots,V_{\ell_*}$ are independent random subsets of a
+  set $S$, where $V_i$ is $p_*$-random for $i<\ell_*$ and $V_{\ell_*}$ is $q_*$-random, then
+  $V_1\cup\dots\cup V_{\ell_*}$ is a $\rho$-random subset of $S$.
+  \emph{Proof:} since $\ell_*\ge2$, the map $x\mapsto(1-x)^{\ell_*-1}$ is a continuous decreasing
+  bijection of $[0,1]$ onto $[0,1]$, and the value $(1-\rho)/(1-0.9\rho)$ lies in $[0,1)$. Hence
+  $p_*\in(0,1]$ exists and is unique. By Bernoulli's inequality,
+  $1-(\ell_*-1)p\le(1-p)^{\ell_*-1}=1-0.1\rho/(1-0.9\rho)$. Hence $(\ell_*-1)p\ge 0.1\rho$, which
+  gives $p\ge 0.1\rho/(\ell_*-1)\ge 0.1\rho/\ell_*$. For the last claim, an element avoids the union
+  with probability $(1-p)^{\ell_*-1}(1-0.9\rho)=1-\rho$, independently over elements.
+\item[(S3)]\namedlabel{s3:eqS3}{(S3)} $\Delta_*\le 2p^{-2}+8.34p^{-1}+2.34$. Hence
+  $\Delta_*\le 3p^{-2}$ if $p\le 0.11$, and $\Delta_*\le 13p^{-2}$ for every $p\in(0,1]$.
+  \emph{Proof:} $d_*\le p^{-1}+1$ and $\lambda_*\le 6p^{-1}+1$, so
+  $d_*\lambda_*\le 6p^{-2}+7p^{-1}+1$. Then
+  $\Delta_*\le \lambda_*+d_*\lambda_*/3+1\le(6p^{-1}+1)+(2p^{-2}+\tfrac73p^{-1}+\tfrac13)+1
+  =2p^{-2}+\tfrac{25}{3}p^{-1}+\tfrac73$.
+  If $p\le0.11$, then $8.34p^{-1}\le 0.92p^{-2}$ and $2.34\le 0.03p^{-2}$. If $p\le1$, then
+  $8.34p^{-1}+2.34\le 10.68p^{-2}$.
+\item[(S4)]\namedlabel{s3:eqS4}{(S4)} $8d_*\lambda_*\le 112p^{-2}\le\theta_*$ and
+  $\theta_*\le 2^{39}L^9/(\varepsilon'\rho^2)\le 2^{46}L^9\rho^{-2}$.
+  \emph{Proof:} $8d_*\lambda_*\le 8(6+7+1)p^{-2}$ since $p\le1$. By~\ref{s3:eqS2},
+  $112p^{-2}\le 11200\,\ell_*^2\rho^{-2}\le 2^{19}\ell_*^2L^3/(\varepsilon'\rho^2)$. The upper bound
+  uses $\ell_*^2\le 2^{20}L^6$ and $\varepsilon'\ge2^{-7}$.
+\item[(S5)]\namedlabel{s3:eqS5}{(S5)} $K_*\ge\bar s_*/\mu_*$;
+  $K_*\le(6\cdot2^{81}+1)\,tL^{19}\rho^{-3}\le 2^{83.6}\,tL^{19}\rho^{-3}$;
+  $2K_*(\theta_*+1)\le 2^{130.6}\,tL^{28}\rho^{-5}$; and $40K_*L\le 2K_*(\theta_*+1)$.
+  \emph{Proof:} $\bar s_*/\mu_*=6\bar s_*\theta_*L^2/\varepsilon'\le K_*$. By~\ref{s3:eqS4},
+  $6\bar s_*\theta_*L^2/\varepsilon'\le 6\cdot2^{28}tL^8\rho^{-1}\cdot 2^{39}L^9\rho^{-2}\cdot L^2\cdot
+  2^{14}=6\cdot2^{81}tL^{19}\rho^{-3}$, since $\varepsilon'^{-2}\le2^{14}$. The rounding adds at most
+  $1\le tL^{19}\rho^{-3}$. Likewise $\theta_*+1\le(2^{46}+1)L^9\rho^{-2}$, and
+  $\log\big(2(6\cdot2^{81}+1)(2^{46}+1)\big)<130.6$. Finally
+  $\theta_*\ge 2^{19}L^3\ge 20L$.
+\item[(S6)]\namedlabel{s3:eqS6}{(S6)} $\sigma_*\ge24$, $\lambda_*p\ge6$ and $1\le d_*p\le 1+p\le2$.
+  \emph{Proof:} immediate from~\eqref{s3:eqStar}, since $\varepsilon'\le1\le L$.
+\end{itemize}
+The values $\sigma_*,\lambda_*,\Delta_*,d_*$ of~\eqref{s3:eqStar} satisfy the parameter
+hypotheses of Proposition~13$^*$ below: $\sigma_*=24L^2/\varepsilon'$ holds with equality, and
+$\Delta_*-\lambda_*=\lceil d_*\lambda_*/3\rceil\ge d_*\lambda_*/3=8d_*\lambda_*L^2/(\varepsilon'\sigma_*)$.
+The proposition itself is stated for arbitrary numbers with these properties.
+
+\begin{proposition}[Proposition 13$^*$: stars or bipartite]\label{s3:propP13s}
+Let $G$ be an $n$-vertex $(\varepsilon',s_1)$-expander with $n\ge2$ and
+$2^{-7}\le\varepsilon'\le1$, and put $L:=\log n$. Let
+$W\subseteq V(G)$ with $1\le|W|\le 2n/3$, and let $F\subseteq E(G)$ with
+$|F|\le s_1|W|/4$. Let $\sigma_*>0$ be real and let
+$\lambda_*,d_*\ge1$ and $\Delta_*\ge\lambda_*$ be integers such that
+\[
+\sigma_*\ge\frac{24L^2}{\varepsilon'},\qquad
+\Delta_*-\lambda_*\ge\frac{8d_*\lambda_*L^2}{\varepsilon'\sigma_*},\qquad
+s_1\ge 8d_*\lambda_* .
+\]
+Then $G-F$ contains one of the following:
+\begin{itemize}
+\item[(a)] at least $|W|/\sigma_*$ vertex-disjoint stars, each with
+  exactly $\lambda_*$ leaves, its centre in $W$ and all its leaves in
+  $V(G)\setminus W$; or
+\item[(b)] a bipartite subgraph $H\subseteq G-F$ with sides $W$ and
+  $X\subseteq V(G)\setminus W$, such that $|X|\ge\varepsilon'|W|/(2L^2)$,
+  every vertex of $X$ has degree exactly $d_*$ in $H$, and every vertex
+  of $W$ has degree at most $\Delta_*$ in $H$.
+\end{itemize}
+\deps{\ref{s1:citProp12}, \ref{s1:citProp13}, \ref{s1:citDef11}}
+\end{proposition}
+
+\begin{proof}
+We follow the proof of \cite[Proposition~13]{BM}
+(Cited result~\ref{s1:citProp13}) with general parameters. For $U\subseteq
+V(G)$ and an integer $d\ge1$, write $\Nbr_{G-F,d}(U)$ for the set of
+vertices outside $U$ that have at least $d$ neighbours in $U$ in the
+graph $G-F$. We use \cite[Proposition~12]{BM} (Cited result~\ref{s1:citProp12}):
+if $|U|\le 2n/3$, $|F|\le s_1|U|/2$ and $0<d\le s_1$, then
+$|\Nbr_{G-F}(U)|\ge s_1|U|/(2d)$ or
+$|\Nbr_{G-F,d}(U)|\ge\varepsilon'|U|/L^2$.
+
+Assume that (a) fails. Take a maximal collection of vertex-disjoint stars
+in $G-F$, each with exactly $\lambda_*$ leaves, its centre in $W$ and its
+leaves in $V(G)\setminus W$. Let $\mathrm{Cen}\subseteq W$ be the set of
+centres and $\mathrm{Lvs}\subseteq V(G)\setminus W$ the set of leaves.
+Since (a) fails, $|\mathrm{Cen}|<|W|/\sigma_*$, and
+$|\mathrm{Lvs}|=\lambda_*|\mathrm{Cen}|<\lambda_*|W|/\sigma_*$.
+By maximality, every $w\in W\setminus\mathrm{Cen}$ has at most
+$\lambda_*-1$ neighbours in $G-F$ in $V(G)\setminus(W\cup\mathrm{Lvs})$.
+(Otherwise a new star with centre $w$ and $\lambda_*$ such leaves could be
+added. It is disjoint from the others, because $w\notin\mathrm{Cen}$,
+$w\notin\mathrm{Lvs}$ and its leaves avoid $W\cup\mathrm{Lvs}$.) Every
+vertex of $\Nbr_{G-F}(W\setminus\mathrm{Cen})$ lies in $\mathrm{Cen}$, in
+$\mathrm{Lvs}$, or in $V(G)\setminus(W\cup\mathrm{Lvs})$. Hence
+\begin{equation}\label{s3:eqP13a}
+|\Nbr_{G-F}(W\setminus\mathrm{Cen})|
+<\frac{(1+\lambda_*)|W|}{\sigma_*}+(\lambda_*-1)|W|
+\le\Big(\frac{1+\lambda_*}{24}+\lambda_*-1\Big)|W| ,
+\end{equation}
+where we used $\sigma_*\ge 24L^2/\varepsilon'\ge24$.
+
+\smallskip\noindent\emph{The greedy bipartite graph.} Label the vertices
+of $V(G)\setminus W$ as $v_1,\dots,v_{r'}$ and let $H_0$ be the graph on
+$W$ with no edges. For $i=1,\dots,r'$, check whether $v_i$ has $d_*$
+neighbours in $G-F$ inside $W$, each of degree less than $\Delta_*$ in
+$H_{i-1}$. If so, let $H_i$ be $H_{i-1}$ together with $v_i$ and these
+$d_*$ edges, and put $v_i$ into $X$. Otherwise put $H_i:=H_{i-1}$.
+Finally let $H:=H_{r'}$.
+\begin{itemize}
+\item $H\subseteq G-F$ is bipartite with sides $W$ and $X$.
+\item Every vertex of $X$ has degree exactly $d_*$ in $H$.
+\item Every vertex of $W$ has degree at most $\Delta_*$ in $H$: a degree
+  increases, by one, only when it is below the integer $\Delta_*$.
+\end{itemize}
+It remains to show $|X|\ge\varepsilon'|W|/(2L^2)$.
+
+\smallskip\noindent\emph{Saturated vertices.} Let
+$\mathrm{Sat}:=\{w\in W\setminus\mathrm{Cen}:\deg_H(w)=\Delta_*\}$. A
+vertex $w\in\mathrm{Sat}$ has at most $\lambda_*-1$ neighbours of $G-F$
+in $V(G)\setminus(W\cup\mathrm{Lvs})$. Hence it has at most
+$\lambda_*-1$ $H$-neighbours in $X\setminus\mathrm{Lvs}$, and so more
+than $\Delta_*-\lambda_*$ $H$-neighbours in $X\cap\mathrm{Lvs}$. Every
+vertex of $X$ has exactly $d_*$ $H$-neighbours, so
+\[
+(\Delta_*-\lambda_*)|\mathrm{Sat}|\le e_H(\mathrm{Sat},X\cap\mathrm{Lvs})\le d_*|\mathrm{Lvs}|<\frac{d_*\lambda_*|W|}{\sigma_*}.
+\]
+The hypothesis on $\Delta_*-\lambda_*$ forces $\Delta_*>\lambda_*$, and it
+gives $|\mathrm{Sat}|<\varepsilon'|W|/(8L^2)$. Put
+$\mathrm{Bl}:=\mathrm{Cen}\cup\mathrm{Sat}$. Then
+\begin{equation}\label{s3:eqP13b}
+|\mathrm{Bl}|<\frac{|W|}{\sigma_*}+\frac{\varepsilon'|W|}{8L^2}\le\frac{\varepsilon'|W|}{24L^2}+\frac{\varepsilon'|W|}{8L^2}=\frac{\varepsilon'|W|}{6L^2}\le\frac{|W|}{6},
+\end{equation}
+so $|W\setminus\mathrm{Bl}|\ge 5|W|/6$.
+
+\smallskip\noindent\emph{Applying Proposition~12.} The set
+$U:=W\setminus\mathrm{Bl}$ has $1\le|U|\le 2n/3$, and
+$|F|\le s_1|W|/4\le s_1|U|/2$. Also $1\le d_*\le s_1$, since
+$s_1\ge 8d_*\lambda_*$. By Cited result~\ref{s1:citProp12} one of two cases
+holds.
+
+\emph{Case 1: $|\Nbr_{G-F}(U)|\ge s_1|U|/(2d_*)$.} Then
+$|\Nbr_{G-F}(U)|\ge s_1|W|/(3d_*)\ge 8\lambda_*|W|/3$. Let
+$x\in\Nbr_{G-F}(U)$. Either $x\notin W\setminus\mathrm{Cen}$, and then
+$x\in\Nbr_{G-F}(W\setminus\mathrm{Cen})$; or $x\in W\setminus\mathrm{Cen}$
+with $x\notin U$, and then $x\in\mathrm{Sat}\subseteq W$. Hence
+$|\Nbr_{G-F}(W\setminus\mathrm{Cen})|\ge(8\lambda_*/3-1)|W|$. Comparing
+with~\eqref{s3:eqP13a} gives $8\lambda_*/3<(1+\lambda_*)/24+\lambda_*$,
+that is, $39\lambda_*<1$. This contradicts $\lambda_*\ge1$.
+
+\emph{Case 2: $|\Nbr_{G-F,d_*}(U)|\ge\varepsilon'|U|/L^2$.} Let
+$v\in\Nbr_{G-F,d_*}(U)\setminus\mathrm{Bl}$. Then $v\notin W$, since
+$v\notin U$ and $v\notin\mathrm{Bl}$, and $v$ has at least $d_*$
+neighbours of $G-F$ in $U$. Vertices of $U$ lie in
+$W\setminus\mathrm{Cen}$ and not in $\mathrm{Sat}$, so they have
+$H$-degree below $\Delta_*$, and their degree in $H_{i-1}$ is at most
+that. So when $v=v_i$ was processed, a star was available, and $v\in X$.
+Therefore, using~\eqref{s3:eqP13b},
+\[
+|X|\ge|\Nbr_{G-F,d_*}(U)|-|\mathrm{Bl}|\ge\frac{\varepsilon'}{L^2}\cdot\frac{5|W|}{6}-\frac{\varepsilon'|W|}{6L^2}=\frac{2\varepsilon'|W|}{3L^2}\ge\frac{\varepsilon'|W|}{2L^2}.
+\]
+So (b) holds.
+\end{proof}
+
+\begin{lemma}[Lemma 17$^*$: sprinkling at density $\rho$]\label{s3:lemL17s}
+Let $G$ be an $n$-vertex $(\varepsilon',s_1)$-expander with $n\ge2$ and
+$2^{-7}\le\varepsilon'\le1$, let $\rho\in(0,1]$, take the parameters
+of~\eqref{s3:eqStar} with $L:=\log n$, and assume $s_1\ge 8d_*\lambda_*$.
+Let $V_1,\dots,V_{\ell_*}$ be independent random subsets of $V(G)$,
+where $V_i$ is $p_*$-random for $i<\ell_*$ and $V_{\ell_*}$ is
+$q_*$-random, and put $V:=V_1\cup\dots\cup V_{\ell_*}$. By~\ref{s3:eqS2},
+$V$ is a $\rho$-random subset of $V(G)$. Call $U\subseteq V(G)$
+\emph{well-expanding} if $|\Nbr_G(U)|\ge\theta_*|U|$. Then for every
+well-expanding $U$ and every $F\subseteq E(G)$ with $|F|\le|U|$,
+\[
+\Prob\Big(|\Ball{\ell_*}{G-F}{U,V}|\le|V|/2\Big)\le\exp(-7|U|L).
+\]
+Since this event depends only on $V$, the same bound holds for every
+$\rho$-random subset $V$ of $V(G)$.
+\deps{\ref{s3:propP13s}, \ref{s1:citLem17}, \ref{s1:lemBBD}, \ref{s1:citChernoff}, \ref{s1:citChernoffGen}}
+\end{lemma}
+
+\begin{proof}
+The structure is that of the proof of \cite[Lemma~17]{BM}
+(Cited result~\ref{s1:citLem17}). The batch probabilities are adapted to the
+density $\rho$, and the concentration step in case~(b) uses the Bernstein
+inequality for bounded differences (Lemma~\ref{s1:lemBBD}).
+
+If $U=\emptyset$ the bound is $1$, so let $u:=|U|\ge1$.
+
+\smallskip\noindent\emph{Step 0: $n$ and $\rho n$ are large.} Since $U$
+is well-expanding, $\theta_*u\le|\Nbr_G(U)|<n$. Hence
+$n>\theta_*\ge 2^{19}\ell_*^2L^3/\rho^2$ (as $\varepsilon'\le1$), and so
+$\rho n\ge\rho^2n>2^{19}\ell_*^2L^3\ge 2^{39}$ by~\ref{s3:eqS1}. Also
+$7uL<7nL/\theta_*\le 7\rho^2n/(2^{19}\ell_*^2L^2)\le 2^{-36}\rho n$ (using
+$\varepsilon'\le1$, $\rho\le1$ and $\ell_*\ge2^{10}$).
+
+\smallskip\noindent\emph{Step 1: the reached sets.} For
+$0\le i\le\ell_*$, let $\mathcal B_i$ be the set of vertices $v\in V(G)$
+that can be reached from $U$ by a path in $G-F$ of length at most $i$
+whose interior vertices (if any) lie in $V_1\cup\dots\cup V_{i-1}$. The
+vertices of $\mathcal B_i$ themselves need not lie in any $V_j$. Then
+$\mathcal B_0=U$, $\mathcal B_1=U\cup\Nbr_{G-F}(U)$ and
+$\mathcal B_0\subseteq\mathcal B_1\subseteq\dots\subseteq\mathcal
+B_{\ell_*}$. The set $\mathcal B_i$ is determined by $U$, $F$ and
+$V_1,\dots,V_{i-1}$, so it is independent of $V_i,\dots,V_{\ell_*}$.
+\begin{itemize}
+\item[(O1)] Let $v\in\Nbr_{G-F}(\mathcal B_i)$ have a neighbour $w$ in
+  $G-F$ with $w\in\mathcal B_i\cap V_i$. Then
+  $v\in\mathcal B_{i+1}$. Indeed, take a path from $U$ to $w$ as in the
+  definition of $\mathcal B_i$. The vertex $v$ does not lie on it, since
+  otherwise an initial segment would put $v$ into $\mathcal B_i$.
+  Appending the edge $wv$ gives a path of length at most $i+1$ whose
+  interior lies in $V_1\cup\dots\cup V_i$.
+\item[(O2)] $\mathcal B_{\ell_*}\cap V_{\ell_*}\subseteq\Ball{\ell_*}{G-F}{U,V}$,
+  since the interiors lie in $V$ and the end lies in $V_{\ell_*}\subseteq V$.
+\item[(O3)] $|\mathcal B_1|\ge\theta_*u$. Deleting one edge removes at
+  most one vertex from an outside neighbourhood, so
+  $|\Nbr_{G-F}(U)|\ge|\Nbr_G(U)|-|F|\ge(\theta_*-1)u$.
+\end{itemize}
+
+\smallskip\noindent\emph{Step 2: growth into a fixed set.} Let
+$1\le i\le\ell_*-1$, and let $W\subseteq V(G)$ be a fixed set with
+$\mathcal B_1\subseteq W$ and $|W|\le 2n/3$. Put
+\[
+A_i(W):=\{v\in\Nbr_{G-F}(W):\ v\text{ has a neighbour in }G-F\text{ that lies in }W\cap V_i\}.
+\]
+We claim that
+\begin{equation}\label{s3:eqL17claim}
+\Prob\big(|A_i(W)|<g_*|W|\big)\le e^{-18uL}.
+\end{equation}
+By (O3), $|W|\ge\theta_*u$. Also $|F|\le u\le|W|\le s_1|W|/4$, because
+$s_1\ge8d_*\lambda_*\ge48$. So Proposition~\ref{s3:propP13s} applies to
+$W$ and $F$ with the values~\eqref{s3:eqStar}, and gives one of two
+cases.
+
+\emph{Case (a): stars.} Let $\mathrm{Cen}$ be the set of centres of at
+least $|W|/\sigma_*$ vertex-disjoint stars as in (a). Every leaf of a
+star whose centre lies in $V_i$ belongs to $A_i(W)$, and distinct stars
+have distinct leaves. Now $|\mathrm{Cen}\cap V_i|\sim\Bin(|\mathrm{Cen}|,p_*)$,
+so the Chernoff bound (Cited result~\ref{s1:citChernoff}, $\delta=1/2$) gives
+$\Prob(|\mathrm{Cen}\cap V_i|<p_*|\mathrm{Cen}|/2)\le\exp(-p_*|\mathrm{Cen}|/8)$.
+Outside this event, by~\ref{s3:eqS6},
+\[
+|A_i(W)|\ge\lambda_*p_*|\mathrm{Cen}|/2\ge3|\mathrm{Cen}|\ge3|W|/\sigma_*=g_*|W|.
+\]
+For the exponent, \ref{s3:eqS2} and $|W|\ge\theta_*u$ give
+\begin{multline*}
+\frac{p_*|\mathrm{Cen}|}{8}\ge\frac{p_*\varepsilon'|W|}{192L^2}\ge\frac{0.1\rho}{\ell_*}\cdot\frac{2^{19}\ell_*^2L^3u}{192\,\rho^2L^2}=\frac{0.1\cdot2^{19}\ell_*Lu}{192\,\rho}\\
+\ge 273\,\ell_*uL\ \ (\text{using }\rho\le1)\ \ \ge 18uL.
+\end{multline*}
+
+\emph{Case (b): a bipartite graph.} Let $H\subseteq G-F$ be bipartite
+with sides $W$ and $X$ as in (b). Every $x\in X$ with an $H$-neighbour in
+$V_i$ lies in $A_i(W)$, because $x\notin W$ and $H\subseteq G-F$. Let
+$Z:=|\{x\in X:\Nbr_H(x)\cap V_i\ne\emptyset\}|$. For $x\in X$,
+by~\ref{s3:eqS6},
+$\Prob(\Nbr_H(x)\cap V_i=\emptyset)=(1-p_*)^{d_*}\le e^{-p_*d_*}\le e^{-1}$,
+so $\Ex Z\ge(1-e^{-1})|X|\ge0.63|X|$.
+
+The count $Z$ is a function of the independent indicators
+$\xi_w:=\ind{w\in V_i}$, $w\in W$, each Bernoulli with parameter $p_*$.
+Order $W$ as $w_1,\dots,w_{|W|}$. For $y=(y_1,\dots,y_{|W|})\in\{0,1\}^{|W|}$
+let $\Psi(y)$ be the number of $x\in X$ such that $y_k=1$ for some $k$ with
+$w_k\in\Nbr_H(x)$. Since $H$ is bipartite with sides $W$ and $X$, we have
+$\Nbr_H(x)\subseteq W$ for $x\in X$, so
+$Z=\Psi(\xi_{w_1},\dots,\xi_{w_{|W|}})$. If $y,y'\in\{0,1\}^{|W|}$ differ
+only in the $k$-th coordinate, then only the vertices $x\in\Nbr_H(w_k)$ can
+change their contribution to $\Psi$, each by at most $1$, so
+$|\Psi(y)-\Psi(y')|\le\deg_H(w_k)\le\Delta_*$ by
+Proposition~\ref{s3:propP13s}(b). Using $1-p_*\le1$,
+$\deg_H(w_k)\le\Delta_*$, $\sum_{w\in W}\deg_H(w)=e(H)=d_*|X|$ (every
+$x\in X$ has exactly $d_*$ neighbours in $H$, all in $W$) and~\ref{s3:eqS6},
+\[
+\sum_k p_*(1-p_*)\deg_H(w_k)^2\le p_*\Delta_*\sum_{w\in W}\deg_H(w)=p_*d_*\Delta_*|X|\le 2\Delta_*|X|=:\beta ,
+\]
+and $\beta>0$, since $|X|\ge\varepsilon'|W|/(2L^2)>0$ (as $|W|\ge\theta_*u>0$)
+and $\Delta_*\ge\lambda_*\ge1$.
+Apply the second bound of Lemma~\ref{s1:lemBBD} with $m:=|W|$,
+$I_k:=\xi_{w_k}$, $p_k:=p_*$, $c_k:=\deg_H(w_k)$, with $\Delta_*$ in the role
+of the bound $b$ of that lemma, this $\beta$ and $a:=0.3|X|$. Since
+$2(\beta+\Delta_*a/3)=4\Delta_*|X|+0.2\Delta_*|X|$ and
+$0.09/4.2>1/47$, it gives
+\[
+\Prob\big(Z\le\Ex Z-0.3|X|\big)\le\exp\Big(-\frac{0.09|X|^2}{4\Delta_*|X|+0.2\Delta_*|X|}\Big)\le\exp\Big(-\frac{|X|}{47\Delta_*}\Big).
+\]
+Since $\Ex Z-0.3|X|\ge0.33|X|$, we get
+$\Prob(Z<0.33|X|)\le\exp(-|X|/(47\Delta_*))$. Outside this event,
+$|A_i(W)|\ge Z\ge0.33|X|\ge0.165\,\varepsilon'|W|/L^2\ge g_*|W|$.
+
+For the exponent, $|X|\ge\varepsilon'|W|/(2L^2)$ and $|W|\ge\theta_*u$
+give
+\[
+\frac{|X|}{47\Delta_*}\ge\frac{\varepsilon'\theta_*u}{94\Delta_*L^2}=\frac{2^{19}\ell_*^2Lu}{94\,\Delta_*\rho^2}.
+\]
+\begin{itemize}
+\item If $p_*\le0.11$, then \ref{s3:eqS3} and~\ref{s3:eqS2} give
+  $\Delta_*\le3p_*^{-2}\le300\,\ell_*^2\rho^{-2}$, and the exponent is at
+  least $2^{19}uL/28200\ge18uL$ (indeed $2^{19}/28200>18.59$; this is the
+  tightest inequality of the lemma).
+\item If $p_*>0.11$, then \ref{s3:eqS3} gives
+  $\Delta_*\le13p_*^{-2}<13/0.0121<1075$, and the exponent is at least
+  $2^{19}\ell_*^2uL/(94\cdot1075)$ (using $\rho\le1$) $\ge5\ell_*^2uL\ge18uL$.
+\end{itemize}
+The large-$p_*$ regime occurs only for $\rho$ extremely close to $1$. It
+is handled directly by the bound $\Delta_*\le13p_*^{-2}$, so no coupling
+with a smaller density is needed. This proves~\eqref{s3:eqL17claim}.
+
+\smallskip\noindent\emph{Step 3: all rounds.} For $1\le i\le\ell_*-1$ let
+$E_i$ be the event that $|\mathcal B_i|\ge2n/3$ or
+$|\mathcal B_{i+1}\setminus\mathcal B_i|\ge g_*|\mathcal B_i|$. Condition
+on $V_1,\dots,V_{i-1}$. This fixes $W:=\mathcal B_i\supseteq\mathcal B_1$,
+while $V_i$ is still $p_*$-random (by the independence of $V_i$ from
+$(V_1,\dots,V_{i-1})$). If $|W|\ge2n/3$ then $E_i$ holds.
+Otherwise $A_i(W)\subseteq\mathcal B_{i+1}\setminus\mathcal B_i$ by (O1),
+since $A_i(W)\cap W=\emptyset$, and~\eqref{s3:eqL17claim} gives
+$\Prob(E_i^c\mid V_1,\dots,V_{i-1})\le e^{-18uL}$. Hence, using $u\ge1$,
+\ref{s3:eqS1}, and the fact that $L^3e^{-11L}\le e^{-11}$ for $L\ge1$,
+\[
+\Prob\Big(\bigcup_{i<\ell_*}E_i^c\Big)\le(\ell_*-1)e^{-18uL}\le2^{10}L^3e^{-11L}\,e^{-7uL}\le0.02\,e^{-7uL}.
+\]
+
+\smallskip\noindent\emph{Step 4: growth to two thirds.} Suppose all
+$E_i$ hold, and suppose $|\mathcal B_{\ell_*}|<2n/3$. Then
+$|\mathcal B_i|<2n/3$ for all $i\le\ell_*$, so
+$|\mathcal B_{i+1}|\ge(1+g_*)|\mathcal B_i|$ for $1\le i\le\ell_*-1$, and
+$|\mathcal B_{\ell_*}|\ge(1+g_*)^{\ell_*-1}$. Since $g_*\le1/8$, we have
+$\ln(1+g_*)\ge g_*-g_*^2/2\ge15g_*/16$. By~\ref{s3:eqS1} and
+$\varepsilon'\ge2^{-7}$,
+$(\ell_*-1)g_*>(2^{10}L^3-2)\,2^{-10}L^{-2}\ge L-2^{-9}$. Hence
+$\ln\big((1+g_*)^{\ell_*-1}\big)\ge\tfrac{15}{16}(L-2^{-9})\ge L\ln2=\ln n$,
+so $|\mathcal B_{\ell_*}|\ge n$, a contradiction. Therefore
+$|\mathcal B_{\ell_*}|\ge2n/3$.
+
+\smallskip\noindent\emph{Step 5: the last batch.} Condition on
+$V_1,\dots,V_{\ell_*-1}$ with $|\mathcal B_{\ell_*}|\ge2n/3$. The set
+$V_{\ell_*}$ is still $0.9\rho$-random, so
+$|\mathcal B_{\ell_*}\cap V_{\ell_*}|$ is binomial with mean at least
+$0.6\rho n$. The lower-tail Chernoff bound for a mean bound $\mu:=0.6\rho n\le\Ex|\mathcal B_{\ell_*}\cap V_{\ell_*}|$
+(Cited result~\ref{s1:citChernoffGen}(a)) with $\delta=0.09$ gives
+$\Prob(|\mathcal B_{\ell_*}\cap V_{\ell_*}|<0.546\rho n)\le
+\exp(-0.0081\cdot0.6\rho n/2)\le\exp(-0.00243\rho n)$. Since $V$ is
+$\rho$-random, $|V|\sim\Bin(n,\rho)$, and
+$\Prob(|V|>1.09\rho n)\le\exp(-0.0081\rho n/3)=\exp(-0.0027\rho n)$.
+Outside both events,
+$|\mathcal B_{\ell_*}\cap V_{\ell_*}|\ge0.546\rho n>0.545\rho n\ge|V|/2$,
+and then $|\Ball{\ell_*}{G-F}{U,V}|>|V|/2$ by (O2). The probability of
+the two events is at most
+$2e^{-\rho n/412}\le 2e^{-\rho n/413}e^{-7uL}\le0.01\,e^{-7uL}$. Here we
+used Step~0: $7uL\le2^{-36}\rho n\le\rho n(1/412-1/413)$ and
+$\rho n>2^{39}$.
+
+\smallskip\noindent\emph{Conclusion.} If
+$|\Ball{\ell_*}{G-F}{U,V}|\le|V|/2$, then either some $E_i$ fails, or
+(by Step~4) $|\mathcal B_{\ell_*}|\ge2n/3$ and one of the two events of
+Step~5 occurs. The total probability is at most
+$0.03\,e^{-7uL}\le e^{-7uL}$. The final sentence of the lemma holds
+because the event is a function of the random set $V$ alone, and $V$ is
+$\rho$-random.
+\end{proof}
+
+\begin{lemma}[Proposition 18$^*$ and Lemma 19$^*$]\label{s3:lemP18s}
+Let $G$ be an $n$-vertex $(\varepsilon',s_1)$-expander with $n\ge2$ and
+$2^{-7}\le\varepsilon'\le1$, let $\rho\in(0,1]$, take the parameters
+of~\eqref{s3:eqStar} with $L:=\log n$, and assume
+$s_1\ge\theta_*+1$.
+\begin{itemize}
+\item[(i)] (Proposition 18$^*$.) Every $U\subseteq V(G)$ with
+  $1\le|U|\le2n/3$ contains a set $U'$ with
+  $|\Nbr_G(U')|\ge\theta_*|U'|$ and
+  $|U'|\ge\varepsilon'|U|/(3\theta_*L^2)$.
+\item[(ii)] (Lemma 19$^*$.) Let $V$ be a $\rho$-random subset of
+  $V(G)$. With probability at least $1-n^{-6}$ the following holds: for
+  every nonempty $U\subseteq V(G)$ and every $F\subseteq E(G)$ with
+  $|F|\le\mu_*|U|$,
+  \[
+  |\Ball{\ell_*}{G-F}{U,V}|>|V|/2 .
+  \]
+\end{itemize}
+The hypothesis is $s_1\ge\theta_*+1$ and not $s_1\ge\theta_*$. The
+maximality step of \cite[Proposition~18]{BM} (Cited result~\ref{s1:citProp18})
+produces vertices with \emph{fewer than $\theta_*+1$} neighbours outside,
+so the edge set $F$ built there satisfies $|F|<(\theta_*+1)|U|$.
+\deps{\ref{s1:citProp18}, \ref{s1:citLem19}, \ref{s3:lemL17s}, \ref{s1:citDef11}}
+\end{lemma}
+
+\begin{proof}
+By~\ref{s3:eqS4}, $\theta_*\ge 8d_*\lambda_*$, so $s_1\ge 8d_*\lambda_*$
+and Lemma~\ref{s3:lemL17s} applies to $G$. Also $\theta_*\ge1$.
+
+(i) We follow the proof of \cite[Proposition~18]{BM}. Let $U'\subseteq U$
+be maximal subject to $|\Nbr_G(U')|\ge\theta_*|U'|$; the empty set
+qualifies. If $U'=U$ we are done, since
+$\varepsilon'/(3\theta_*L^2)\le1$. Otherwise let $v\in U\setminus U'$, and
+let $a_v$ be the number of neighbours of $v$ outside
+$U'\cup\Nbr_G(U')$. Then
+\[
+|\Nbr_G(U'\cup\{v\})|=|\Nbr_G(U')|-\ind{v\in\Nbr_G(U')}+a_v .
+\]
+By maximality this is less than $\theta_*(|U'|+1)$. Two consequences
+follow:
+\begin{itemize}
+\item $a_v<\theta_*(|U'|+1)-|\Nbr_G(U')|+1\le\theta_*+1$;
+\item $|\Nbr_G(U')|<\theta_*(|U'|+1)+1$.
+\end{itemize}
+Let $F$ be the set of edges $vx$ with $v\in U\setminus U'$ and
+$x\notin U'\cup\Nbr_G(U')$. Then
+$|F|\le\sum_{v\in U\setminus U'}a_v<(\theta_*+1)|U|\le s_1|U|$.
+Every vertex $x\notin U$ with a neighbour in $U$ in $G-F$ lies in
+$\Nbr_G(U')$: if the neighbour is in $U'$ this is clear, and if it is in
+$U\setminus U'$ then, since the edge is not in $F$,
+$x\in U'\cup\Nbr_G(U')$ with $x\notin U'$. By the expansion of $G$
+(Cited result~\ref{s1:citDef11}),
+\[
+\varepsilon'|U|/L^2\le|\Nbr_{G-F}(U)|\le|\Nbr_G(U')|<\theta_*(|U'|+1)+1 .
+\]
+If $U'=\emptyset$, then the middle term is $0$, which is impossible
+because $|U|\ge1$. So $|U'|\ge1$, and then
+$\theta_*(|U'|+1)+1\le3\theta_*|U'|$ since $\theta_*\ge1$. Hence
+$|U'|\ge\varepsilon'|U|/(3\theta_*L^2)$.
+
+(ii) We follow the proof of \cite[Lemma~19]{BM}
+(Cited result~\ref{s1:citLem19}).
+
+\emph{The union bound.} Consider all pairs $(U',F')$ with $U'$
+well-expanding and nonempty, $F'\subseteq E(G)$ and $|F'|\le|U'|$. Put
+$e_G:=|E(G)|\le n^2/2$; since $G$ has minimum degree $>s_1\ge1$,
+$e_G\ge2$. The number of pairs with $|U'|=u$ is at most
+$n^u\sum_{f=0}^{u}e_G^f\le n^u\cdot2e_G^u\le n^{3u}$. By
+Lemma~\ref{s3:lemL17s}, each pair fails
+$|\Ball{\ell_*}{G-F'}{U',V}|>|V|/2$ with probability at most
+$e^{-7uL}=n^{-7u\log e}\le n^{-10.09u}$. Hence, with probability at least
+\[
+1-\sum_{u\ge1}n^{3u}n^{-10.09u}\ \ge\ 1-\frac{n^{-7.09}}{1-n^{-7.09}}\ \ge\ 1-n^{-6},
+\]
+every such pair satisfies the ball bound. Fix an outcome in this event.
+
+\emph{Deterministic consequence.} Let $U$ be nonempty, and let
+$F\subseteq E(G)$.
+\begin{itemize}
+\item \emph{Case $|U|\le2n/3$ and $|F|\le2\mu_*|U|$.} By (i) there is a
+  well-expanding $U'\subseteq U$ with
+  $|U'|\ge\varepsilon'|U|/(3\theta_*L^2)=2\mu_*|U|\ge|F|$. The ball
+  $\Ball{\ell_*}{G-F}{\cdot,V}$ is monotone in its first argument, so
+  $|\Ball{\ell_*}{G-F}{U,V}|\ge|\Ball{\ell_*}{G-F}{U',V}|>|V|/2$.
+\item \emph{Case $|U|>2n/3$ and $|F|\le\mu_*|U|$.} Choose
+  $\bar U\subseteq U$ with $n/2\le|\bar U|\le2n/3$. This is possible
+  for every $n\ge2$: the interval $[n/2,2n/3]$ contains an integer, as
+  one checks directly for $n\le5$, and for $n\ge6$ it has length at
+  least $1$. Then $|F|\le\mu_*n\le2\mu_*|\bar U|$, and the previous case
+  gives $|\Ball{\ell_*}{G-F}{U,V}|\ge|\Ball{\ell_*}{G-F}{\bar U,V}|>|V|/2$.
+\end{itemize}
+In both cases the conclusion of (ii) holds.
+\end{proof}
+
+\begin{lemma}[Lemma 9$_\rho$: multiset linking from ball expansion]\label{s3:lemL9rho}
+Let $G$ be an $n$-vertex graph with $n\ge2^{30}$, put $L:=\log n$, and
+let $t\ge1$ and $\rho\in(0,1]$. Take $\ell_*$, $\bar s_*$ and
+$M_*=\lceil2.1/\rho\rceil$ from~\eqref{s3:eqStar}. Let $V\subseteq V(G)$
+with $|V|\ge\rho n/2$, and suppose $\rho n\ge84$. Then
+$|V|\ge n/M_*+2$. Suppose that
+\[
+|\Ball{\ell_*}{G-F}{U,V}|>|V|/2
+\]
+for every nonempty $U\subseteq V(G)$ and every $F\subseteq E(G)$ with
+$|F|\le\bar s_*|U|$. Then $G$ is $(2^{12}L^4,t)$-path connected through
+$V$ in the multiset sense of \cite[Definition~7]{BM}
+(Cited result~\ref{s1:citDef7}). That is, every multiset of pairs of distinct
+vertices of $G$ in which each vertex lies in at most $t$ pairs can be
+joined by pairwise edge-disjoint paths of length at most $2^{12}L^4$
+whose interior vertices lie in $V$.
+\deps{\ref{s1:citLem9}, \ref{s1:citProp8}, \ref{s1:citHaxell}, \ref{s1:citDef7}, \ref{s3:remMultiset}}
+\end{lemma}
+
+\begin{proof}
+First, $n/M_*\le\rho n/2.1$ and
+$\rho n/2-\rho n/2.1=\rho n/42\ge2$, so $|V|\ge n/M_*+2$. Next,
+$1\le\ell_*\le2^{10}L^3\le n$ for $n\ge2^{30}$. We re-run the proof of
+\cite[Lemma~9]{BM} (Cited result~\ref{s1:citLem9}) with its constants changed,
+and with Haxell's theorem (Cited result~\ref{s1:citHaxell}) in place of the
+Aharoni--Haxell theorem \cite[Theorem~6]{BM}.
+It uses \cite[Proposition~8]{BM} (Cited result~\ref{s1:citProp8}): if
+$1\le\ell,t_0\le n$, $|V|\ge4t_0-2$, and every set of $t_0$ vertices has
+a ball of radius $\ell$ in $V$ of size greater than $|V|/2$, then among
+any $2t_0-1$ pairs of vertices, all $4t_0-2$ of them distinct, some pair
+is joined by a path through $V$ of length at most $4\ell\log n$.
+
+Let $\mathcal P=(\{x_i,y_i\})_{i\in[r]}$ be a multiset of pairs of
+distinct vertices, indexed by $[r]$, in which every vertex lies in at
+most $t$ pairs (counted with multiplicity; see
+Remark~\ref{s3:remMultiset}). Put $h:=\lfloor4\ell_*L\rfloor$; then
+$h\ge1$, since $\ell_*\ge1$ and $L\ge1$. For $i\in[r]$, let $\mathcal Y_i$
+be the set of $x_iy_i$-paths in $G$ that have length at most $h$ and all
+interior vertices in $V$. Every $P\in\mathcal Y_i$ has at most $h$ edges.
+
+\emph{Claim: for every nonempty $I\subseteq[r]$ and every $F\subseteq E(G)$
+with $|F|<h^2|I|$, there are $j\in I$ and $P\in\mathcal Y_j$ with
+$E(P)\cap F=\emptyset$.}
+Let $I'\subseteq I$ be maximal such that the pairs $\{x_i,y_i\}$,
+$i\in I'$, are pairwise vertex-disjoint; $I'\ne\emptyset$ because
+$I\ne\emptyset$. By maximality every pair
+indexed by $I$ contains one of the $2|I'|$ vertices covered by $I'$, and
+each vertex lies in at most $t$ pairs. Hence $|I|\le2t|I'|$. Also
+$|I'|\le n/2$. Put $t_{0*}:=\lceil|I'|/(2M_*)\rceil$. Then:
+\begin{itemize}
+\item $1\le t_{0*}$ and $2t_{0*}-1\le|I'|$ (if $|I'|\le2M_*$ then
+  $t_{0*}=1$; otherwise $2t_{0*}-1\le|I'|/M_*+1\le|I'|$, as $M_*\ge3$);
+\item $4t_{0*}-2\le n/M_*+2\le|V|$;
+\item $t_{0*}\le n$;
+\item $|F|<h^2|I|\le16(\ell_*L)^2\cdot2t|I'|\le64M_*t\,t_{0*}(\ell_*L)^2$.
+\end{itemize}
+Since $M_*\le2.1/\rho+1\le3.1/\rho$ and $(\ell_*L)^2\le2^{20}L^8$, we get
+$64M_*t(\ell_*L)^2\le2^{28}tL^8/\rho=\bar s_*$. Hence $|F|<\bar s_*t_{0*}$.
+So every set $U$ of $t_{0*}$ vertices satisfies $|F|\le\bar s_*|U|$, and
+therefore $|\Ball{\ell_*}{G-F}{U,V}|>|V|/2$ by hypothesis.
+
+Choose $2t_{0*}-1$ indices of $I'$; their $4t_{0*}-2$ endpoints are
+distinct. Apply Cited result~\ref{s1:citProp8} to $G-F$, with $\ell:=\ell_*$
+and $t_0:=t_{0*}$. It gives, for one of these indices $j$, an
+$x_jy_j$-path $P$ in $G-F$ through $V$ of length at most $4\ell_*L$, hence
+at most $h$, as lengths are integers. So $j\in I'\subseteq I$,
+$P\in\mathcal Y_j$ and $E(P)\cap F=\emptyset$. This proves the claim.
+
+Now let $\mathcal H$ be the hypergraph with vertex set $[r]\sqcup E(G)$ (a
+disjoint union) whose edges are the sets $\{i\}\cup E(P)$ with $i\in[r]$
+and $P\in\mathcal Y_i$. Every edge of $\mathcal H$ meets $[r]$ in exactly
+one vertex and $E(G)$ in at most $h$ vertices. We apply Cited
+result~\ref{s1:citHaxell} to $\mathcal H$, with $[r]$ in the role of its
+class $\mathcal X$, $E(G)$ in the role of its other class, and with $h\ge1$ in
+place of its parameter $q$. We check its hypothesis. Let $I\subseteq[r]$ and $Z\subseteq E(G)$
+with $|Z|\le(2h-1)(|I|-1)$. Then $I\ne\emptyset$, since otherwise
+$|Z|\le1-2h<0$. As $h^2-(2h-1)=(h-1)^2\ge0$ and $|I|-1\ge0$,
+\[
+|Z|\le(2h-1)(|I|-1)\le h^2(|I|-1)<h^2|I| .
+\]
+So the claim, with $F:=Z$, gives $j\in I$ and $P\in\mathcal Y_j$ with
+$E(P)\cap Z=\emptyset$. The edge $e:=\{j\}\cup E(P)$ of $\mathcal H$
+satisfies $e\cap[r]=\{j\}\subseteq I$ and, as $j\notin E(G)\supseteq Z$,
+$e\cap Z=E(P)\cap Z=\emptyset$. (The claim covers every $Z$ with
+$|Z|<h^2|I|$, which is more than the hypothesis of Cited
+result~\ref{s1:citHaxell} requires.) By Cited result~\ref{s1:citHaxell},
+$\mathcal H$ has a set of pairwise disjoint edges such that every
+$i\in[r]$ lies in one of them. For $i\in[r]$ let $e_i$ be an edge of this
+set containing $i$. By construction $e_i=\{k\}\cup E(Q)$ for some
+$k\in[r]$ and $Q\in\mathcal Y_k$, so $e_i\cap[r]=\{k\}$; as
+$i\in e_i\cap[r]$, we get $k=i$, and we put $P_i:=Q$, so that
+$E(P_i)\subseteq e_i$. For $i\ne i'$ we have
+$e_i\cap[r]=\{i\}\ne\{i'\}=e_{i'}\cap[r]$, so $e_i\ne e_{i'}$, and
+therefore $e_i\cap e_{i'}=\emptyset$, as both lie in the set of pairwise
+disjoint edges. Hence the paths $P_i$, $i\in[r]$, are pairwise
+edge-disjoint $x_iy_i$-paths through $V$ of length at most
+$h\le4\ell_*L\le2^{12}L^4$. Repeated pairs receive distinct paths,
+because the paths are indexed by $i$.
+\end{proof}
+
+\begin{theorem}[Theorem 16$^*$: linking through random sets; for-all multiset form]\label{s3:thmT16s}
+Let $X$ be an $N$-vertex $(\varepsilon',s)$-expander with
+$\varepsilon'\in[2^{-7},1]$, and put $L:=\log N$. Let $\rho\in(0,1]$ and
+$t\ge1$, and let $V$ be a $\rho$-random subset of $V(X)$. Here $X$ is
+fixed; if $X$ was itself produced at random, $V$ is independent of that
+randomness. Suppose that
+\[
+\rho N\ge L^2\qquad\text{and}\qquad s\ge 2^{135}\,t\,L^{28}\rho^{-5}.
+\]
+Then, with probability at least $1-2^{86}\,t\,L^{19}\rho^{-3}N^{-3}$, the
+graph $X$ is $(2^{12}L^4,t)$-path connected through $V$. That is, for
+\emph{every} multiset $\mathcal P$ of pairs of distinct vertices of $X$
+(endpoints anywhere, in $V$ or not) in which each vertex lies in at most
+$t$ pairs, there are pairwise edge-disjoint paths of $X$, one for each
+pair of $\mathcal P$, each joining its pair, of length at most
+$2^{12}L^4$, and with all interior vertices in $V$. By
+Lemma~\ref{s3:lemMonotone}(iii), $\mathcal P$ may be chosen after $V$ is
+revealed. Moreover:
+\begin{itemize}
+\item[(a)] The constant $2^{86}$ in the failure probability is absolute.
+  No lower bound on $N$ is needed.
+\item[(b)] If $N\ge2$, the hypotheses force
+  $\rho N>2^{27}L^{5.6}N^{4/5}$, because $s<N$. In particular the
+  hypothesis $\rho N\ge L^2$ is implied by the others; it is kept only
+  for comparison with \cite[Theorem~16]{BM}. The last batch of the
+  sprinkling argument needs $\rho N$ large compared with $L$ times the
+  size of the well-expanding sets involved. This is automatic (Step~0 of
+  the proof of Lemma~\ref{s3:lemL17s}), so the final-stage union bound
+  needs no further hypothesis.
+\item[(c)] The requirement on $s$ is exactly linear in $t$ and uniform in
+  $\rho\in(0,1]$. Apart from Step~0 of the proof below, which uses the full hypothesis on $s$ to
+  obtain (b), $N\ge2^{30}$ and $\rho N\ge84$ (from (b), Step~5 then draws
+  $e^{-\rho N/8}\le N^{-3}$),
+  the proof uses only $s\ge2K_*(\theta_*+1)$, and
+  $2K_*(\theta_*+1)\le2^{130.6}\,tL^{28}\rho^{-5}$ by~\ref{s3:eqS5}. No
+  coupling with a smaller density is used, also when $\rho$ is close to
+  $1$.
+\end{itemize}
+\deps{\ref{s3:lemL15p}, \ref{s3:propP13s}, \ref{s3:lemL17s}, \ref{s3:lemP18s}, \ref{s3:lemL9rho}, \ref{s3:lemMonotone}, \ref{s1:citDef11}, \ref{s1:citChernoff}}
+\end{theorem}
+
+\begin{proof}
+The proof is an assembly, following the proof of \cite[Theorem~16]{BM}
+(Cited result~\ref{s1:citThm16}). The loss-free splitting
+Lemma~\ref{s3:lemL15p} takes the place of \cite[Lemma~15]{BM}.
+
+\smallskip\noindent\emph{Step 0: $N$ and $\rho N$ are large.}
+If $N=1$ there are no pairs of distinct vertices, and there is nothing
+to prove. Let $N\ge2$, so $L\ge1$. Taking $U=\{v\}$ in
+Cited result~\ref{s1:citDef11} shows that $X$ has minimum degree greater than
+$s$. Hence $N>s\ge2^{135}tL^{28}\rho^{-5}\ge2^{135}$. Then
+$\rho^5N>\rho^5s\ge2^{135}L^{28}$, so $\rho>2^{27}L^{5.6}N^{-1/5}$, which
+is (b). In particular $\rho N\ge84$ and $N\ge2^{30}$. Take the
+parameters~\eqref{s3:eqStar} with $n:=N$ and the given $\varepsilon'$,
+$\rho$ and $t$.
+
+\smallskip\noindent\emph{Step 1: splitting.} Colour $E(X)$ with $K_*$
+colours, uniformly and independently of $V$, and let
+$X_1,\dots,X_{K_*}$ be the colour classes, each with vertex set $V(X)$.
+By~\ref{s3:eqS5}, $s\ge2K_*(\theta_*+1)\ge40K_*L$. So by
+Lemma~\ref{s3:lemL15p}, with probability at least $1-2K_*N^{-5}$, every
+$X_i$ is an $(\varepsilon',s/(2K_*))$-expander, and
+$s/(2K_*)\ge\theta_*+1$.
+
+\smallskip\noindent\emph{Step 2: balls in each class.} Condition on a
+colouring in which all classes are such expanders; $V$ is still
+$\rho$-random. Each $X_i$ has $N$ vertices and parameter $\varepsilon'$,
+so the parameters~\eqref{s3:eqStar} for $X_i$ are those for $X$. By
+Lemma~\ref{s3:lemP18s}(ii) with $s_1:=s/(2K_*)$ and a union bound over
+$i$, with probability at least $1-K_*N^{-6}$ the following holds for
+every $i$: for every nonempty $U$ and every $F_i\subseteq E(X_i)$ with
+$|F_i|\le\mu_*|U|$, we have $|\Ball{\ell_*}{X_i-F_i}{U,V}|>|V|/2$.
+
+\smallskip\noindent\emph{Step 3: the size of $V$.} Since
+$|V|\sim\Bin(N,\rho)$, the Chernoff bound (Cited result~\ref{s1:citChernoff})
+gives $\Prob(|V|<\rho N/2)\le e^{-\rho N/8}$.
+
+\smallskip\noindent\emph{Step 4: assembly.} Assume the events of
+Steps~1--3. Let $U$ be nonempty and let $F\subseteq E(X)$ with
+$|F|\le\bar s_*|U|$. The classes partition $E(X)$, so some $i$ has
+$|F\cap E(X_i)|\le|F|/K_*\le\bar s_*|U|/K_*\le\mu_*|U|$
+by~\ref{s3:eqS5}. Since $X_i-(F\cap E(X_i))\subseteq X-F$, balls can only
+grow when passing to $X-F$, and
+\[
+|\Ball{\ell_*}{X-F}{U,V}|\ge|\Ball{\ell_*}{X_i-(F\cap E(X_i))}{U,V}|>|V|/2 .
+\]
+So the hypotheses of Lemma~\ref{s3:lemL9rho} hold for $G:=X$:
+$N\ge2^{30}$, $|V|\ge\rho N/2$ and $\rho N\ge84$. Hence $X$ is
+$(2^{12}L^4,t)$-path connected through $V$, in the multiset sense.
+
+\smallskip\noindent\emph{Step 5: probability.} The failure probability
+is at most $2K_*N^{-5}+K_*N^{-6}+e^{-\rho N/8}$. By (b),
+$\rho N/8>2^{24}N^{4/5}\ge3\ln N$, so $e^{-\rho N/8}\le N^{-3}$. By
+Lemma~\ref{s3:lemMonotone}(iii), the random colouring of Step~1, which is
+auxiliary, does not affect the event, which depends only on $(X,V)$. So
+the event fails with probability at most
+\[
+3K_*N^{-5}+N^{-3}\le\big(3\cdot2^{83.6}+1\big)tL^{19}\rho^{-3}N^{-3}\le2^{86}\,tL^{19}\rho^{-3}N^{-3},
+\]
+using~\ref{s3:eqS5} and $tL^{19}\rho^{-3}\ge1$. This proves the main
+statement and~(a).
+
+For (c): apart from Step~0, whose consequences $N\ge2^{30}$ and $\rho N\ge84$
+(used in Step~4) and $e^{-\rho N/8}\le N^{-3}$ (used in Step~5, through (b)) rest
+on the full hypothesis $s\ge2^{135}tL^{28}\rho^{-5}$, the requirements on $s$
+used above are $s\ge40K_*L$ (Step~1) and $s/(2K_*)\ge\theta_*+1$ (Step~2). Both follow from
+$s\ge2K_*(\theta_*+1)$, and $2K_*(\theta_*+1)\le2^{130.6}tL^{28}\rho^{-5}$
+by~\ref{s3:eqS5}. Only $\bar s_*$, and hence $K_*$, depends on $t$, and
+linearly up to rounding. The parameters~\eqref{s3:eqStar} are defined for
+every $\rho\in(0,1]$. The regime $p_*>0.11$, reached only for $\rho$ very
+close to $1$, is treated directly in Lemma~\ref{s3:lemL17s} through
+$\Delta_*\le13p_*^{-2}$ (fact~\ref{s3:eqS3}).
+\end{proof}
+
+%% ----------------------------------------------------------------------
+\subsection{Candidate sets of bounded multiplicity}
+
+\begin{lemma}[Lemma HB: candidate sets of bounded multiplicity; Hall argument]\label{s3:lemHB}
+Let $X$ be an $N$-vertex $(\varepsilon',s)$-expander with $N\ge2$ and
+$2^{-7}\le\varepsilon'\le1$, and put $L:=\log N$. Let $m$ be an integer
+with $1\le m$ and $2m\le s$, and put $b:=\lceil2mL^2/\varepsilon'\rceil$.
+Thus $b=\lceil64L^2m\rceil$, $\lceil128L^2m\rceil$ or
+$\lceil256L^2m\rceil$ at $\varepsilon'=2^{-5}$, $2^{-6}$ or $2^{-7}$.
+Then every vertex $w$ has a set $\Aw(w)\subseteq\Nbr_X(w)$ with
+$|\Aw(w)|=m$, such that every vertex of $X$ lies in at most $b$ of the
+sets $\Aw(w)$, $w\in V(X)$.
+\deps{\ref{s1:citHall}, \ref{s1:citDef11}}
+\end{lemma}
+
+\begin{proof}
+For $w\in V(X)$, its degree is $d_X(w)=|\Nbr_X(w)|$. As $N\ge2$, we have
+$L\ge1$ and $d_X(w)\ge\delta(X)>s\ge2m$ for every $w$ (Cited
+result~\ref{s1:citDef11}); in particular $d_X(w)-m>m\ge1$ (not needed
+below). Let
+$\vec E(X):=\{(w,u)\in V(X)\times V(X):\ wu\in E(X)\}$ be the set of
+ordered pairs along edges (every edge gives two), and for $w\in V(X)$ let
+$\vec E_X(w):=\{(w,u):\ u\in\Nbr_X(w)\}$. Then $|\vec E_X(w)|=d_X(w)$, and
+distinct elements of $\vec E_X(w)$ have distinct second coordinates.
+
+\emph{The auxiliary bipartite graph.} Its left side is $\vec E(X)$. Its
+right side is the set of \emph{slots}
+\[
+\mathcal B:=\{(u,j,1):\ u\in V(X),\ j\in[b]\}\ \cup\
+\{(w,i,2):\ w\in V(X),\ i\in[d_X(w)-m]\} ;
+\]
+$(u,j,1)$ is a \emph{load slot} of $u$, and $(w,i,2)$ is a \emph{spare
+slot} of $w$. A pair $a=(w,u)\in\vec E(X)$ is joined to the $b$ load slots
+of its second coordinate $u$ and to the $d_X(w)-m$ spare slots of its first
+coordinate $w$:
+\[
+\mathcal T(a):=\{(u,j,1):\ j\in[b]\}\ \cup\ \{(w,i,2):\ i\in[d_X(w)-m]\}.
+\]
+
+\emph{Reduction to Hall's condition.} Suppose that
+$\chi:\vec E(X)\to\mathcal B$ is injective and $\chi(a)\in\mathcal T(a)$ for
+every $a\in\vec E(X)$. Fix $w\in V(X)$. If $a\in\vec E_X(w)$ and $\chi(a)$ is
+a spare slot, then $\chi(a)$ is one of the $d_X(w)-m$ spare slots of $w$; as
+$\chi$ is injective, at most $d_X(w)-m$ elements of $\vec E_X(w)$ are of
+this kind. So at least $d_X(w)-(d_X(w)-m)=m$ elements
+$(w,u)\in\vec E_X(w)$ have $\chi(w,u)$ a load slot, and then it is a load
+slot of $u$. Let $\Aw(w)$ be the set of second coordinates of $m$ such
+elements (the first $m$ in a fixed ordering of $V(X)$). Then
+$\Aw(w)\subseteq\Nbr_X(w)$, and $|\Aw(w)|=m$ because distinct elements of
+$\vec E_X(w)$ have distinct second coordinates. Now fix $u\in V(X)$. If
+$u\in\Aw(w)$, then $\chi(w,u)$ is one of the $b$ load slots of $u$. The
+pairs $(w,u)$ with distinct $w$ are distinct and $\chi$ is injective, so
+$u\in\Aw(w)$ holds for at most $b$ vertices $w$. This is the statement. By
+Hall's theorem (Cited result~\ref{s1:citHall}, applied to the finite index
+set $\vec E(X)$ and the finite sets $\mathcal T(a)$), such a $\chi$ exists
+provided
+\begin{equation}\label{s3:eqHBhall}
+|\mathcal E|\ \le\ \Bigl|\bigcup_{a\in\mathcal E}\mathcal T(a)\Bigr|\qquad\text{for every }\mathcal E\subseteq\vec E(X).
+\end{equation}
+
+\emph{Proof of~\eqref{s3:eqHBhall}.} Fix $\mathcal E\subseteq\vec E(X)$.
+Let $\mathcal S$ be the set of first coordinates and $\mathcal R$ the set of
+second coordinates of the elements of $\mathcal E$. For $w\in\mathcal S$ put
+$\mathcal E_w:=\mathcal E\cap\vec E_X(w)$, so that
+$1\le|\mathcal E_w|\le d_X(w)$ and
+$|\mathcal E|=\sum_{w\in\mathcal S}|\mathcal E_w|$. The union
+in~\eqref{s3:eqHBhall} consists of the $b|\mathcal R|$ load slots of the
+vertices of $\mathcal R$ and the $\sum_{w\in\mathcal S}(d_X(w)-m)$ spare
+slots of the vertices of $\mathcal S$, and all these slots are distinct.
+So \eqref{s3:eqHBhall} is equivalent to
+\begin{equation}\label{s3:eqHBdef}
+\sum_{w\in\mathcal S}\bigl(|\mathcal E_w|-d_X(w)+m\bigr)\ \le\ b|\mathcal R| .
+\end{equation}
+Let $\mathcal S':=\{w\in\mathcal S:\ d_X(w)-|\mathcal E_w|\le m-1\}$. A
+summand of~\eqref{s3:eqHBdef} with $w\in\mathcal S\setminus\mathcal S'$ is
+at most $0$, and one with $w\in\mathcal S'$ is at most $m$, as
+$|\mathcal E_w|\le d_X(w)$. So the left side of~\eqref{s3:eqHBdef} is at
+most $m|\mathcal S'|$, and \eqref{s3:eqHBdef} holds if
+$\mathcal S'=\emptyset$ (this includes $\mathcal E=\emptyset$). Assume
+$\mathcal S'\ne\emptyset$.
+
+Let $w\in\mathcal S'$ and $u\in\Nbr_X(w)\setminus\mathcal R$. Then
+$(w,u)\in\vec E_X(w)\setminus\mathcal E_w$, since otherwise
+$u\in\mathcal R$; distinct such $u$ give distinct pairs $(w,u)$. As
+$|\vec E_X(w)\setminus\mathcal E_w|=d_X(w)-|\mathcal E_w|\le m-1$, we get
+\begin{equation}\label{s3:eqHBout}
+|\Nbr_X(w)\setminus\mathcal R|\ \le\ m-1\qquad\text{for every }w\in\mathcal S'.
+\end{equation}
+If $|\mathcal S'|\le2N/3$, put $\mathcal U:=\mathcal S'$. Otherwise let
+$\mathcal U\subseteq\mathcal S'$ be any set with
+$|\mathcal U|=\lceil|\mathcal S'|/2\rceil$; then
+$1\le|\mathcal U|\le\lceil N/2\rceil\le2N/3$, because $N\ge2$ (for $N=2$,
+$\lceil N/2\rceil=1\le4/3$; for $N\ge3$, $\lceil N/2\rceil\le(N+1)/2\le2N/3$).
+In both cases
+\[
+1\le|\mathcal U|\le2N/3\qquad\text{and}\qquad|\mathcal U|\ge|\mathcal S'|/2 .
+\]
+Let $F$ be the set of edges $wu\in E(X)$ with $w\in\mathcal U$ and
+$u\notin\mathcal R$. Every edge of $F$ is of the form $wu$ with
+$w\in\mathcal U$ and $u\in\Nbr_X(w)\setminus\mathcal R$, so,
+by~\eqref{s3:eqHBout},
+$|F|\le\sum_{w\in\mathcal U}|\Nbr_X(w)\setminus\mathcal R|\le(m-1)|\mathcal U|\le s|\mathcal U|$,
+since $m-1<2m\le s$. Let $v\in\Nbr_{X-F}(\mathcal U)$: then
+$v\notin\mathcal U$ and $vw\in E(X)\setminus F$ for some $w\in\mathcal U$.
+As $w\in\mathcal U$ and $vw\notin F$, we have $v\in\mathcal R$. Hence
+$\Nbr_{X-F}(\mathcal U)\subseteq\mathcal R$, and the expansion of $X$
+(Cited result~\ref{s1:citDef11} with $n=N$, applied to $\mathcal U$ and
+$F$) gives
+\[
+|\mathcal R|\ \ge\ |\Nbr_{X-F}(\mathcal U)|\ \ge\ \frac{\varepsilon'|\mathcal U|}{L^2}\ \ge\ \frac{\varepsilon'|\mathcal S'|}{2L^2}.
+\]
+Since $b\ge2mL^2/\varepsilon'$, it follows that
+\[
+b|\mathcal R|\ \ge\ \frac{2mL^2}{\varepsilon'}\cdot\frac{\varepsilon'|\mathcal S'|}{2L^2}\ =\ m|\mathcal S'| ,
+\]
+which is at least the left side of~\eqref{s3:eqHBdef}. This
+proves~\eqref{s3:eqHBhall}, and hence the lemma.
+\end{proof}
+
+%% ----------------------------------------------------------------------
+\subsection{The lending colouring}
+
+Fix a valid $\HBtp$ run on $G$ (Definition~\ref{s2:defHBtp}). Every
+ancestor $Y$ (Definition~\ref{s2:defAncestors}) splits the edges of its
+expander $H_Y$ into two halves:
+\begin{itemize}
+\item an \emph{own} half, which only $Y$'s own vortex device uses;
+\item a \emph{lend} half, which is coloured into exclusive classes, each
+  lent to exactly one later consumer.
+\end{itemize}
+The random data of this subsection form part of stage~1 of the
+randomness. The other stage-1 data, introduced in later sections, are
+drawn independently of them.
+
+\begin{definition}[stage-1 lending data: the two-stage colouring COL-JV and the JS labels]\label{s3:defCOL}
+For every ancestor $Y$ of round $r$, with $V(Y)$, $H_Y$,
+$\varepsilon_Y$, $s_Y$ and $L_Y=\log|V(Y)|$ as in
+Definition~\ref{s2:defAncestors}, the random data (i)--(iv) below are
+drawn. The data of distinct ancestors are independent.
+\begin{itemize}
+\item[(i)] \emph{Own/Lend split.} Every edge of $H_Y$ independently lies
+  in $\Own_Y$ or in $\Lend_Y$, with probability $1/2$ each.
+\item[(ii)] \emph{Lent classes.} Consider the three index families
+  \[
+  \begin{aligned}
+  \IU(Y)&:=\{(l,c,\uslot):\ r+2\le l\le R,\ c\in[4],\ \uslot\in[\Tslot_Y]\}\ \text{ if $Y$ is light, where } \Tslot_Y:=\lceil L_Y^2\rceil,\\
+  \IU(Y)&:=\emptyset\ \text{ if $Y$ is standalone,}\\
+  \IJS(Y)&:=\{(l,j):\ r+2\le l\le R,\ 0\le j<\KJS_l\},\ \text{ where } \KJS_l:=M_l^2,\\
+  \IJV(Y)&:=\{l:\ r+2\le l\le R\}.
+  \end{aligned}
+  \]
+  These families are regarded as pairwise disjoint (their indices carry
+  the tags U, JS, JV). Put
+  $\klend(Y):=|\IU(Y)|+|\IJS(Y)|+|\IJV(Y)|$.
+  \begin{itemize}
+  \item If $r\le R-2$, every edge of $\Lend_Y$ independently receives an
+    index chosen uniformly from $\IU(Y)\sqcup\IJS(Y)\sqcup\IJV(Y)$. The
+    edges with index $(l,c,\uslot)\in\IU(Y)$ form the \emph{U-lent class}
+    $\LU_{Y,l,c,\uslot}$. The edges with index $(l,j)\in\IJS(Y)$ form the
+    \emph{JS-lent class} $\LJS_{Y,l,j}$. The edges with index
+    $l\in\IJV(Y)$ form the \emph{JV-lent class} $\LJV_{Y,l}$. Every
+    class is regarded as a graph with vertex set $V(Y)$.
+  \item If $r\ge R-1$, all three families are empty, $\klend(Y)=0$, and
+    $\Lend_Y$ has no classes.
+  \end{itemize}
+\item[(iii)] \emph{Own classes (light $Y$ only).} Put
+  $J_Y:=\lfloor\log(L_Y/8)\rfloor$ and $\kown:=4J_Y+1$. Every edge of
+  $\Own_Y$ independently receives one of $\kown$ labels, chosen
+  uniformly. This yields the own classes $\vR_{j,c}$ ($0\le j<J_Y$,
+  $c\in[4]$) and $\vM$ of $Y$, each regarded as a graph on $V(Y)$. They
+  are the own classes of the four-phase P-vortex run on $Y$ in later
+  sections. For standalone $Y$, $\Own_Y$ is not subdivided at stage~1.
+\item[(iv)] \emph{JS labels.} For every $r+2\le l\le R$ and every
+  $y\in V(Y)$, independently, draw a label
+  $\lab_{Y,l}(y)\in\{\ast\}\cup\{0,1,\dots,\KJS_l-1\}$ with
+  $\Prob(\lab_{Y,l}(y)=j)=\rho_l:=M_l^{-4}$ for each $j$, so that
+  $\Prob(\lab_{Y,l}(y)=\ast)=1-M_l^{-2}$. Put
+  $T_j(Y,l):=\{y\in V(Y):\lab_{Y,l}(y)=j\}$.
+\end{itemize}
+Formally, every edge $e$ of $H_Y$ carries three independent uniform
+random variables (a fair bit, a lent index and an own label), and the
+labels of (iv) are independent of all edge variables. Consequently:
+\begin{itemize}
+\item colours of distinct edges are independent;
+\item the colourings of distinct ancestors are independent;
+\item the labels are independent of the colours;
+\item given $\Lend_Y$, stage (ii) is a uniform $\klend(Y)$-colouring of
+  $\Lend_Y$, and given $\Own_Y$, stage (iii) is a uniform
+  $\kown$-colouring of $\Own_Y$;
+\item for fixed $(l,j)$, the set $T_j(Y,l)$ is a $\rho_l$-random subset
+  of $V(Y)$, independent of the colouring, and the sets $T_j(Y,l)$,
+  $0\le j<\KJS_l$, are pairwise disjoint.
+\end{itemize}
+
+\emph{Derived quantities.} For $\klend(Y)\ge1$ put
+$p_Y:=1/(2\klend(Y))$. For each fixed $l$ with $r+2\le l\le R$, this is
+the probability that a fixed edge of $H_Y$ lies in $\LJV_{Y,l}$. Also put
+$\tJS_l:=2M_l+2$. For a light ancestor $Y$ of round $r$ put
+$t_Y:=\lceil\lambda_r^{1.6}\rceil$, the \emph{U-multiplicity parameter}
+of $Y$: it is the multiplicity bound $t$ at which the U-lent classes of
+$Y$ are path connected (Lemma~\ref{s3:lemCOL}(c)). It depends only on
+the round of $Y$, and $t_Y\ge M_l$ for every $r+2\le l\le R$, because
+$M_l\le\lambda_{l-2}^{1.6}\le\lambda_r^{1.6}$
+(Lemma~\ref{s2:lemTower}(a),(b)).
+
+\emph{Consumers} (property COL(g)). If $r\le R-2$, each part of the data
+has exactly one consumer:
+\begin{itemize}
+\item $\Own_Y$, together with its own classes if $Y$ is light, is used
+  only by the vortex device of $Y$ itself. This is the transparent
+  P-vortex if $Y$ is standalone. If $Y$ is light, it is the four-phase
+  P-vortex, or VX$^+$ if $Y$ is demoted.
+\item $\LU_{Y,l,c,\uslot}$ is used only by the Theorem-U chaining of the
+  U-bundle $\Bdl_{l,c}$, in slot $\uslot$.
+\item $\LJS_{Y,l,j}$ is used only by the JS-LC systems of the pair
+  $(Y,l)$, at junction $j$.
+\item $\LJV_{Y,l}$ is used only by the round-$l$ J-consumer.
+\end{itemize}
+Lent edges that their consumer does not use are junk for $Y$'s own
+device: they are added to the edge set that this device decomposes.
+If $r\ge R-1$, then $\Own_Y$ has the same consumer, and $\Lend_Y$ has no
+classes and no other consumer: all of $\Lend_Y$ is junk for $Y$'s own
+device. Indeed $\Lent(Y)=\emptyset$, since it collects edges used at
+rounds $l\ge r+2>R$, so $\Erem(Y)=E_r(Y)$ for standalone $Y$ and
+$H_0(Y)=E_r(Y)$ for light non-demoted $Y$ (Construction~\ref{s6:consOrder});
+a demoted $Y$ runs on $E_r(Y)$ itself.
+\deps{\ref{s2:defAncestors}, \ref{s2:propStructure}, \ref{s2:lemTower}}
+\end{definition}
+
+The graphs $H_Y$ of all ancestors $Y$ of all rounds are pairwise
+edge-disjoint (Proposition~\ref{s2:propStructure}(iii)). So the
+colourings of distinct ancestors act on disjoint edge sets. The label
+distribution in (iv) is well defined because
+$\KJS_l\rho_l=M_l^{-2}\le1$.
+
+\begin{table}[htbp]
+\begin{center}
+\small
+\begin{tabular}{|p{0.55cm}|p{4.6cm}|p{5.7cm}|p{2.4cm}|}
+\hline
+No. & Requirement (use) & Sufficient inequality in $\lambda=2^\mu$ & $(a_i,b_i,c_i)$\\\hline
+1 & $\thGC_r(Z^0)>\tau_r$ (rule GC) & $\lambda^{102.5}>257(\lambda+6\mu+20)^{102}$; crude form $\lambda^{1/2}>2^{111}$ & $(0.5,112,0)$\\\hline
+2 & $P_{l-2}\ge M_l^{13}$, with $\lambda:=\lambda_{l-2}$ & $\lambda^{103}\ge\bar M^{13}$ & $(103,0,26A)$\\\hline
+3 & Lemma 15$^+$, lent level: $s_Y/4\ge40\,\klend L_Y$ & $\lambda^{99}\ge640\,\bar k$ & $(96,19,4A)$\\\hline
+4 & T16$^*$ for U-lent classes: $s_Y/(8\klend)\ge2^{135}\,t_Y\,L_Y^{28}(12L_Y^5)^5$, $t_Y=\lceil\lambda^{1.6}\rceil$ & $\lambda^{42.1}\ge2^{193}\cdot12^5$ (with row~9)$^{\dagger}$ & $(42.1,211,0)$\\\hline
+5 & T16$^*$ for JS-lent classes: $s_Y/(8\klend)\ge2^{135}(3M)L_Y^{28}M^{20}$ & $\lambda^{72}\ge3\cdot2^{167}\cdot\bar k\,\bar M^{21}$ & $(69,178,46A)$\\\hline
+6 & T16$^*$ failures over $\IJS(Y)$ sum to at most $|V(Y)|^{-2}/4$ & $\lambda^{84}\ge2^{110}\bar M^{15}$ & $(84,110,30A)$\\\hline
+7 & T16$^*$ failures over $\IU(Y)$ sum to at most $|V(Y)|^{-2}/4$ & $\lambda^{64.4}\ge2^{127}\cdot12^4$ & $(64.4,142,0)$\\\hline
+8 & own devices: (a) $s_r/4\ge2^{150}L_Y^{42}$; (b) $s_r/4\ge2^{146}L_Y^{38}\log L_Y$ (the threshold of VX$^+$ for standalone parts; not used, as VX$^+$ is applied only to demoted light parts, Lemma~\ref{s5:lemDemoted}; cf.\ Remark~\ref{s4:remTPVVX}); (c) $s_r/2\ge2^{151}L_Y^{38}\log L_Y$; (d) $s':=s_r/(16\kown)\ge2^{145}L_Y^{41}$ and $s'\ge2\lceil L_Y^6\rceil$ & (a) $\lambda^{58}\ge2^{194}$; (b) $\lambda^{62}\ge2^{186}(\mu+1)$; (c) $\lambda^{62}\ge2^{190}(\mu+1)$; (d) $\lambda^{58}\ge2^{191}$ and $\lambda^{99}\ge64((2\lambda)^6+1)$ & $(58,194,1)$\\\hline
+9 & $\klend(Y)\le\lambda^{3.3}$ & $\bar k\le\lambda^{3.3}$ & $(0.3,9,4A)$\\\hline
+10 & $p_Y\ge\lambda^{-4}$ & $2\bar k\le\lambda^{4}$ & $(1,10,4A)$\\\hline
+11 & $\lambda_{l-2}^{95}/(8M_l^2)\ge2^{10}M_l^{10}$, with $\lambda:=\lambda_{l-2}$ & $\lambda^{95}\ge2^{13}\bar M^{12}$ & $(95,13,24A)$\\\hline
+12 & $M_l\le\lambda_{l-2}^{1.6}$, with $\lambda:=\lambda_{l-2}$ & $\bar M\le\lambda^{1.6}$ & $(1.6,0,2A)$\\\hline
+13 & \Gstar & $\lambda^{36}\ge2^{240}(A\mu)^{46A}$ & $(36,240,46A)$\\\hline
+\end{tabular}
+\end{center}
+\caption{The COL-JV table (Lemma~COL-JV below). Here $\lambda:=\lambda_r$
+and $\mu:=\log\lambda$, except in rows 2, 11 and 12, where
+$\lambda:=\lambda_{l-2}$ for a round $3\le l\le R$. We write
+$\bar M:=(A\mu)^{2A}$, with $A=105$, and $\bar k:=192\lambda^3+\frac43\bar M^2$.
+Column~3 is a sufficient form of the requirement, obtained from the
+standing bounds (B1)--(B7) of the proof. Column~4 gives, for row~$i$, reals
+$a_i>0$ and $b_i,c_i\ge0$ such that, for $\mu\ge6$, the inequality
+$a_i\mu-b_i-c_i\log(A\mu)\ge0$ implies every inequality in column~3 of row~$i$
+(Lemma~\ref{s3:lemCOLJVev}, which has no hypothesis); hence every
+column-3 inequality holds for all sufficiently large $\mu$, and \Gc{1}(f)
+requires it for every $\mu\ge\log\log\Dstar$. The inequalities
+$a_i\mu-b_i-c_i\log(A\mu)\ge0$ defined by column~4 are cruder than column~3; they
+are not part of \Gc{1}, are not asserted in Lemma~COL-JV, and may fail at some
+$\mu\ge\log\log\Dstar$ although \Gc{1} holds. No galactic threshold is
+evaluated: the thresholds of Lemma~\ref{s3:lemCOLJVev} are explicit, but their
+numerical values are never computed. Rows for off-route devices are omitted.
+$^{\dagger}$Row~4: column~3 implies the column-2 requirement together with
+row~9.}
+\label{s3:tabCOLJV}
+\end{table}
+
+\begin{lemma}[the COL-JV table]\label{s3:lemCOLJV}
+Assume condition~\ref{s1:condG1}. Let $Y$ be an ancestor of round $r\le R$, and write
+$\lambda:=\lambda_r$ and $\mu:=\log\lambda$; if $r\le R-2$, write also $M:=M_{r+2}$. Then:
+\begin{itemize}
+\item[(i)] If $r\ge R-1$, then $\klend(Y)=0$. If $r\le R-2$, then
+  $|\IU(Y)|\le12L_Y^3$, $|\IJS(Y)|\le\frac43M^2$ and
+  $|\IJV(Y)|=R-r-1\le2\logs d_r+1$. Hence
+  \[
+  \klend(Y)\le12L_Y^3+\tfrac43M^2+2\logs d_r+2\le24L_Y^3+\tfrac43M^2\le\bar k\le\lambda^{3.3},
+  \]
+  and consequently $p_Y\ge\lambda^{-4}$. The JV family has
+  $R-r-1\le2\logs d_r+1$ members. Its size is not bounded by an
+  absolute constant, since $d_1$ may be of order $n$; the count
+  ``$+16$'' must not be used.
+\item[(ii)] Every requirement in column~2 and every inequality in column~3
+  of Table~\ref{s3:tabCOLJV} holds. (Column~4 is not part of this assertion:
+  its triples serve only Lemma~\ref{s3:lemCOLJVev}, and the inequalities
+  $a_i\mu-b_i-c_i\log(A\mu)\ge0$ that they define need not hold at $\mu$.) More
+  precisely, for each row every inequality in column~3 holds at every
+  $\mu\ge\log\log\Dstar$ by \Gc{1}(f); in particular it holds at
+  $\mu=\log\lambda_r$ and, for rows~2, 11 and~12, also at
+  $\mu=\log\lambda_{l-2}$ for every round $3\le l\le R$, both of which are
+  at least $\log\log\Dstar$. At the value of $\lambda$ fixed in the caption of
+  Table~\ref{s3:tabCOLJV}, these inequalities imply the requirement in
+  column~2 (for row~4, together with row~9). So every requirement holds, in
+  every round.
+  The scope of the rows is as follows.
+  \begin{itemize}
+  \item Rows~1, 3 and~8 (rule GC, the three levels of Lemma~15$^+$, and
+    the own-device thresholds) hold for every round $r\le R$, that is,
+    also for $r\in\{R-1,R\}$: row~1 for every round-$r$ pre-part, and
+    rows~3 and~8 for every ancestor $Y$ of round $r$. They involve
+    neither $M_{r+2}$ nor any lent class; for $r\ge R-1$ the lent level
+    of row~3 is void, because $Y$ has no lent classes.
+  \item Rows~4--7 and~10 concern lent classes or $p_Y$. They are
+    asserted for $r\le R-2$; for $r\ge R-1$ there are no lent classes
+    and $p_Y$ is not defined. Row~9 holds for every $r\le R$, trivially
+    when $\klend(Y)=0$.
+  \item Rows~2, 11 and~12 concern $\lambda_{l-2}$ for rounds
+    $3\le l\le R$, and row~13 is \Gstar; they do not depend on $Y$.
+  \end{itemize}
+\end{itemize}
+\deps{\ref{s1:condG1}, \ref{s1:condGstar}, \ref{s2:lemTower}, \ref{s3:defCOL}, \ref{s2:defAncestors}, \ref{s2:propStructure}, \ref{s3:lemL15p}, \ref{s3:thmT16s}}
+\end{lemma}
+
+\begin{proof}
+Every round $r\le R$ has $d_r\ge\Dstar$, so $\mu=\log\lambda_r\ge\log\log\Dstar$, and
+the items of \Gc{1} hold at $\mu$. The same holds for $\lambda_{l-2}$ with
+$3\le l\le R$. We use
+the following standing bounds.
+\begin{itemize}
+\item[(B1)] $L_Y\le\log M_r\le2\lambda$ (Lemma~\ref{s2:lemTower}(b)).
+\item[(B2)] If $r\le R-2$: $M_l\le M\le\bar M$ for $r+2\le l\le R$, and
+  $M_{l+1}\le M_l/2$ for $r+2\le l<R$ (Lemma~\ref{s2:lemTower}(b)). Likewise
+  $M_l\le(A\log\lambda_{l-2})^{2A}$ for every $3\le l\le R$.
+\item[(B3)] $s_r\ge\lambda^{100}$ and $s_r\le2\Lambda_r^{100}$ (Lemma~\ref{s2:lemTower}(b)),
+  and $s_Y\ge s_r/2$ (Definition~\ref{s2:defAncestors}).
+\item[(B4)] $|V(Y)|\ge P_r/2\ge\lambda^{103}/2$. A standalone $Y$ has
+  $|V(Y)|=|Y^0|\ge P_r$, and a light $Y$ has $|Y|\ge|Y^0|/2\ge P_r/2$
+  (Proposition~\ref{s2:propStructure}(iv)); and $P_r=\lceil\lambda^{C'}\rceil$
+  with $C'=103$.
+\item[(B5)] $R-r\le2\logs d_r+2$ and $2^{2\logs d_r+2}\le\lambda$
+  (Lemma~\ref{s2:lemTower}(a),(d)), so $2\logs d_r+2\le\mu$.
+\item[(B6)] $\Lambda_r\le\lambda+6\mu+20$. Indeed, with
+  $T:=\tHB_rd_r=\lambda^2\,2^{\lambda}$ we have $\log T=\lambda+2\mu$. Put
+  $B:=2^{16}T\log^4T$. As $\lambda=2^\mu\ge2^{256}$ ($\mu\ge2^8$ by \Gc{1}(a)) and
+  $\log T=\lambda+2\mu\ge1$, we have $B\ge2^{16}T\ge2^{16+\lambda}>2^{161}\ge2^{40}$,
+  so $M_r\le B+1$ by (R2) (Definition~\ref{s2:defHBtp}), and
+  $\Lambda_r=\log M_r\le\log B+\log(1+1/B)\le\log B+1/(B\ln2)\le\log B+2^{-160}$,
+  since $1/(B\ln2)<2^{-161}/0.69<2^{-160}$. Next
+  $\log B=16+\lambda+2\mu+4\log(\lambda+2\mu)$, and
+  $\log(\lambda+2\mu)=\mu+\log(1+2\mu/\lambda)\le\mu+2\mu/(\lambda\ln2)\le\mu+0.0025$,
+  because $\mu\ge2^8$ and $2\mu/\lambda=2\mu2^{-\mu}\le2^{-240}$. Hence
+  $\Lambda_r\le\lambda+6\mu+16.01+2^{-160}\le\lambda+6\mu+20$.
+\item[(B7)] If $r\le R-2$ and $r+2\le l\le R$: $\tJS_l=2M_l+2\le3M_l\le3M$
+  (as $M_l\ge2^{40}$), and $\rho_l^{-1}=M_l^4\le M^4$.
+\end{itemize}
+Only (B2) and (B7) involve $M$, and they are used only for $r\le R-2$.
+(B1) and (B3)--(B6) hold for every round $r\le R$.
+
+\emph{(i) Counting.} If $r\ge R-1$, the three index families are empty
+(Definition~\ref{s3:defCOL}(ii)), so $\klend(Y)=0$. Let now $r\le R-2$.
+\begin{itemize}
+\item $|\IU(Y)|=4\Tslot_Y(R-r-1)\le4(L_Y^2+1)(2\logs d_r+1)$. By (B5)
+  and (B4), $2\logs d_r+1<\mu\le L_Y$, since $L_Y\ge103\mu-1$. Hence
+  $|\IU(Y)|\le4(L_Y^2+1)L_Y\le12L_Y^3$.
+\item $|\IJS(Y)|=\sum_{l=r+2}^RM_l^2\le M^2\sum_{i\ge0}4^{-i}=\frac43M^2$
+  by (B2).
+\item $|\IJV(Y)|=R-r-1\le2\logs d_r+1$ by (B5).
+\end{itemize}
+The second inequality of the display holds because $2\logs d_r+2\le\mu\le12L_Y^3$.
+The third follows from (B1) and (B2). The fourth is the sufficient
+inequality of row~9, verified in (ii) below.
+Then $p_Y=1/(2\klend(Y))\ge1/(2\lambda^{3.3})\ge\lambda^{-4}$, and row~10
+gives the same conclusion directly.
+
+\emph{(ii) The rows.} In each row, the passage from column~2 to column~3
+uses only (B1)--(B7) and the fact that the requirement is monotone in
+$L_Y$, $M_l$, $\klend$, $s_r$ and $|V(Y)|$ in the appropriate direction.
+Rows~1, 3 and~8 use only (B1), (B3)--(B6), Lemma~\ref{s2:lemTower}(c)
+and the bound $\klend(Y)\le\bar k$ of (i), which is trivial when
+$\klend(Y)=0$; so they hold for every round $r\le R$. Rows~4--7, 9 and~10
+are derived for $r\le R-2$, where (B2) and (B7) are available; for
+$r\ge R-1$, row~9 reads $0\le\lambda^{3.3}$.
+We now give the derivations.
+\begin{itemize}
+\item[1.] For a round-$r$ pre-part $Z^0$ we have $|Z^0|\ge P_r\ge\lambda^{103}$, so
+  $\thGC_r(Z^0)=\lceil|Z^0|\lambda^{-1/2}\rceil\ge\lambda^{102.5}$,
+  and $\tau_r\le128s_r\Lambda_r^2+1\le257\Lambda_r^{102}$ by (B3). Now
+  use (B6). The crude form uses $\tau_r\le2^{111}\lambda^{102}$
+  (Lemma~\ref{s2:lemTower}(c)).
+\item[2.] $P_{l-2}\ge\lambda_{l-2}^{103}$, and $M_l\le\bar M$ by (B2).
+\item[3.] $s_Y/4\ge\lambda^{100}/8$ and $40\klend L_Y\le80\lambda\bar k$.
+  The other two levels of Lemma~\ref{s3:lemL15p} are $s_Y\ge80L_Y$ (the
+  Own/Lend split, $k=2$) and $s_r/8\ge40\kown L_Y$ (own classes). They
+  follow from $\lambda^{100}/2\ge160\lambda$ and
+  $\lambda^{100}/8\ge160\lambda^2$, using $\kown\le L_Y\le2\lambda$, and
+  both hold for every $\mu\ge1$.
+\item[4.] U-lent classes exist only for light $Y$. Theorem~\ref{s3:thmT16s},
+  with $t=t_Y=\lceil\lambda^{1.6}\rceil\le2\lambda^{1.6}$ and
+  $\rho\ge1/(12L_Y^5)$, requires $s\ge2^{135}tL_Y^{28}\rho^{-5}$, and
+  $2^{135}tL_Y^{28}\rho^{-5}\le2^{136}12^5\lambda^{1.6}L_Y^{53}$.
+  With $s=s_Y/(8\klend)\ge\lambda^{100}/(16\bar k)$ and $L_Y\le2\lambda$,
+  it suffices that
+  $\lambda^{100}\ge2^{4+136+53}12^5\bar k\lambda^{54.6}$, i.e.\
+  $\lambda^{45.4}\ge2^{193}\cdot12^5\cdot\bar k$. By row~9,
+  $\bar k\le\lambda^{3.3}$, so the sufficient inequality of column~3,
+  $\lambda^{42.1}\ge2^{193}\cdot12^5$, implies it. (Row~9 holds at
+  $\mu$ under \Gc{1}; so column~3 implies column~2 under \Gc{1}.)
+\item[5.] Theorem~\ref{s3:thmT16s} with $t=\tJS_l\le3M$ and
+  $\rho=\rho_l\ge M^{-4}$ requires $s\ge2^{135}\cdot3M\cdot L_Y^{28}M^{20}$.
+  With $s\ge\lambda^{100}/(16\bar k)$, $L_Y\le2\lambda$ and $M\le\bar M$,
+  this becomes $\lambda^{100}\ge3\cdot2^{4+135+28}\bar k\bar M^{21}\lambda^{28}$.
+\item[6.] The failure bound of Theorem~\ref{s3:thmT16s} is
+  $2^{86}tL^{19}\rho^{-3}N^{-3}$ per class, with $N:=|V(Y)|$. Summed over
+  the at most $\frac43M^2$ JS classes, with $t\le3M$, $\rho^{-3}\le M^{12}$
+  and $L_Y\le2\lambda$, it is at most $2^{107}\lambda^{19}M^{15}N^{-3}$.
+  This is at most $N^{-2}/4$ if $N\ge2^{109}\lambda^{19}M^{15}$, which by
+  (B4) follows from $\lambda^{84}\ge2^{110}\bar M^{15}$. This line
+  needs \Gc{1}: the class count and the multiplicity grow with $M$,
+  which is bounded only by $\bar M=(A\mu)^{2A}$, not by a fixed power of
+  $\lambda$ for moderate $\mu$. It
+  does not follow from $C'>34$ alone.
+\item[7.] There are at most $12L_Y^3$ U-classes, each with
+  $t=t_Y\le2\lambda^{1.6}$ and $\rho^{-3}\le1728L_Y^{15}$. The sum is at most
+  $12L_Y^3\cdot2^{86}\cdot2\lambda^{1.6}L_Y^{19}\cdot12^3L_Y^{15}N^{-3}
+  =12^4\cdot2^{87}\lambda^{1.6}L_Y^{37}N^{-3}\le12^4\cdot2^{124}\lambda^{38.6}N^{-3}$.
+  This is at most $N^{-2}/4$ if $N\ge12^4\cdot2^{126}\lambda^{38.6}$,
+  which by (B4) follows from
+  $\lambda^{103}/2\ge12^4\cdot2^{126}\lambda^{38.6}$, i.e.\
+  $\lambda^{64.4}\ge2^{127}\cdot12^4$.
+\item[8.] By (B3), $s_r/4\ge\lambda^{100}/4$ and $s_r/2\ge\lambda^{100}/2$.
+  Also $\kown\le L_Y\le2\lambda$, so $s'\ge\lambda^{99}/32$, and
+  $\log L_Y\le\mu+1$. The right sides are increasing in $L_Y$.
+  Substituting $L_Y\le2\lambda$ gives the four inequalities.
+\item[9.--10.] By the first three inequalities of (i),
+  $\klend(Y)\le\bar k$. So $\bar k\le\lambda^{3.3}$ suffices for row~9,
+  and, since $p_Y=1/(2\klend)\ge1/(2\bar k)$, $2\bar k\le\lambda^4$
+  suffices for row~10.
+\item[11.] $\lambda^{95}/(8M_l^2)\ge2^{10}M_l^{10}$ is equivalent to
+  $\lambda^{95}\ge2^{13}M_l^{12}$; use (B2).
+\item[12.--13.] Row~12 is (B2) together with the inequality shown. Row~13
+  is the condition \Gstar of Condition~\ref{s1:condGamma} itself.
+\end{itemize}
+\end{proof}
+
+The next lemma shows that every column-3 inequality of
+Table~\ref{s3:tabCOLJV} holds for all sufficiently large $\mu$. It has no
+hypothesis. It is used only in the proof of Lemma~\ref{s7:lemGammaSat}, to show
+that item~(f) of \Gc{1} can be satisfied.
+
+\begin{lemma}[eventual form of the COL-JV table]\label{s3:lemCOLJVev}
+Call an inequality in a real variable $\mu$ \emph{of type (E)} if it reads
+$a\mu-b-c\log(A\mu)\ge0$ with reals $a>0$ and $b,c\ge0$ (here $A=105$ and
+$\log=\log_2$).
+\begin{itemize}
+\item[(i)] An inequality of type (E) holds for every
+  $\mu\ge\max\{1,v_0^2\}$, where
+  $v_0\defeq\bigl(c+(c^2+a(b+c\log A))^{1/2}\bigr)/a$. In particular, it holds
+  for all sufficiently large $\mu$.
+\item[(ii)] Let $\mu\ge6$ be real, and put $\lambda\defeq2^\mu$,
+  $\bar M\defeq(A\mu)^{2A}$ and $\bar k\defeq192\lambda^3+\frac43\bar M^2$. Let
+  $1\le i\le13$, and let $(a_i,b_i,c_i)$ be the triple in column~4 of row~$i$
+  of Table~\ref{s3:tabCOLJV}. If $a_i\mu-b_i-c_i\log(A\mu)\ge0$, then every
+  inequality in column~3 of row~$i$ holds at $\lambda$.
+\item[(iii)] Consequently, for each row of Table~\ref{s3:tabCOLJV}, every
+  inequality in column~3 holds at $\lambda=2^\mu$ for all sufficiently large
+  real $\mu$.
+\end{itemize}
+The lemma concerns explicit functions of the real variable $\mu$ only. It
+involves no graph, no run of the hierarchy and no condition on $\Dstar$.
+\deps{none (the inequalities are those printed in Table~\ref{s3:tabCOLJV},
+which is not a statement).}
+\end{lemma}
+
+\begin{proof}
+(i) Let $\mu\ge\max\{1,v_0^2\}$ and $v\defeq\mu^{1/2}$, so that $v\ge1$ and
+$v\ge v_0$. For $v\ge1$ we have $2^v\ge1+v>v$: equality $2^v=1+v$ holds at
+$v=1$, and for $v\ge1$ the derivative $2^v\ln2\ge2\ln2>1$ of the left side
+exceeds the derivative $1$ of the right side. Hence $\log v<v$, and
+$\log\mu=2\log v\le2v$. As $c\ge0$,
+\[
+a\mu-b-c\log(A\mu)\ =\ av^2-(b+c\log A)-c\log\mu\ \ge\ av^2-2cv-(b+c\log A).
+\]
+The right side is a quadratic polynomial in $v$ with leading coefficient
+$a>0$. Its discriminant $4c^2+4a(b+c\log A)$ is non-negative, as $b,c\ge0$ and
+$\log A>0$, and its larger root is $v_0$. So it is non-negative for every
+$v\ge v_0$, and the inequality of type (E) holds at $\mu$.
+
+(ii) We use three elementary bounds, valid for $\mu\ge6$. First,
+$\log\mu\le\log(A\mu)$ and $\log(\mu+1)\le1+\log\mu\le1+\log(A\mu)$ (as
+$\mu+1\le2\mu$), and $\log(A\mu)\ge0$. Second, $6\mu+20\le2^\mu$ (at $\mu=6$
+this reads $56\le64$, and for $\mu\ge6$ the derivative $2^\mu\ln2\ge44$ of the
+right side exceeds the derivative $6$ of the left side), so
+$\log(2^\mu+6\mu+20)\le\log(2^{\mu+1})=\mu+1$; and
+$(2\lambda)^6+1\le2\cdot(2\lambda)^6=2^7\lambda^6$. Third, both summands of
+$\bar k$ are at least $1$ (as $\lambda\ge1$ and $A\mu\ge1$), and
+$x+y\le2\max\{x,y\}\le2xy$ for $x,y\ge1$; so
+$\bar k\le2\cdot192\lambda^3\cdot\frac43\bar M^2=2^9\lambda^3\bar M^2$ and
+\[
+\log\bar k\ \le\ 3\mu+4A\log(A\mu)+9 .
+\]
+Also $\log\bar M=2A\log(A\mu)$. For an inequality of column~3 put
+$\varphi\defeq\log(\text{left side})-\log(\text{right side})$; the inequality
+holds if and only if $\varphi\ge0$ (in row~1, where it is strict, if and only
+if $\varphi>0$). The bounds above give, row by row:
+\begin{itemize}
+\item[1.] $\varphi=102.5\mu-\log257-102\log(2^\mu+6\mu+20)\ge102.5\mu-\log257-102(\mu+1)\ge0.5\mu-111$,
+  as $\log257<9$; so $\varphi\ge(0.5\mu-112)+1>0$ if $0.5\mu-112\ge0$. The crude
+  form $\lambda^{1/2}>2^{111}$ reads $\mu>222$, which also holds if
+  $0.5\mu-112\ge0$, since then $\mu\ge224$;
+\item[2.] $\varphi=103\mu-13\log\bar M=103\mu-26A\log(A\mu)$;
+\item[3.] $\varphi=99\mu-\log640-\log\bar k\ge96\mu-19-4A\log(A\mu)$, as
+  $\log640<10$;
+\item[4.] $\varphi=42.1\mu-193-5\log12\ge42.1\mu-211$, as $5\log12<18$;
+\item[5.] $\varphi=72\mu-\log3-167-\log\bar k-21\log\bar M\ge
+  69\mu-178-46A\log(A\mu)$, as $\log3<2$;
+\item[6.] $\varphi=84\mu-110-15\log\bar M=84\mu-110-30A\log(A\mu)$;
+\item[7.] $\varphi=64.4\mu-127-4\log12\ge64.4\mu-142$, as $4\log12<15$;
+\item[8.] put $E\defeq58\mu-194-\log(A\mu)$. The five inequalities of row~8
+  hold if the following five differences are non-negative:
+  $58\mu-194\ge E$;
+  $62\mu-186-\log(\mu+1)\ge62\mu-187-\log(A\mu)=E+4\mu+7$;
+  $62\mu-190-\log(\mu+1)\ge62\mu-191-\log(A\mu)=E+4\mu+3$;
+  $58\mu-191\ge58\mu-194\ge E$; and
+  $99\mu-6-\log((2\lambda)^6+1)\ge99\mu-6-(7+6\mu)=93\mu-13>0$. So all five
+  hold if $E\ge0$;
+\item[9.] $\varphi=3.3\mu-\log\bar k\ge0.3\mu-9-4A\log(A\mu)$;
+\item[10.] $\varphi=4\mu-1-\log\bar k\ge\mu-10-4A\log(A\mu)$;
+\item[11.] $\varphi=95\mu-13-12\log\bar M=95\mu-13-24A\log(A\mu)$;
+\item[12.] $\varphi=1.6\mu-\log\bar M=1.6\mu-2A\log(A\mu)$;
+\item[13.] $\varphi=36\mu-240-46A\log(A\mu)$.
+\end{itemize}
+In each row the lower bound obtained is $a_i\mu-b_i-c_i\log(A\mu)$ for the
+triple $(a_i,b_i,c_i)$ of column~4 (in row~1 it is this quantity plus $1$, and
+in row~8 it is at least $E=a_8\mu-b_8-c_8\log(A\mu)$ for the four inequalities
+that depend on it). So if $a_i\mu-b_i-c_i\log(A\mu)\ge0$, every inequality in
+column~3 of row~$i$ holds at $\lambda$. This proves (ii).
+
+(iii) Fix a row~$i$, and let $v_0$ be as in (i) for
+$(a,b,c)=(a_i,b_i,c_i)$. By (i), the inequality
+$a_i\mu-b_i-c_i\log(A\mu)\ge0$ holds for every $\mu\ge\max\{1,v_0^2\}$; by (ii),
+every inequality in column~3 of row~$i$ holds at every
+$\mu\ge\max\{6,v_0^2\}$. This threshold is explicit, but its numerical value is
+never computed: only its existence is used.
+\end{proof}
+
+\begin{lemma}[Lemma COL]\label{s3:lemCOL}
+Assume condition~\ref{s1:condG1}. Let $Y$ be an ancestor of round $r$, with the stage-1
+lending data of Definition~\ref{s3:defCOL}. If $r\ge R-1$, then
+$\klend(Y)=0$ and every statement below about lent classes is vacuous.
+\begin{itemize}
+\item[(a)] $\Own_Y$ and $\Lend_Y$ are $(\varepsilon_Y,s_Y/4)$-expanders
+  on $V(Y)$. Every lent class, as a graph on $V(Y)$, is an
+  $(\varepsilon_Y,\,s_Y/(8\klend(Y)))$-expander. If $Y$ is light, every
+  own class $\vR_{j,c}$, $\vM$, as a graph on $V(Y)$, is a
+  $(2^{-6},\,s_r/(16\kown))$-expander.
+\item[(b)] For all $r+2\le l\le R$ and $0\le j<\KJS_l$, the class
+  $\LJS_{Y,l,j}$ is $(2^{12}L_Y^4,\tJS_l)$-path connected through
+  $T_j(Y,l)$. By Lemma~\ref{s3:lemMonotone}(iii), one application routes
+  any multiset of pairs of distinct vertices in which every vertex lies
+  in at most $\tJS_l$ pairs. For instance, the union of the junction-$j$
+  pair multisets of several systems, with multiplicities counted over
+  the union, is joined by pairwise edge-disjoint paths of
+  $\LJS_{Y,l,j}$ of length at most $2^{12}L_Y^4$ with interiors in
+  $T_j(Y,l)$.
+\item[(c)] Let $Y$ be light. Let $(V_{l,c,\uslot})_{(l,c,\uslot)\in\IU(Y)}$
+  be random subsets of $V(Y)$, independent of the stage-1 lending data
+  of $Y$, such that each $V_{l,c,\uslot}$ is a
+  $\rho_{l,c,\uslot}$-random subset of $V(Y)$ with
+  $\rho_{l,c,\uslot}\ge1/(12L_Y^5)$. The family may be dependent across
+  indices. Then, with probability at least $1-|V(Y)|^{-2}/2$ over the
+  lending data and the sets, every U-lent class $\LU_{Y,l,c,\uslot}$ is
+  $(2^{12}L_Y^4,t_Y)$-path connected through $V_{l,c,\uslot}$, where
+  $t_Y=\lceil\lambda_r^{1.6}\rceil$ (Definition~\ref{s3:defCOL}).
+\item[(e)] The own-device thresholds hold. If $Y$ is standalone, then
+  $s_Y/4\ge2^{150}L_Y^{42}$ and $s_Y/4\ge2^{146}L_Y^{38}\log L_Y$. On (a),
+  $\Own_Y$ is therefore a spanning $(2^{-5},s_r/4)$-expander of $V(Y)$
+  whose robustness meets the thresholds of the transparent P-vortex
+  and of VX$^+$ (the second of these is not used: VX$^+$ is applied only to
+  demoted light parts, Lemma~\ref{s5:lemDemoted}; cf.\
+  Remark~\ref{s4:remTPVVX}). If $Y$ is light, then
+  $s_r/2\ge2^{151}L_Y^{38}\log L_Y$; this is the threshold for VX$^+$ at
+  expansion $2^{-6}$ on $H_Y=X_Y$, which is a
+  $(2^{-6},s_r/2)$-expander. Moreover, on (a) every own class is a
+  $(2^{-6},s')$-expander with $s':=s_r/(16\kown)\ge2^{145}L_Y^{41}$ and
+  $2\lceil L_Y^6\rceil\le s'$.
+\item[(g)] (COL(g).) The consumers listed in Definition~\ref{s3:defCOL}
+  are exclusive. The own classes partition $\Own_Y$, and if $r\le R-2$,
+  the lent classes are pairwise edge-disjoint and partition $\Lend_Y$. So
+  no edge of $H_Y$ is available to two consumers, and every lent edge
+  that its consumer does not use is junk for $Y$'s own device. If
+  $r\ge R-1$, then $\Lend_Y$ has no classes, and all of $\Lend_Y$ is junk
+  for $Y$'s own device (Definition~\ref{s3:defCOL}, Consumers).
+\end{itemize}
+Items (a), (b) and (e) hold simultaneously with probability at least
+$1-|V(Y)|^{-2}/2$ over the stage-1 lending data of $Y$. For every family
+as in (c), items (a), (b), (c) and (e) hold simultaneously with
+probability at least $1-|V(Y)|^{-2}$. Item (g) always holds. The failure
+unions are bounded through rows~6 and~7 of Table~\ref{s3:tabCOLJV}, which
+need \Gc{1}. There are no items (d) and (f); the letters
+follow the references used in later sections.
+\deps{\ref{s3:defCOL}, \ref{s3:lemL15p}, \ref{s3:thmT16s}, \ref{s3:lemMonotone}, \ref{s3:lemCOLJV}, \ref{s2:lemTower}, \ref{s2:propStructure}, \ref{s2:defAncestors}, \ref{s1:condG1}}
+\end{lemma}
+
+\begin{proof}
+Write $N:=|V(Y)|$, $L:=L_Y$, $k:=\klend(Y)$, $\lambda:=\lambda_r$ and
+$\mu:=\log\lambda$. By Proposition~\ref{s2:propStructure}(i),
+$H_Y$ is an $(\varepsilon_Y,s_Y)$-expander on $V(Y)$. Here
+$(\varepsilon_Y,s_Y)=(2^{-5},s_r)$ if $Y$ is standalone and
+$(2^{-6},s_r/2)$ if $Y$ is light
+(Definition~\ref{s2:defAncestors}), and $s_r\ge\lambda^{100}$
+(Lemma~\ref{s2:lemTower}(b)). The standing bounds (B1) and (B3)--(B6) of
+the proof of Lemma~\ref{s3:lemCOLJV} are available in every round, and
+(B2), (B7) when $r\le R-2$. Rows~1, 3, 8 and~9 of
+Table~\ref{s3:tabCOLJV} hold for every $r\le R$, and the other rows
+involving $Y$ hold for $r\le R-2$ (Lemma~\ref{s3:lemCOLJV}(ii)); for
+$r\ge R-1$ only rows~3, 8 and~9 are used below. In particular
+$N\ge\lambda^{103}/2$ and $L\le2\lambda$.
+
+\emph{(a)} Stage (i) is a uniform $2$-colouring of $E(H_Y)$. By
+Lemma~\ref{s3:lemL15p} with $k=2$, which needs $s_Y\ge80L$ (row~3 of
+Table~\ref{s3:tabCOLJV}), $\Own_Y$ and $\Lend_Y$ are
+$(\varepsilon_Y,s_Y/4)$-expanders on $V(Y)$, except with probability at
+most $4N^{-5}$.
+
+Condition on stage (i) with $\Lend_Y$ such an expander. Stage (ii) is
+then a uniform $k$-colouring of $\Lend_Y$. By Lemma~\ref{s3:lemL15p},
+which needs $s_Y/4\ge40kL$ (row~3), every lent class is an
+$(\varepsilon_Y,s_Y/(8k))$-expander on $V(Y)$, except with probability
+at most $2kN^{-5}$.
+
+If $Y$ is light, condition on $\Own_Y$ being a
+$(2^{-6},s_r/8)$-expander. Stage (iii) is a uniform $\kown$-colouring.
+Lemma~\ref{s3:lemL15p}, which needs $s_r/8\ge40\kown L$ (row~3), makes
+every own class an expander with parameters $2^{-6}$ and
+$s_r/(16\kown)$, except with probability at most $2\kown N^{-5}$.
+
+Using row~9 ($k\le\lambda^{3.3}$), $\kown\le L\le2\lambda$ and
+$N^3\ge\lambda^{309}/8$, the total failure probability of (a) is at most
+\[
+2(2+k+\kown)N^{-5}\le2(2+\lambda^{3.3}+2\lambda)N^{-5}\le N^{-2}/4 .
+\]
+
+\emph{(b)} Condition on a stage-(i)/(ii) outcome in which (a) holds. The
+labels are independent of the colouring, so for fixed $(l,j)$ the set
+$T_j(Y,l)$ is still a $\rho_l$-random subset of $V(Y)$. The class
+$\LJS_{Y,l,j}$ is now a fixed $N$-vertex $(\varepsilon_Y,s)$-expander
+with $s:=s_Y/(8k)$ and $\varepsilon_Y\in[2^{-7},1]$. Apply
+Theorem~\ref{s3:thmT16s} with $t:=\tJS_l$ and $\rho:=\rho_l$. Its
+hypotheses hold:
+\begin{itemize}
+\item $s\ge2^{135}tL^{28}\rho^{-5}$ by row~5;
+\item $\rho N\ge L^2$, since by row~2 at $\lambda=\lambda_r$
+  (Lemma~\ref{s3:lemCOLJV}(ii)), $\bar M^4\le\lambda^{31.7}$, so
+  $\rho_lN\ge\bar M^{-4}\lambda^{103}/2\ge\lambda^{71}/2\ge4\lambda^2\ge L^2$.
+\end{itemize}
+Each class fails with probability at most
+$2^{86}\tJS_lL^{19}\rho_l^{-3}N^{-3}$. By row~6, the sum over $\IJS(Y)$
+is at most $N^{-2}/4$. The final sentence of (b) is
+Lemma~\ref{s3:lemMonotone}(iii).
+
+\emph{(c)} Condition as in (b). The sets $V_{l,c,\uslot}$ are independent
+of the colouring. For a fixed index, apply Theorem~\ref{s3:thmT16s} to
+the fixed class $\LU_{Y,l,c,\uslot}$, an $N$-vertex
+$(2^{-6},s_r/(16k))$-expander, with $t:=t_Y=\lceil\lambda^{1.6}\rceil$
+(so $1\le t\le2\lambda^{1.6}$) and
+$\rho:=\rho_{l,c,\uslot}\ge1/(12L^5)$. Its hypotheses hold:
+\begin{itemize}
+\item $s_r/(16k)\ge2^{135}tL^{28}\rho^{-5}$ by row~4 (with row~9), since
+  $\rho^{-5}\le(12L^5)^5$;
+\item $\rho N\ge N/(12L^5)\ge\lambda^{103}/(24(2\lambda)^5)\ge L^2$.
+\end{itemize}
+Each index fails with probability at most
+$2^{86}tL^{19}(12L^5)^3N^{-3}$. The theorem is applied to one index at
+a time, so dependence across indices is irrelevant. By row~7, the union
+over $\IU(Y)$ is at most $N^{-2}/4$. Together with the failure
+probability of (a), (c) fails with probability at most $N^{-2}/2$.
+
+\emph{(e)} The inequalities are row~8 of Table~\ref{s3:tabCOLJV}, with
+$s_Y=s_r$ for standalone $Y$. On (a), $\Own_Y$ is a
+$(2^{-5},s_r/4)$-expander if $Y$ is standalone, and the own classes are
+$(2^{-6},s_r/(16\kown))$-expanders if $Y$ is light. Also $H_Y=X_Y$ is a
+$(2^{-6},s_r/2)$-expander for light $Y$, by
+Proposition~\ref{s2:propStructure}(i).
+
+\emph{(g)} This holds by construction. If $r\le R-2$, each edge of
+$\Lend_Y$ receives exactly one index; if $r\ge R-1$, $\Lend_Y$ has no
+classes and is junk for $Y$'s own device. Each edge of $\Own_Y$ receives
+exactly one own label.
+
+\emph{Probabilities.} By the bounds above, (a) or (b) fails with
+probability at most $N^{-2}/4+N^{-2}/4=N^{-2}/2$, and (e) holds on (a).
+Adding the U-union of (c) gives at most $3N^{-2}/4\le N^{-2}$.
+\end{proof}

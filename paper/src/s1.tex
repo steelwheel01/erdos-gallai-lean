@@ -1,0 +1,2037 @@
+%% ======================================================================
+%% Section 1, preceded by the front matter (\maketitle and the abstract).
+%% Uses only the macros and environments of the preamble; defines nothing.
+%% ======================================================================
+\maketitle
+
+\begin{abstract}
+The Erd\H{o}s--Gallai conjecture (Erd\H{o}s Problem \#184) asserts that the edge
+set of every $n$-vertex simple graph can be partitioned into $O(n)$ cycles and
+single edges. We prove this conjecture: every $n$-vertex graph can be
+decomposed into $O(n)$ cycles and edges. The best previous bound, $O(n\logs
+n)$, is due to \BMnames{} \cite{BM}.
+
+Our argument builds on the method of \cite{BM} and has three new ingredients.
+First, \emph{$\tau$-rules} placed inside the recursion of \BMnames's Lemma~14,
+together with a cap on the degrees of guest vertices, produce a hierarchy $\HBtp$
+in which hub concentration is negligible for every run. Second, \emph{standalone
+parts are chained} into cycles through junction paths that run inside lent
+random colour classes of ancestors at least two rounds back (a transparent
+vortex, TPV, together with a junction synchronisation that splits every large
+class into cherries, JS-LC); only parity leftovers, single edges, remain. Third,
+\emph{each end of a leftover single edge receives a private junction edge}, which
+joins it to a junction vertex (possibly shared with other ends) in a sparse
+random pool inside its ancestor's expander; the resulting simple quotient graphs
+have at most a vanishing fraction of $n$ vertices in total (the fraction tends to
+$0$ as the degree threshold $\Dstar$ grows), every decomposition of a quotient
+lifts back, and the quotients are handled by induction on the number of
+vertices.
+
+The constants are galactic and are not computed: the degree threshold $\Dstar$ is
+only required to be sufficiently large (each condition on it holds for all
+sufficiently large $\Dstar$), and it is of tower type ($\log_2\log_2\Dstar\ge2^8$
+is one of these conditions). The bound $f(n)=O(n)$ has also been formally verified in the
+Lean~4 proof assistant.
+\end{abstract}
+\section{Introduction, conventions, cited inputs, constants, dependency structure}\label{s1:sec}
+
+For a graph $G$ let $\f(G)$ be the least number of cycles and single edges that
+partition $E(G)$, and let $\f(n)$ be the maximum of $\f(G)$ over graphs $G$ on
+$n$ vertices (Definition~\ref{s1:defObject}). Erd\H{o}s and Gallai
+conjectured that $\f(n)=O(n)$ (see \cite{EG66}). Repeatedly removing a longest cycle gives
+$\f(n)=O(n\log n)$ \cite{EG66}; Conlon, Fox and Sudakov \cite{CFS14} proved
+$\f(n)=O(n\log\log n)$; and \BMnames{} \cite{BM} proved $\f(n)=O(n\logs n)$,
+which was the best previously known bound. Lov\'asz \cite{Lov68} proved that every
+$n$-vertex graph decomposes into at most $n/2$ paths and cycles.
+
+In this paper we prove that $\f(n)=O(n)$, confirming the conjecture of
+Erd\H{o}s and Gallai. The precise statement is Theorem~\ref{s1:thmMain}, which
+is proved in Section~\ref{s7:sec}. The proof builds on the method of \BMnames{}
+\cite{BM}: it keeps the round structure of their argument, and it uses, and in
+several places modifies, their lemmas on expanders and path connectivity.
+Remark~\ref{s1:remStatus} says where the new ingredients lie, and the overview
+that follows it describes the architecture of the argument.
+Section~\ref{s1:sec} contains the overview, the conventions, every cited result
+(each published result of \cite{BM} is quoted in our notation, with its number in
+\cite{BM}), one elementary decomposition bound and one standard concentration
+inequality that are proved in full instead of being cited (Fact~\ref{s1:factEG0}
+and Lemma~\ref{s1:lemBBD}), the constants and the single list of galactic
+conditions, the symbol table, and the dependency table of all numbered
+statements. The bound $f(n)=O(n)$ has also been formally verified in Lean~4 with Mathlib;
+Section~\ref{s8:sec} describes the formalization.
+
+\begin{theorem}[Main Theorem]\label{s1:thmMain}
+Let $\eps,\sigma,\Cp,\Aexp,\Nzero,\Dstar$ be as in
+Definition~\ref{s1:defConstants}, with $\Dstar$ satisfying
+\ref{s1:condG1}--\ref{s1:condG4} of Condition~\ref{s1:condGamma}. Put
+\[
+\Czero\defeq \frac{\Dstar}{2}+\cTot+\epsOne(\Dstar)
+\qquad\text{and}\qquad
+\cEG\defeq\max\Bigl\{\frac{\Czero}{1-2\thetaQ},\,\frac{\Nzero}{2}\Bigr\},
+\]
+where $\epsOne(\Dstar)$ and $\thetaQ=\epsTwo(\Dstar)$ are the explicit functions
+of $\Dstar$ defined in Proposition~\ref{s7:propCost} and
+Lemma~\ref{s7:lemUHsplit}. Then every graph $G$ on $n$ vertices satisfies
+\[
+\f(G)\le\cEG\, n .
+\]
+In particular $\f(n)=O(n)$.
+\deps{\ref{s7:thmMainProof} (forward pointer; in Table~\ref{s1:tabDAG} the proof
+is the node \texttt{s7:thmMainProof}).}
+\end{theorem}
+
+The proof of Theorem~\ref{s1:thmMain} is given in Section~\ref{s7:sec}, as
+Corollary~\ref{s7:thmMainProof}. Theorem~\ref{s1:thmMain} is the only statement
+of this paper that is stated before the statements it depends on.
+
+\begin{remark}[organization of the proof; the new ingredients]\label{s1:remStatus}
+\begin{enumerate}
+\item[(i)] Compared with \cite{BM}, the new ingredients of the argument are
+concentrated in the following places:
+\begin{enumerate}
+\item[(a)] the routing engine inside JS-LC (Lemmas \ref{s6:lemHCCP},
+\ref{s6:lemPAR}, \ref{s6:lemMED} and \ref{s6:lemEQLPT} as used for cherry
+systems at junction multiplicity $2M_l-2$ in Lemma~\ref{s6:lemJSLC});
+\item[(b)] Lemma 14$^\tau$ (Lemma~\ref{s2:lem14tau}) and part~(iv) of
+Theorem~\ref{s6:thmCONCL}: together they modify the core Lemma~14 of
+\cite{BM} instead of using it as a black box;
+\item[(c)] the composition JV$^{+*}$ of Section~\ref{s7:sec}; within it, the
+most delicate points are property \Jp{1} of Lemma~\ref{s6:lemJplus}, aggregated
+over all MIX-parts, on which Lemma~\ref{s7:lemMULT} rests; the conditioning in
+Lemma~\ref{s7:lemCC} and in the ultra-hub bound; the lift, including the
+cross-round use of junction edges through the $\Lent$ sets; and the existence of
+one joint outcome;
+\item[(d)] every place where a per-vertex multiplicity feeds a path-connectivity
+parameter~$t$: property (P4) of the vortex runs of Section~\ref{s4:sec}, Step~6
+of Lemma~\ref{s5:lemParent}, and the joint routing of JS-LC at junction
+multiplicity $2M_l-2$. In particular, Lemma~\ref{s4:lemPV}(c) bounds the number
+of arc ends at a vertex by its degree, so that a vertex lies in at most $M_l-1$
+pairs, and the U-lent classes are path connected for the multiplicity parameter
+$t_Y=\lceil\lambda_r^{1.6}\rceil\ge M_l$ (Definition~\ref{s3:defCOL}; rows~4
+and~7 of Table~\ref{s3:tabCOLJV}).
+\end{enumerate}
+
+\item[(ii)] The argument relies in particular on the following properties, each
+proved where indicated:
+\begin{enumerate}
+\item[(1)] the hub concentration is negligible: for every valid $\HBtp$ run
+(Definition~\ref{s2:defHBtp}) and every designation,
+$\sum_{(Y,l)}m_{Y,l}\le\epsCONC(\Dstar)\,n$ (Theorem~\ref{s6:thmCONCL}(iv));
+\item[(2)] in every round, JS-LC emits at most one $\Jhub$-edge of any given class at
+any given hub (property \Jp{1} of Lemma~\ref{s6:lemJplus});
+\item[(3)] the lift of every cycle of a decomposition of a quotient is a cycle
+of $G$, and the lifted objects are pairwise edge-disjoint
+(Lemma~\ref{s7:lemLift}(ii)); every edge of $G$ is covered exactly once, and in
+particular no junction edge is used both by a lifted cycle and by the device of
+its owner (Lemma~\ref{s7:lemLift}(iii) and Theorem~\ref{s6:thmMIXC}(b));
+\item[(4)] every per-round cost term is of one of the three kinds listed in the
+paragraph ``Per-round costs here'' of \ref{s1:ssecOverview}; in particular, no
+per-round cost term of order $\Theta(n)$ occurs other than a once-per-vertex
+charge.
+\end{enumerate}
+\end{enumerate}
+\deps{none.}
+\end{remark}
+
+\subsection*{Overview: the architecture, and where the $\logs$ disappears}
+\namedlabel{s1:ssecOverview}{the overview}
+
+This overview is prose; it contains no statement. Every claim it makes about the
+present argument is proved at the place it points
+to; the paragraph on \cite{BM} describes their published proof.
+
+\paragraph{The chain.} The argument is a chain of five links:
+\[
+\text{UNI-MIX}\ \longrightarrow\ \text{MIX-C on }\HBtp\text{ with no VX-parts}
+\ \longrightarrow\ \text{JV}^{+*}\ \longrightarrow\ \text{UH}^{*}
+\ \longrightarrow\ \text{layered HI}''.
+\]
+UNI-MIX and MIX-C decompose all edges except a set of parity leftovers; JV$^{+*}$
+joins the ends of the leftovers by private junction edges to pooled junction
+vertices, and so routes them into simple quotient graphs; UH$^{*}$ controls the size of these quotients (round-split pools and
+sub-layered ultra hubs); the layered induction HI$''$ closes the argument.
+Section~\ref{s2:sec} builds the hierarchy $\HBtp$ (Lemma~14$^\tau$, Lemma SEP,
+the overlap bounds, rule GC, ORIGIN$^\tau$, the tower facts);
+Section~\ref{s3:sec} proves the random splitting and linking tools
+(Lemma~15$^+$, Theorem~16$^*$, Lemma HB) and defines the lending colouring
+COL-JV; Section~\ref{s4:sec} proves the vortex tools (TPV, the four-phase
+P-vortex, Theorem VX$^+$); Section~\ref{s5:sec} treats light parts (zones, the
+child and parent sides of the Theorem-U machinery, Lemma K-RED);
+Section~\ref{s6:sec} treats standalone parts (GATE, MED, EQ-LPT, PAR, HCC-P,
+Theorems CONC and CONC-L, Lemma JS-LC, Lemma J$^+$ and the MIX-C assembly for an
+abstract J-consumer); Section~\ref{s7:sec} constructs the junction-vertex
+quotient, bounds its size and the cost, and proves Theorem JV$^{+*}$,
+Theorem HI$''$ and the Main Theorem.
+
+\paragraph{Where \BMnames{} lose the factor $\logs n$.} The proof of Theorem~2
+of \cite{BM} iterates their Lemma~26 about $\logs n$ times: each iteration
+removes long cycles, splits the remaining edges into expanders by Lemma~14 of
+\cite{BM} (with $s=0$), and decomposes each (necessarily small) expander into
+cycles and few edges; the average degree of the leftover drops from $d$ to a
+polylogarithm of $d$. Each iteration costs $\Theta(n)$ objects, charged to all
+vertices that are active in it, and there are $\logs n$ iterations.
+
+\paragraph{Per-round costs here.} The hierarchy $\HBtp$ has the same round
+structure (rounds $l=1,\dots,R$, with $R=O(\logs n)$). In the present
+argument every per-round cost term is of one of three kinds.
+\begin{enumerate}
+\item[(a)] \emph{Decaying in the round index.} It is bounded by a constant
+multiple of one of $n/M_l$, $n/\log P_l$, $n\lambda_r^{-1/2}$, $n/P_r$,
+$n M_l^3\log\lambda_{l-2}/\lambda_{l-2}^{95}$ (the parameters are those of
+Definition~\ref{s2:defHBtp}) and $n\,\eta(\lambda_{l-2})$, where
+$\eta(x)=\log_2\bigl(2\Aexp\log_2(\Aexp\log_2x)\bigr)/(\log_2x)^2$; the last
+bounds the number $\mathrm{cap}_l$ of visit-capping pieces of the Theorem-U
+chaining (Lemma~\ref{s5:lemParent}(ii), Step~4 of its proof). The hub charge is
+of this kind: a vertex can be a hub in many rounds, and the round-$l$ term is
+$\sum_{Z\in\Std_l}|A_Z|\le15.2\,\eps n/\log P_l$ (Proposition~\ref{s2:propOV},
+(K2)), which sums over all rounds to at most $\epsA n$
+(Lemma~\ref{s2:lemTower}(e)). Because the round
+parameters grow like a tower towards earlier rounds, each of these sums over all
+rounds to at most a quantity that depends only on $\Dstar$, tends to $0$ as
+$\Dstar\to\infty$, and is uniform in $R$ (tower-lacunary sums,
+Lemma~\ref{s2:lemLacunary}; the terms
+$nM_l^3\log\lambda_{l-2}/\lambda_{l-2}^{95}$ sum to at most
+$2F(\log_2\Dstar)\,n$, with $F(x)=(3184+30400\log_2x)\,x^{-90.2}$, by
+Lemma~\ref{s7:lemUHsplit}(iv), and the terms $\mathrm{cap}_l$ are part of
+$\epsChain(\Dstar)\,n$ in Lemma~\ref{s5:lemParent}(ii)).
+\item[(b)] \emph{A once-per-vertex global charge.} Fresh ports (a vertex is fresh
+in at most two rounds, and TPV pays $\cTPV$ per fresh port: $\cTPV\cdot2n=\cFresh
+n$); parentless light incidences (at most two per vertex, each paying $\cPV$:
+$\cPV\cdot 2n$); unpaired fresh legs (at most $2n$); long cycles (at most $n$); and the final leftover
+$E_0$ (fewer than $\Dstar n/2$ edges).
+\item[(c)] \emph{Per-ancestor terms with a factor $R-r$.} Some terms are charged
+to an ancestor $Y$ of round $r$ once in every later round, so that in total they
+carry a factor $R-r$: the $\tau$-, $d^*$- and guest-cap terms of the
+concentration bound (Theorems~\ref{s6:thmCONC}(iii) and~\ref{s6:thmCONCL}(iv)),
+and the lost-parent mass $\mathrm{lp}=\sum_{Y\in\Bad}|Y|\,(R-r(Y))$
+(Definition~\ref{s5:defStages}). The factor satisfies
+$R-r\le2\logs d_r+2\le\log\lambda_r$ (Lemma~\ref{s2:lemTower}(a),(d)), so it
+depends on $d_r$ alone, and it is outweighed by the decay of the rest of the term
+in $\lambda_r$ (for $\mathrm{lp}$, by $\Prob(Y\in\Bad)\le|Y|^{-2}$,
+Lemma~\ref{s5:lemE1}(c)). Hence these terms, too, are at most (for
+$\mathrm{lp}$: in expectation) $n$ times a function of $\Dstar$ that tends to
+$0$ as $\Dstar\to\infty$ and is uniform in $R$
+(Theorem~\ref{s6:thmCONCL}(iv), Lemma~\ref{s5:lemExpect}). This is why
+$\logs\Dstar$, and not $\logs n$, appears in $\epsCONC$.
+\end{enumerate}
+
+\paragraph{The three mechanisms.}
+\begin{enumerate}
+\item[(a)] \emph{No hub concentration.} The $\tau$-rules inside the recursion of
+Lemma~14 of \cite{BM}, together with rule GC, give
+$\sum_{(Y,l)}m_{Y,l}\le\epsCONC(\Dstar)\,n$ for every valid run and every
+designation (Theorem~\ref{s6:thmCONCL}(iv)). The chaining cost of JS-LC is at
+most $1.5\sum_{(Y,l)}m_{Y,l}$ plus a decaying term, hence a vanishing fraction
+of $n$.
+\item[(b)] \emph{TPV and JS-LC.} Classed ports are never retired by the vortex
+of their own part; their edges become beads, which are chained into cycles
+through junction paths inside lent classes of an ancestor of round at most
+$l-2$. Only parity leftovers remain; they form the J-set $J_l$ of
+Lemma~\ref{s6:lemJplus}.
+\item[(c)] \emph{Private junction edges.} Each end of a J-item receives a
+private junction edge, which joins it to a junction vertex in a pool of density
+$M_l^{-2}$ inside the expander of its ancestor, which has minimum degree larger
+than $s_r/2\gg M_l$. A junction vertex may serve several ends, but every
+junction edge serves at most one (Lemma~\ref{s7:lemLift}(iii)). The quotient
+$Q_l$ is simple, every decomposition of $Q_l$ lifts to a decomposition of the
+corresponding edges of $G$ (Lemma~\ref{s7:lemLift}), and
+$\sum_l|V(Q_l)|\le\thetaQ n\le n/4$ (Lemma~\ref{s7:lemUHsplit}). The
+Erd\H{o}s--Gallai bound for the smaller graphs $Q_l$ is supplied by minimality in
+the layered induction HI$''$ (Theorem~\ref{s7:thmHI}).
+\end{enumerate}
+
+\paragraph{The cost line.} On the outcome chosen in Section~\ref{s7:sec}
+(Proposition~\ref{s7:propCost}),
+\[
+\f(G)\ \le\ \Bigl(\frac{\Dstar}{2}+\underbrace{\cKRED}_{\text{K-RED}}
++\underbrace{\cFresh}_{\text{TPV, fresh}}+\underbrace{2}_{\text{fresh legs}}
++\epsOne(\Dstar)\Bigr)n\;+\;2\sum_{l}\f(Q_l),
+\]
+with $\cKRED+\cFresh+2=\cTot$. Together with $\sum_l|V(Q_l)|\le\thetaQ n$ and
+$\thetaQ\le1/4$, the induction of Theorem~\ref{s7:thmHI} gives
+$\f(G)\le\Czero n+2\cEG\thetaQ n\le\cEG n$.
+
+\subsection{Conventions}\label{s1:ssecConv}
+
+\begin{convention}[graphs, logarithms, neighbourhoods, balls]\label{s1:convGraphs}
+\begin{enumerate}
+\item[(a)] Graphs are finite and simple, unless they are explicitly called
+multigraphs (auxiliary multigraphs occur only in Sections~\ref{s5:sec}
+and~\ref{s7:sec}). $G$ always denotes the input graph and $n\defeq|V(G)|$. For
+any graph $H$ we write $|H|\defeq|V(H)|$, as in \cite{BM}. For $k\in\mathbb N$,
+$[k]\defeq\{1,\dots,k\}$.
+\item[(b)] $\log=\log_2$ throughout, as in \cite{BM}. We put
+$\log^{[0]}x\defeq x$ and $\log^{[k]}x\defeq\log\bigl(\log^{[k-1]}x\bigr)$, and
+$\logs x$ is the least integer $k\ge0$ with $\log^{[k]}x\le1$, as in
+\cite{BM}.
+\item[(c)] For a vertex $v$ of a graph $H$, $N_H(v)$ is its set of neighbours
+and $d_H(v)=\deg_H(v)$ its degree; $\delta(H)$ and $\Delta(H)$ are the minimum
+and maximum degree. For $U\subseteq V(H)$, $\Nbr_H(U)$ is the set of vertices of
+$V(H)\setminus U$ that have a neighbour in $U$. $H[U]$ is the induced subgraph;
+$H-U$ and $H\setminus U$ both denote $H[V(H)\setminus U]$; for
+$F\subseteq E(H)$, $H-F$ is obtained by deleting the edges of $F$ (keeping all
+vertices). For disjoint $A,B\subseteq V(H)$, $E_H(A,B)$ is the set of edges with
+one end in $A$ and the other in $B$, and $e_H(A,B)\defeq|E_H(A,B)|$; for an
+edge set $F$ and a vertex $v$, $\deg_F(v)$ is the number of edges of $F$ at $v$.
+\item[(d)] A \emph{path through} $V$ is a path all of whose interior vertices lie
+in $V$; its ends are unrestricted. For $U,V\subseteq V(H)$ and an integer
+$i\ge0$, $\Ball{i}{H}{U,V}$ is the set of vertices of $V$ that can be reached by
+a path through $V$ of length at most $i$ starting at a vertex of $U$ (the
+starting vertex need not lie in $V$); thus $\Ball{i}{H}{U,V}\subseteq V$
+(Cited result~\ref{s1:citNotation}).
+\item[(e)] Families of pairs of vertices are \emph{multisets}: a pair may occur
+several times, and ``every vertex lies in at most $t$ pairs'' counts occurrences
+(Cited result~\ref{s1:citDef7}).
+\end{enumerate}
+\deps{none.}
+\end{convention}
+
+\begin{definition}[objects and $\f$]\label{s1:defObject}
+An \emph{object} is a cycle (of length at least $3$) or a single edge. A
+\emph{decomposition} of an edge set $F$ is a partition of $F$ into the edge sets
+of objects; a decomposition of a graph $H$ is a decomposition of $E(H)$.
+$\f(F)$ is the least number of objects in a decomposition of $F$ (so
+$\f(\emptyset)=0$); $\f(H)\defeq\f(E(H))$; and
+$\f(n)\defeq\max\{\f(H):|V(H)|=n\}$.
+\deps{none.}
+\end{definition}
+
+\begin{fact}[elementary properties of $\f$]\label{s1:factAdd}
+\begin{enumerate}
+\item[(a)] $\f(F)\le|F|$ for every edge set $F$.
+\item[(b)] If $F_1,F_2$ are disjoint edge sets, then $\f(F_1\cup F_2)\le
+\f(F_1)+\f(F_2)$.
+\item[(c)] If $H$ is the vertex-disjoint union of graphs $H_1$ and $H_2$, then
+$\f(H)=\f(H_1)+\f(H_2)$.
+\item[(d)] Adding or deleting isolated vertices does not change $\f$. In
+particular $\f(n)$ is non-decreasing in $n$.
+\end{enumerate}
+\deps{\ref{s1:defObject}.}
+\end{fact}
+\begin{proof}
+(a) The single edges of $F$ form a decomposition of $F$ into $|F|$ objects.
+(b) The union of a decomposition of $F_1$ and a decomposition of $F_2$ is a
+decomposition of $F_1\cup F_2$, because $F_1\cap F_2=\emptyset$.
+(c) By (b), $\f(H)\le\f(H_1)+\f(H_2)$. Conversely, the edge set of every object
+induces a connected graph, so every object of a decomposition of $E(H)$ has all
+its edges in $E(H_1)$ or all in $E(H_2)$; hence every decomposition of $E(H)$
+splits into a decomposition of $E(H_1)$ and one of $E(H_2)$, and
+$\f(H)\ge\f(H_1)+\f(H_2)$.
+(d) $\f(H)$ depends only on $E(H)$, which does not change. Adding an isolated
+vertex to an $n$-vertex graph gives an $(n+1)$-vertex graph with the same $\f$,
+so $\f(n+1)\ge\f(n)$.
+\end{proof}
+
+\begin{fact}[the long-cycle bound]\label{s1:factEG0}
+\begin{enumerate}
+\item[(a)] Every graph $H$ with $h\ge1$ vertices has a decomposition into at
+most $h(\log h+1)$ objects, at most $h-1$ of which are single edges. In
+particular $\f(H)\le h(\log h+1)$.
+\item[(b)] Let $N>1$ and $L\defeq\log N$, and let $\alpha$ and $\beta$ be real
+numbers with $0\le\alpha\le N$, $\beta>0$ and $4\beta\le L$. If $F$ is the
+edge set of a (simple) graph, so that $F$ has no loops and no parallel edges,
+and every edge of $F$ has both ends in a set $W$ with $|W|\le\beta\alpha/L$,
+then $F$ has a decomposition into at most $\beta\alpha$ objects, at most $|W|$
+of which are single edges.
+\end{enumerate}
+The argument, iterated removal of a long cycle, is the elementary
+$O(n\log n)$ bound (see \cite{EG66} and \cite{BM}); it is proved here in full. It uses that graphs are
+simple (Convention~\ref{s1:convGraphs}(a)) in two places: in the claim, where a
+vertex of degree at least $d$ has at least $d$ neighbours, and through
+$|E(H)|\le\binom h2$.
+Part~(b) is the form in which the vortex runs of Section~\ref{s4:sec} are
+finished.
+\deps{\ref{s1:convGraphs}, \ref{s1:defObject}.}
+\end{fact}
+\begin{proof}
+(a) Put $m\defeq|E(H)|$, so that $m\le\binom h2\le h^2/2$.
+
+\emph{Claim. If a graph $H'$ with vertex set $V(H)$ has $m'\ge h$ edges, then
+$H'$ contains a cycle of length at least $m'/h$.} Put
+$d\defeq\max\{2,\lceil m'/h\rceil\}$. Then $d-1\le m'/h$: if
+$\lceil m'/h\rceil\ge2$ then $d-1=\lceil m'/h\rceil-1<m'/h$, and otherwise
+$d-1=1\le m'/h$ because $m'\ge h$. Delete from $H'$, one at a time, a vertex
+whose degree in the current graph is at most $d-1$, as long as such a vertex
+exists. Every edge of $H'$ disappears exactly once, together with the first of
+its two ends to be deleted. Suppose that all $h$ vertices are deleted. The last
+of them has degree $0$ when it is deleted, and each of the others has degree at
+most $d-1$ when it is deleted; hence $m'\le(h-1)(d-1)\le(h-1)m'/h<m'$, since
+$m'\ge h\ge1$, a contradiction. So the deletions stop at a subgraph $H^*$ of $H'$
+with at least one vertex and minimum degree at least $d\ge2$. Let
+$v_0v_1\cdots v_r$ be a longest path in $H^*$. Every neighbour of $v_0$ in $H^*$
+is one of $v_1,\dots,v_r$, since otherwise the path could be extended. As $v_0$
+has at least $d$ neighbours in $H^*$, the largest index $i$ with
+$v_0v_i\in E(H^*)$ satisfies $i\ge d\ge2$, so $v_0v_1\cdots v_iv_0$ is a cycle of
+$H'$ of length $i+1>d\ge\lceil m'/h\rceil\ge m'/h$. This proves the claim.
+
+\emph{Removal of long cycles.} Put $H_0\defeq H$ and $m_i\defeq|E(H_i)|$. For
+$i=0,1,\dots$, as long as $m_i\ge h$, choose by the claim (applied to
+$H'\defeq H_i$) a cycle $C_i$ of $H_i$ of length at least $m_i/h$, and put
+$H_{i+1}\defeq H_i-E(C_i)$. As $m_{i+1}<m_i$, this stops, at some $t\ge0$ with
+$m_t\le h-1$. The cycles $C_0,\dots,C_{t-1}$ together with the $m_t$ edges of
+$H_t$, taken as single edges, form a decomposition of $E(H)$ into $t+m_t$
+objects, of which $m_t\le h-1$ are single edges. For $i<t$ we have
+$m_{i+1}=m_i-|E(C_i)|\le(1-1/h)m_i$; hence $m_i\le(1-1/h)^im$ for $0\le i\le t$.
+
+We use $(1-1/h)^h\le1/2$. For $h=1$ the left-hand side is $0$. For $h\ge2$ put
+$x\defeq1/h$; then $(1-x)^h(1+x)^h=(1-x^2)^h\le1$ and, by the binomial theorem,
+$(1+x)^h\ge1+hx=2$, so $(1-x)^h\le1/2$.
+
+If $t=0$, the decomposition has $m_0\le h-1\le h(\log h+1)$ objects, as
+$\log h\ge0$. Let $t\ge1$, and write $t-1=qh+r'$ with integers $q\ge0$ and
+$0\le r'\le h-1$. Since $C_{t-1}$ was chosen, $m_{t-1}\ge h$; as $t-1\ge qh$ and
+$0\le1-1/h\le1$,
+\[
+h\ \le\ m_{t-1}\ \le\ (1-1/h)^{t-1}m\ \le\ \bigl((1-1/h)^h\bigr)^qm\ \le\ 2^{-q}m\
+\le\ 2^{-q}h^2/2 .
+\]
+Hence $2^{q+1}\le h$, i.e.\ $q+1\le\log h$, and $t=qh+r'+1\le(q+1)h\le h\log h$.
+So the decomposition has $t+m_t\le h\log h+h-1\le h(\log h+1)$ objects.
+
+(b) Note that $L>0$ as $N>1$. If $W=\emptyset$, then $F=\emptyset$, and the
+empty decomposition has $0\le\beta\alpha$ objects. Otherwise $h\defeq|W|\ge1$,
+and $h\le\beta\alpha/L\le\beta N/L\le N/4$ because $\alpha\le N$, $\beta>0$ and
+$4\beta\le L$; hence $\log h\le\log N-2=L-2$. By (a), applied to the graph with
+vertex set $W$ and edge set $F$, the set $F$ has a decomposition into at most
+$h(\log h+1)\le h(L-1)\le hL\le\beta\alpha$ objects, at most $h-1\le|W|$ of
+which are single edges.
+\end{proof}
+
+\subsection{Cited results of \BMnames{}}\label{s1:ssecCited}
+
+Every published result of \cite{BM} used in this paper is stated below in our
+notation, with its number in \cite{BM}; numbers refer to the arXiv version
+arXiv:2211.07689v2. Where this paper modifies a proof of \cite{BM}
+(Lemma~14, Propositions~12 and~13, Lemma~17, Proposition~18, Lemma~19, Lemma~9)
+or extracts an explicit bound from a proof (Lemma~25), the relevant steps of the
+proof are summarised as well; the modified proofs themselves are written out in
+full where they are used. All items of this subsection are published results.
+
+\begin{citedresult}[{\cite[Section~2.1, Section~2.6]{BM}}]\label{s1:citNotation}
+\cite{BM} uses the following notation, which is also the notation of this
+paper (Convention~\ref{s1:convGraphs}). For a graph $G$ and $v\in V(G)$,
+$d_G(v)$ is the degree and $N_G(v)$ the neighbourhood of $v$; $\Delta(G)$ is the
+maximum degree; for $U\subseteq V(G)$, $\Nbr_G(U)$ is the set of vertices of
+$V(G)\setminus U$ with a neighbour in $U$; $G[V]$ is the induced subgraph,
+$G\setminus V\defeq G[V(G)\setminus V]$, and $G-F$ is obtained by deleting the
+edge set $F$; $|G|$ is the number of vertices. All logarithms have base~$2$;
+$\log^{[0]}n=n$, $\log^{[k]}n$ is the $k$-fold iterated logarithm, and $\logs n$
+is the least $k\ge0$ with $\log^{[k]}n\le1$. A path through $V$ is a path with
+all internal vertices in $V$, and $\Ball{i}{G}{U,V}$ is the set of vertices of
+$V$ that can be reached by a path through $V$ of length at most $i$ starting at a
+vertex of $U$ (the starting vertex is not required to lie in $V$), so that
+$\Ball{i}{G}{U,V}\subseteq V$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Theorem~4]{BM} (Chernoff)}]\label{s1:citChernoff}
+Let $n$ be an integer, $0\le\delta,p\le1$, $X\sim\Bin(n,p)$ and $\mu\defeq\Ex
+X=np$. Then
+\[
+\Prob\bigl(X>(1+\delta)\mu\bigr)\le e^{-\delta^2\mu/3}
+\qquad\text{and}\qquad
+\Prob\bigl(X<(1-\delta)\mu\bigr)\le e^{-\delta^2\mu/2}.
+\]
+
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Definition~7]{BM}}]\label{s1:citDef7}
+A graph $G$ is \emph{$(\ell,t)$-path connected through} a vertex set $V\subseteq
+V(G)$ if, for every collection $\mathcal P\subseteq\binom{V(G)}{2}$ in which every
+vertex lies in at most $t$ pairs, there are edge-disjoint paths $P_{x,y}$,
+$\{x,y\}\in\mathcal P$, such that each $P_{x,y}$ is an $xy$-path through $V$ of
+length at most $\ell$.
+
+\emph{Multiset clause} (quoted in substance from \cite{BM}): here
+$\binom{V(G)}{2}$ denotes the \emph{multiset} of pairs of distinct vertices of
+$G$; in particular the same pair may occur several times in $\mathcal P$. Thus a
+pair occurring $k$ times receives $k$ pairwise edge-disjoint paths, and the
+bound $t$ counts occurrences. The ends $x,y$ are unrestricted (they need not lie
+in $V$); only interior vertices must lie in $V$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Proposition~8]{BM}}]\label{s1:citProp8}
+Let $1\le\ell,t\le n$, let $G$ be an $n$-vertex graph and let $V\subseteq V(G)$
+satisfy $|V|\ge4t-2$ and $|\Ball{\ell}{G}{U,V}|>|V|/2$ for every $U\subseteq
+V(G)$ with $|U|=t$. If $x_1,\dots,x_{2t-1},y_1,\dots,y_{2t-1}$ are distinct
+vertices of $G$, then for some $j\in[2t-1]$ there is an $x_jy_j$-path in $G$
+through $V$ of length at most $4\ell\log n$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Lemma~9]{BM}}]\label{s1:citLem9}
+Let $n\ge2$ and $1\le\ell,k\le n$. Let $G$ be an $n$-vertex graph and
+$V\subseteq V(G)$ with $|V|\ge n/8+1$, and suppose that for every non-empty
+$U\subseteq V(G)$ and every $F\subseteq E(G)$ with
+$|F|\le2^9k|U|(\ell\log n)^2$ we have $|\Ball{\ell}{G-F}{U,V}|>|V|/2$. Then $G$
+is $(4\ell\log n,k)$-path connected through $V$.
+
+\emph{Structure of the proof in \cite{BM}} (modified in Lemma~\ref{s3:lemL9rho},
+which uses Haxell's theorem, Cited result~\ref{s1:citHaxell}, in place of
+Theorem~6).
+Let $\mathcal P$ be a collection of pairs in which every vertex lies in at most
+$k$ pairs, let $r\defeq|\mathcal P|$, and index the pairs by $i\in[r]$. Let
+$H_i$ be the hypergraph on $E(G)$ whose edges are the edge sets of the paths
+through $V$ of length at most $4\ell\log n$ joining the $i$-th pair. For
+$I\subseteq[r]$ let $M_I$ be a maximal matching of $\bigcup_{i\in I}H_i$; the
+claim is $|M_I|\ge4\ell\log n\cdot|I|$. If not, the set $F$ of edges covered by
+$M_I$ has $|F|<(4\ell\log n)^2|I|$. Let $I'\subseteq I$ be maximal such that no
+vertex lies in two pairs of $I'$; then $2k|I'|\ge|I|$ and $|I'|\le n/2$. With
+$t\defeq\lceil|I'|/16\rceil$ one has $2t-1\le|I'|$, $4t-2\le\lceil n/8\rceil+1\le
+|V|$ and $|F|<8kt(8\ell\log n)^2$, so every $t$-set $U$ satisfies
+$|\Ball{\ell}{G-F}{U,V}|>|V|/2$; Proposition~8 (Cited
+result~\ref{s1:citProp8}), applied to $G-F$ and $2t-1$ pairs of $I'$, gives a
+path in $G-F$ joining a pair of $I'$, i.e.\ an edge of some $H_j$ disjoint from
+$M_I$, contradicting maximality. Theorem~6 of \cite{BM} (Aharoni--Haxell
+\cite{AH00}) then gives the paths. Since the pairs are indexed by $i\in[r]$, and the inequality
+$2k|I'|\ge|I|$ counts the pairs of $I$ with multiplicity (every pair of $I$
+meets a vertex of a pair of $I'$, and each of the $2|I'|$ vertices of pairs of
+$I'$ lies in at most $k$ pairs of $I$), the argument applies verbatim to
+multisets $\mathcal P$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Definition~11]{BM}}]\label{s1:citDef11}
+An $n$-vertex graph $G$ is an \emph{$(\varepsilon,s)$-expander} if for every
+$U\subseteq V(G)$ and every $F\subseteq E(G)$ with $1\le|U|\le2n/3$ and
+$|F|\le s|U|$ we have
+\[
+|\Nbr_{G-F}(U)|\ge\frac{\varepsilon|U|}{\log^2n}.
+\]
+\emph{Remark (from \cite{BM}; hypotheses made explicit):} if $n\ge2$ and $\varepsilon>0$ then, for every
+$v\in V(G)$, the pair $U=\{v\}$, $F=\{\text{edges at }v\}$ violates this
+inequality, so necessarily $|F|>s$; hence $\delta(G)>s$ for every
+$(\varepsilon,s)$-expander $G$ with $\varepsilon>0$ on at least two vertices.
+(For $\varepsilon=0$ every graph satisfies the inequality; wherever this remark
+is used below, $\varepsilon\ge2^{-7}$.)
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Proposition~12]{BM}}]\label{s1:citProp12}
+For $U\subseteq V(G)$ and $d>0$ let $N_{G,d}(U)$ be the set of vertices of
+$V(G)\setminus U$ with at least $d$ neighbours in $U$. Let $G$ be an $n$-vertex
+$(\varepsilon,s)$-expander, $U\subseteq V(G)$ with $1\le|U|\le2n/3$, and $F$ a set
+of at most $s|U|/2$ edges. Then for every $0<d\le s$, either (a)
+$|\Nbr_{G-F}(U)|\ge s|U|/(2d)$, or (b) $|N_{G-F,d}(U)|\ge\varepsilon|U|/\log^2n$.
+
+\emph{Proof in \cite{BM}} (its counting is modified in
+Proposition~\ref{s3:propP13s}). If (a) fails, the set
+$X\defeq\Nbr_{G-F}(U)\setminus N_{G-F,d}(U)$ has fewer than $s|U|/(2d)$
+vertices, and the set $F'$ of edges of $G-F$ between $U$ and $X$ has
+$|F'|\le d|X|\le s|U|/2$. Then $|F\cup F'|\le s|U|$ and
+$\Nbr_{G-F-F'}(U)=N_{G-F,d}(U)$, so the expansion of $G$ gives
+(b).
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Proposition~13]{BM}}]\label{s1:citProp13}
+There is $n_0$ such that the following holds for $n\ge n_0$,
+$1\ge\varepsilon\ge2^{-9}$ and $s\ge8\log^{13}n$. Let $G$ be an $n$-vertex
+$(\varepsilon,s)$-expander, $U\subseteq V(G)$ with $|U|\le2n/3$, and $F$ a set of
+at most $s|U|/4$ edges. Then $G-F$ contains either
+\begin{enumerate}
+\item[(a)] $|U|/\log^7n$ vertex-disjoint stars, each with $\log^9n$ leaves, with
+centre in $U$ and all leaves in $V(G)\setminus U$, or
+\item[(b)] a bipartite subgraph $H$ with classes $U$ and $X\subseteq
+V(G)\setminus U$ such that $|X|\ge\varepsilon|U|/(2\log^2n)$, every vertex of
+$X$ has degree at least $\log^4n$ in $H$, and every vertex of $U$ has degree at
+most $2\log^9n$ in $H$.
+\end{enumerate}
+\emph{Structure of the proof in \cite{BM}} (modified in
+Proposition~\ref{s3:propP13s}). Take a maximal family of vertex-disjoint stars as
+in (a), with centre set $C\subseteq U$ and leaf set $L$. If (a) fails, then
+$|C|\le|U|/\log^7n$, $|L|\le|U|\log^2n$, and by maximality no vertex of
+$U\setminus C$ has $\log^9n$ neighbours in $G-F$ outside $U\cup L$, whence
+$|\Nbr_{G-F}(U\setminus C)|<2|U|\log^9n$. With $d\defeq\log^4n$ and
+$\Delta\defeq2\log^9n$, go through the vertices $v$ of $V(G)\setminus U$ in turn
+and add a star with centre $v$ and $d$ leaves in $U$ whenever the degrees in $U$
+stay at most $\Delta$; $X$ is the set of centres added and $H$ the union of the
+stars. The saturated set $U'$ (vertices of $U\setminus C$ of $H$-degree exactly
+$\Delta$) satisfies $|U'|\le2d|L|/\Delta\le\varepsilon|U|/(8\log^2n)$, because a
+saturated vertex has at least $\Delta/2$ of its $H$-neighbours in $L$. With
+$B\defeq C\cup U'$, Proposition~12 applied to $U\setminus B$ excludes option (a)
+there, and every vertex of $N_{G-F,d}(U\setminus B)\setminus B$ lies in $X$,
+giving $|X|\ge\varepsilon|U|/(2\log^2n)$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Lemma~14]{BM}}]\label{s1:citLem14}
+Given an $n$-vertex graph $G$, a non-negative integer $s$ and
+$\varepsilon\le2^{-5}$, one can delete at most $4sn\log n$ edges of $G$ so that
+the remaining edges can be partitioned into graphs $G_1,\dots,G_r$ with
+$\sum_{i=1}^r|G_i|\le2n$, each $G_i$ an $(\varepsilon,s)$-expander. (For $s=0$
+nothing is deleted.)
+
+\emph{Structure of the proof in \cite{BM}} (modified in
+Lemma~\ref{s2:lem14tau}). The proof is by induction on $n$ under the stronger
+bound $\sum_i|G_i|\le2n-2n/(2+\log n)$, which is at least $n$; the case $n=1$ is
+trivial, and if $G$ is an $(\varepsilon,s)$-expander one takes $G_1=G$.
+Otherwise there is a witness $(U,F)$: $1\le|U|\le2n/3$, $F\subseteq E(G)$,
+$|F|\le s|U|$ and $|\Nbr_{G-F}(U)|<\varepsilon|U|/\log^2n$. Put
+\[
+G_1\defeq G[U\cup\Nbr_{G-F}(U)]-F,\qquad
+G_2\defeq G\setminus U-E(G_1)-F,
+\]
+which edge-partition $G-F$, and $n_1\defeq|G_1|=|U\cup\Nbr_{G-F}(U)|$,
+$n_2\defeq|G_2|=n-|U|$. Then
+\begin{align*}
+&\text{(6)}\quad n_1+n_2=n+|\Nbr_{G-F}(U)|<n+\varepsilon n_1/\log^2n;\\
+&\text{(7)}\quad n_2<n\ \text{ and }\ n_1\le|U|+\varepsilon|U|/\log^2n\le
+2n/3+\varepsilon n\le3n/4<n.
+\end{align*}
+The induction hypothesis gives sets $E_i\subseteq E(G_i)$ with $|E_i|\le4sn_i\log
+n_i$ and partitions of $G_i-E_i$ into $(\varepsilon,s)$-expanders $G_{i,j}$ with
+$\sum_j|G_{i,j}|\le2n_i-2n_i/(2+\log n_i)$. Using $\log n_1\le\log(3n/4)<\log
+n-2/5$:
+\begin{align*}
+&\text{(8)}\quad |F|+|E_1|+|E_2|\le s\bigl(|U|+4n_1\log n_1+4n_2\log n_2\bigr)
+\le s\bigl(4(n_1+n_2)\log n-\tfrac35n_1\bigr)\le4sn\log n,\\
+&\text{(9)}\quad \frac{2n_1}{2+\log n_1}>\frac{2n_1}{2+\log
+n}+\frac{n_1}{10\log^2n},
+\end{align*}
+where the last step of (8) uses (6). For $n\ge3$, (9) follows from $\log
+n_1<\log n-2/5$ and $n_1<n$: then $\frac2{2+\log n_1}-\frac2{2+\log
+n}>\frac{0.8}{(2+\log n)^2}\ge\frac1{10\log^2n}$, where the last step holds
+because $\log n\ge\log3>2/(2\sqrt2-1)$. For $n=2$ we have $n_1=1$ by (7), and
+(9) reads $1>\frac23+\frac1{10}$. Combining (9) with (6) gives
+$\sum_{i,j}|G_{i,j}|\le(n_1+n_2)(2-\frac{2}{2+\log n})-\frac{n_1}{10\log^2n}\le
+2n-\frac{2n}{2+\log n}$. The deleted edges are $F\cup E_1\cup E_2$.
+
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Lemma~15]{BM}}]\label{s1:citLem15}
+Let $n,s\in\mathbb N$, $k\ge1$ an integer, and $0<\varepsilon\le1$, and let $G$ be an $n$-vertex
+$(\varepsilon,s)$-expander with $s\ge2^{12}\varepsilon^{-1}k^2\log^4n$. Then
+there are edge-disjoint graphs $G_1,\dots,G_k$ with $E(G)=\bigcup_iE(G_i)$, each
+an $\bigl(\varepsilon/4,\sqrt{s\varepsilon}/(8k\log n)\bigr)$-expander with vertex
+set $V(G)$.
+
+This result is quoted for comparison only and is \emph{not used}: it is replaced
+by Lemma~\ref{s3:lemL15p} (Lemma~15$^+$), which is proved directly and loses
+neither the factor $4$ in $\varepsilon$ nor the square root in
+$s$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Theorem~16]{BM}}]\label{s1:citThm16}
+Let $G$ be an $n$-vertex $(\varepsilon,s)$-expander with
+$1\ge\varepsilon\ge2^{-7}$ and $s\ge\log^{135}n$, and let $V\subseteq V(G)$
+contain each vertex independently with probability $1/3$. Then with high
+probability $G$ is $(4\log^5n,2^8\log^5n)$-path connected through $V$.
+
+This theorem is not used as a black box. Its proof (split $E(G)$ by Lemma~15
+into $k=2^{17}\log^{42}n$ expanders; apply Lemma~19 in each; for a given $U$ and
+$F$ with $|F|\le2^{17}|U|\log^{15}n$ some class contains at most
+$|U|/\log^{27}n$ edges of $F$; conclude by Lemma~9 with $k=2^8\log^5n$ and
+$\ell=\log^4n$) is modified in Theorem~\ref{s3:thmT16s}.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Lemma~17]{BM}}]\label{s1:citLem17}
+Let $n\ge2$ and let $G$ be an $n$-vertex $(\varepsilon,s)$-expander with
+$2^{-9}\le\varepsilon\le1$ and $s\ge8\log^{13}n$. Let $U\subseteq V(G)$ satisfy
+$|\Nbr_G(U)|\ge|U|\log^{24}n$, let $F\subseteq E(G)$ satisfy $|F|\le|U|$, and let
+$V\subseteq V(G)$ contain each vertex independently with probability $1/3$. Then
+with probability $1-e^{-\Omega(|U|\log^2n)}$ we have
+$|\Ball{\log^4n}{G-F}{U,V}|>|V|/2$.
+
+\emph{Proof parameters and structure in \cite{BM}} (modified in
+Lemma~\ref{s3:lemL17s}). $\ell\defeq\log^4n$, $q\defeq3/11$, and $p$ is defined
+by $(1-p)^{\ell-1}=11/12$, so that $p\ge1/(15\log^4n)$; $V$ is realised as
+$V_1\cup\dots\cup V_\ell$ with independent $V_i$, each vertex in $V_i$ with
+probability $p$ for $i<\ell$ and $q$ for $i=\ell$. $B_i$ is the set of vertices
+reachable from $U$ by a path of $G-F$ of length at most $i$ whose interior lies
+in $V_1\cup\dots\cup V_{i-1}$; it is determined by $U,V_1,\dots,V_{i-1}$, every
+vertex of $\Nbr_{G-F}(B_i)$ with a $G-F$-neighbour in $B_i\cap V_i$ lies in
+$B_{i+1}$, and $B_\ell\cap V_\ell\subseteq\Ball{\ell}{G-F}{U,V}$. The growth of
+$B_i$ is shown via Proposition~13: in case (a) by Chernoff's bound on the star
+centres, in case (b) by a bounded-differences inequality for the number of
+vertices of $X$ with an $H$-neighbour in $V_i$; the final stage uses Chernoff's
+bound with density $q$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Proposition~18]{BM}}]\label{s1:citProp18}
+Let $n\ge2$, $0<\varepsilon\le1$ and $s\ge\log^{24}n$. Let $G$ be an $n$-vertex
+$(\varepsilon,s)$-expander and $U\subseteq V(G)$ with $|U|\le2n/3$. Then there is
+$U'\subseteq U$ with $|\Nbr_G(U')|\ge|U'|\log^{24}n$ and
+$|U'|\ge\varepsilon|U|/(3\log^{26}n)$.
+
+\emph{Proof in \cite{BM}} (modified in Lemma~\ref{s3:lemP18s}). Put
+$\theta\defeq\log^{24}n$ and let $U'\subseteq U$ be maximal with
+$|\Nbr_G(U')|\ge\theta|U'|$. Let $F$ be the set of edges from $U\setminus U'$ to
+$V(G)\setminus(U'\cup\Nbr_G(U'))$. Expansion applied to $U$ and $F$ gives
+$\varepsilon|U|/\log^2n\le|\Nbr_{G-F}(U)|\le|\Nbr_G(U')|<(|U'|+1)\theta+1\le
+3|U'|\theta$.
+
+\emph{Remark.} The maximality step gives, for every $v\in U\setminus
+U'$, \emph{fewer than $\theta+1$} neighbours outside $U'\cup\Nbr_G(U')$ (adding
+$v$ to $U'$ removes at most the one vertex $v$ from the neighbourhood); \cite{BM}
+write ``at most $\theta$'', which is exact only when $\theta$ is an integer.
+Hence $|F|\le(\theta+1)|U\setminus U'|\le(\theta+1)|U|$, and the proof needs
+$s\ge\theta+1$ rather than $s\ge\theta$. Lemma~\ref{s3:lemP18s} is formulated
+with $s_1\ge\theta_*+1$ accordingly.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Lemma~19]{BM}}]\label{s1:citLem19}
+Let $G$ be an $n$-vertex $(\varepsilon,s)$-expander with
+$2^{-9}\le\varepsilon\le1$ and $s\ge2\log^{24}n$, and let $V\subseteq V(G)$
+contain each vertex independently with probability $1/3$. Then with probability
+$1-o(1/n)$, for every non-empty $U\subseteq V(G)$ and every $F\subseteq E(G)$ with
+$|F|\le|U|/\log^{27}n$, we have $|\Ball{\log^4n}{G-F}{U,V}|>|V|/2$. (The
+statement in \cite{BM} says ``every $U$''; the empty set is excluded implicitly.)
+
+\emph{Structure of the proof in \cite{BM}} (modified in
+Lemma~\ref{s3:lemP18s}). Call $U'$ well-expanding if
+$|\Nbr_G(U')|\ge|U'|\log^{24}n$. A union bound of the failure probability of
+Lemma~17 over all pairs $(U',F)$ with $U'$ well-expanding and $|F|\le|U'|$ gives
+failure probability $o(1/n)$. For $|U|\le2n/3$, Proposition~18 gives a
+well-expanding $U'\subseteq U$ with $|U'|\ge\varepsilon|U|/(3\log^{26}n)\ge|F|$,
+and the ball is monotone in $U$; for $|U|>2n/3$ one passes to a subset $\bar U$
+with $n/2\le|\bar U|\le2n/3$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Theorem~21]{BM} (Lov\'asz \cite{Lov68})}]\label{s1:citThm21}
+Every $n$-vertex graph can be decomposed into at most $n/2$ paths and
+cycles.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Corollary~22]{BM}}]\label{s1:citCor22}
+Every graph can be decomposed into paths such that each vertex is an end of at
+most two of the paths. (The proof in \cite{BM} adds a new vertex joined to every
+vertex of even degree, applies Theorem~21, and deletes the new
+vertex.)
+
+\emph{Consequence used in this paper.} If every edge of a graph $H$ has both
+ends in a set $W$, then $E(H)$ decomposes into at most $|W|$ paths. Indeed, apply
+the corollary to the graph $(W,E(H))$: every path has two distinct ends in $W$
+and every vertex of $W$ is an end of at most two paths, so twice the number of
+paths is at most $2|W|$.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{citedresult}[{\cite[Lemma~25]{BM}, explicit form}]\label{s1:citLem25}
+Let $\varepsilon\ge2^{-5}$ and $m\ge\max(2,2^{30}/\varepsilon^2)$ (so
+$m\ge2^{40}$ suffices at $\varepsilon=2^{-5}$). Every $m$-vertex
+$(\varepsilon,0)$-expander contains a cycle of length at least
+$\varepsilon^2m/(18\log^4m)$. (The bound $m\ge2$, which excludes the
+one-vertex graph, follows from $m\ge2^{30}/\varepsilon^2$ unless
+$\varepsilon^2>2^{29}$; without it the statement would be false for such
+$\varepsilon$ at $m=1$.)
+
+\emph{Explicit form from the proof in \cite{BM}.} The statement of \cite{BM}
+says ``a cycle of length $\Omega(m/\log^4m)$''. The proof runs a depth-first
+search, finds a moment at which the unexplored set $U$ and the processed set $R$
+have equal size, so that the current path $P$ contains
+$\Nbr_G(U)$ and has at least $\varepsilon m/(3\log^2m)$ vertices; it splits $P$
+into consecutive segments $X,Y,Z$ with $|X|,|Z|\ge|P|/3$ and
+$\varepsilon^2m/(18\log^4m)\le|Y|<\varepsilon^2m/(9\log^4m)$. If $X$ and $Z$
+are joined by a path avoiding $Y$, a shortest such path together with a segment
+of $P$ is a cycle containing $Y$, of length at least $|Y|\ge
+\varepsilon^2m/(18\log^4m)$; otherwise expansion of the side of size at most
+$m/2$ gives a contradiction. This explicit bound is the form used in
+Lemma~\ref{s2:lemCap}.
+\deps{none (published).}
+\end{citedresult}
+
+\begin{remark}[where the results of \cite{BM} are used]\label{s1:remBMused}
+\begin{center}
+\small
+\begin{tabular}{p{6.2cm}p{8.6cm}}
+\textbf{Result of \cite{BM}} & \textbf{Used in}\\
+\hline
+Definition~7 (\ref{s1:citDef7}) & Sections~\ref{s3:sec}, \ref{s4:sec}, \ref{s5:sec}, \ref{s6:sec}\\
+Lemma~9, Proposition~8 (\ref{s1:citLem9}, \ref{s1:citProp8}) & Lemma~\ref{s3:lemL9rho}\\
+Theorem~6 (Aharoni--Haxell) & not used (Lemma~\ref{s3:lemL9rho} uses Haxell's theorem \cite{Hax95}, Cited result~\ref{s1:citHaxell}, instead)\\
+Definition~11 (\ref{s1:citDef11}) & everywhere\\
+Propositions~12--13, Lemma~17, Proposition~18, Lemma~19 & Section~\ref{s3:sec} (proof of Theorem~16$^*$)\\
+Lemma~14 and its proof (\ref{s1:citLem14}) & Section~\ref{s2:sec}\\
+Corollary~22 (\ref{s1:citCor22}) & Section~\ref{s4:sec}\\
+Lemma~25 (\ref{s1:citLem25}) & Lemma~\ref{s2:lemCap}\\
+Theorem~4 (\ref{s1:citChernoff}) & Sections~\ref{s3:sec}, \ref{s4:sec}\\
+Lemma~15, Theorem~16, Theorem~21 & not used directly (Lemma~15 is replaced by Lemma~\ref{s3:lemL15p}; Theorem~16 by Theorem~\ref{s3:thmT16s}; Theorem~21 enters only through Corollary~22)\\
+\hline
+\end{tabular}
+\end{center}
+Theorem~2 of \cite{BM} (the bound $O(n\logs n)$) is not used, and neither are
+Theorem~24 and Lemma~26 of \cite{BM}, which are used only in its proof: the vortex runs
+of Section~\ref{s4:sec} are finished with the elementary long-cycle bound of
+Fact~\ref{s1:factEG0}.
+The three results of the row ``not used directly'' are not dependencies of this
+remark.
+\deps{\ref{s1:citNotation}, \ref{s1:citChernoff},
+\ref{s1:citDef7}, \ref{s1:citProp8}, \ref{s1:citLem9}, \ref{s1:citDef11},
+\ref{s1:citProp12}, \ref{s1:citProp13}, \ref{s1:citLem14},
+\ref{s1:citLem17}, \ref{s1:citProp18}, \ref{s1:citLem19},
+\ref{s1:citCor22}, \ref{s1:citLem25}, \ref{s1:factEG0}.}
+\end{remark}
+
+\subsection{Other cited and standard results}\label{s1:ssecOther}
+
+The following standard results are used. Where a short derivation of the exact
+form used here is needed, it is written out.
+One of them, Lemma BBD below (a Bernstein inequality for functions of
+independent indicators with bounded differences), is not cited but proved in
+full. Its probabilistic part uses only finite sums. Its analytic part uses
+only elementary properties of the exponential function (such as $e^v\ge1+v$
+for real $v$) and the fact that a differentiable function whose derivative is
+non-negative on an interval is non-decreasing there; the one elementary
+one-variable inequality that it needs is proved there.
+
+\begin{citedresult}[{Chernoff bounds for sums of independent indicators; \cite[Theorems~2.1 and~2.8]{JLR00}}]\label{s1:citChernoffGen}
+Let $X=\sum_{i=1}^mI_i$ be a sum of independent indicator variables with
+$\Prob(I_i=1)=p_i$ (a Poisson-binomial variable), and let $0\le\delta\le1$.
+\begin{enumerate}
+\item[(a)] If $\mu\ge\Ex X$ then $\Prob\bigl(X\ge(1+\delta)\mu\bigr)\le
+e^{-\delta^2\mu/3}$; if $0\le\mu\le\Ex X$ then $\Prob\bigl(X\le(1-\delta)\mu\bigr)
+\le e^{-\delta^2\mu/2}$. In particular the two bounds of Cited
+result~\ref{s1:citChernoff} hold verbatim with $\mu=\Ex X$.
+\item[(b)] If $\Ex X\le\mu$ then for every integer $j\ge1$,
+\[
+\Prob(X\ge j)\le\frac{\mu^j}{j!}\le\Bigl(\frac{e\mu}{j}\Bigr)^j.
+\]
+\end{enumerate}
+\deps{none (standard).}
+\end{citedresult}
+\begin{proof}[Derivation of the forms used]
+(a) By \cite[Theorems~2.1 and~2.8]{JLR00}, with $\lambda\defeq\Ex X$ and $t\ge0$,
+$\Prob(X\ge\lambda+t)\le\exp\bigl(-t^2/(2(\lambda+t/3))\bigr)$ and
+$\Prob(X\le\lambda-t)\le\exp\bigl(-t^2/(2\lambda)\bigr)$. For the upper tail put
+$t\defeq(1+\delta)\mu-\lambda\ge\delta\mu$; the exponent
+$t^2/(2(\lambda+t/3))$ is increasing in $t$ and, for fixed $\mu$, decreasing in
+$\lambda$ (as $\lambda$ decreases, $t$ increases and
+$\lambda+t/3=\frac23\lambda+\frac13(1+\delta)\mu$ decreases), so it is at least
+its value at $\lambda=\mu$, namely $\delta^2\mu/(2(1+\delta/3))\ge\delta^2\mu/3$
+since $\delta\le1$. For the lower tail write $\lambda=\mu+a$ with $a\ge0$ and
+put $t\defeq\lambda-(1-\delta)\mu=\delta\mu+a\ge0$. Then
+$t^2=\delta^2\mu^2+2\delta\mu a+a^2\ge\delta^2\mu^2+\delta^2\mu a=\delta^2\mu\lambda$
+(as $\delta\le2$), so $t^2/(2\lambda)\ge\delta^2\mu/2$ (the case $\lambda=0$ is
+trivial).
+(b) If $X\ge j$ then some $j$-set $S\subseteq[m]$ has $I_i=1$ for all $i\in S$,
+so $\Prob(X\ge j)\le\sum_{|S|=j}\prod_{i\in S}p_i\le(\sum_ip_i)^j/j!\le\mu^j/j!$,
+because every product $\prod_{i\in S}p_i$ occurs $j!$ times in the expansion of
+$(\sum_ip_i)^j$ and all terms are non-negative. Finally $j!\ge(j/e)^j$.
+\end{proof}
+
+\begin{citedresult}[{Markov's inequality and its two uses}]\label{s1:citMarkov}
+If $X\ge0$ and $a>0$ then $\Prob(X\ge a)\le\Ex X/a$. Consequently:
+\begin{enumerate}
+\item[(a)] for $X\ge0$, $\Prob(X\le3\Ex X)\ge2/3$;
+\item[(b)] for $X_1,X_2\ge0$, $\Prob(X_1\le4\Ex X_1\text{ and }X_2\le4\Ex X_2)\ge
+1/2$;
+\item[(c)] (a) and (b) hold with $\Prob$ and $\Ex$ replaced by the conditional
+probability and expectation given any event of positive probability, or given
+any fixed outcome of variables that are independent of the variables being
+drawn.
+\end{enumerate}
+\deps{none (standard).}
+\end{citedresult}
+\begin{proof}[Derivation]
+(a) If $\Ex X=0$ then $X=0$ almost surely. Otherwise
+$\Prob(X>3\Ex X)\le\Prob(X\ge3\Ex X)\le1/3$.
+(b) Similarly $\Prob(X_i>4\Ex X_i)\le1/4$ for $i=1,2$, and a union bound gives
+failure probability at most $1/2$.
+(c) The same argument in the conditional probability space; if the conditioning
+fixes variables independent of those being drawn, the conditional law of the
+latter is their unconditional law.
+\end{proof}
+
+\begin{lemma}[Lemma BBD: Bernstein inequality for bounded differences]\label{s1:lemBBD}
+Let $m\ge0$ be an integer, let $p_1,\dots,p_m\in[0,1]$, and let
+$I_1,\dots,I_m$ be independent random variables with $\Prob(I_k=1)=p_k$ and
+$\Prob(I_k=0)=1-p_k$; write $I\defeq(I_1,\dots,I_m)$. Let
+$\Psi\colon\{0,1\}^m\to\mathbb{R}$, and let $b\ge0$ and
+$c_1,\dots,c_m\in[0,b]$ be such that $|\Psi(x)-\Psi(x')|\le c_k$ whenever
+$x,x'\in\{0,1\}^m$ differ only in the $k$-th coordinate. Let $\beta>0$ with
+$\beta\ge\sum_{k=1}^mp_k(1-p_k)c_k^2$. Then for every $a\ge0$,
+\[
+\Prob\bigl(\Psi(I)\ge\Ex\Psi(I)+a\bigr)\le\exp\Bigl(-\frac{a^2}{2(\beta+ba/3)}\Bigr)
+\quad\text{and}\quad
+\Prob\bigl(\Psi(I)\le\Ex\Psi(I)-a\bigr)\le\exp\Bigl(-\frac{a^2}{2(\beta+ba/3)}\Bigr).
+\]
+\deps{none (standard).}
+\end{lemma}
+\begin{proof}
+This is a standard Bernstein-type inequality; we prove it by the
+exponential-moment method. All sums in this proof are finite. For
+$0\le k\le m$, $x=(x_1,\dots,x_k)\in\{0,1\}^k$ and
+$z=(z_{k+1},\dots,z_m)\in\{0,1\}^{m-k}$ put
+\[
+\mathrm{wt}_k(x)\defeq\prod_{j=1}^{k}\bigl(p_jx_j+(1-p_j)(1-x_j)\bigr),\qquad
+\mathrm{wt}'_k(z)\defeq\prod_{j=k+1}^{m}\bigl(p_jz_j+(1-p_j)(1-z_j)\bigr)
+\]
+(empty products are $1$), and write $(x,z)\in\{0,1\}^m$ for the
+concatenation. These weights are non-negative,
+$\sum_{x\in\{0,1\}^k}\mathrm{wt}_k(x)=\prod_{j\le k}\bigl(p_j+(1-p_j)\bigr)=1$, and
+likewise $\sum_{z\in\{0,1\}^{m-k}}\mathrm{wt}'_k(z)=1$. By independence,
+$\Prob(I=x)=\mathrm{wt}_m(x)$ for $x\in\{0,1\}^m$. Hence
+$\Prob(I\in S)=\sum_{x\in S}\mathrm{wt}_m(x)$ for $S\subseteq\{0,1\}^m$, and
+$\Ex g(I)=\sum_{x}\mathrm{wt}_m(x)g(x)$ for $g\colon\{0,1\}^m\to\mathbb{R}$.
+
+\emph{Step 1: partial averages.} For $0\le k\le m$ and $x\in\{0,1\}^k$ put
+\[
+\Psi_k(x)\defeq\sum_{z\in\{0,1\}^{m-k}}\mathrm{wt}'_k(z)\,\Psi(x,z).
+\]
+Then
+$\Psi_m=\Psi$, and, as $\mathrm{wt}'_0=\mathrm{wt}_m$, $\Psi_0$ is the constant
+$\sum_x\mathrm{wt}_m(x)\Psi(x)=\Ex\Psi(I)$. Let $1\le k\le m$ and
+$y\in\{0,1\}^{k-1}$. Split the sum defining $\Psi_{k-1}(y)$ according to
+the first coordinate $z_k$ of $z=(z_k,z')$, and use
+$\mathrm{wt}'_{k-1}(z_k,z')=\bigl(p_kz_k+(1-p_k)(1-z_k)\bigr)\mathrm{wt}'_k(z')$. This gives
+\begin{equation}\label{s1:eqBBDavg}
+\Psi_{k-1}(y)=p_k\Psi_k(y,1)+(1-p_k)\Psi_k(y,0).
+\end{equation}
+Put $\Xi_k(y)\defeq\Psi_k(y,1)-\Psi_k(y,0)
+=\sum_{z}\mathrm{wt}'_k(z)\bigl(\Psi(y,1,z)-\Psi(y,0,z)\bigr)$. The points
+$(y,1,z)$ and $(y,0,z)$ differ only in the $k$-th coordinate, so
+$|\Xi_k(y)|\le\sum_z\mathrm{wt}'_k(z)c_k=c_k$. By~\eqref{s1:eqBBDavg},
+\begin{equation}\label{s1:eqBBDdiff}
+\Psi_k(y,x_k)-\Psi_{k-1}(y)=(x_k-p_k)\,\Xi_k(y)\qquad(x_k\in\{0,1\}).
+\end{equation}
+
+\emph{Step 2: an elementary inequality.} For every real $u$,
+\begin{equation}\label{s1:eqBBDphi}
+\Bigl(1-\frac u3\Bigr)e^u\le1+\frac{2u}3+\frac{u^2}6 .
+\end{equation}
+Indeed, let $\chi(u)$ be the right side minus the left side. Then
+$\chi(0)=0$ and
+$\chi'(u)=\frac23+\frac u3-\bigl(\frac23-\frac u3\bigr)e^u$, so
+$\chi'(0)=0$; and $\chi''(u)=\frac13\bigl(1-(1-u)e^u\bigr)\ge0$,
+because $1-u\le e^{-u}$. Hence $\chi'$ is non-decreasing, so
+$\chi'\le0$ on $(-\infty,0]$ and $\chi'\ge0$ on $[0,\infty)$. Thus
+$\chi$ is non-increasing on $(-\infty,0]$ and non-decreasing on
+$[0,\infty)$, and $\chi\ge\chi(0)=0$. Now let $0\le\zeta<3$ and $u\le\zeta$.
+Then $1-u/3\ge1-\zeta/3>0$ and
+$1+\frac{2u}3+\frac{u^2}6=\bigl(1-\frac u3\bigr)(1+u)+\frac{u^2}2$. Dividing
+\eqref{s1:eqBBDphi} by $1-u/3$ gives
+\begin{equation}\label{s1:eqBBDexp}
+e^u\le1+u+\frac{u^2}{2(1-u/3)}\le1+u+\frac{u^2}{2(1-\zeta/3)} .
+\end{equation}
+
+\emph{Step 3: one coordinate.} Let $\eta\ge0$ with $\eta b<3$ (it is chosen
+in Step~5), and put $\zeta\defeq\eta b$. Let $1\le k\le m$ and
+$y\in\{0,1\}^{k-1}$, and write $p\defeq p_k$ and $\Xi\defeq\Xi_k(y)$.
+The numbers $\eta(1-p)\Xi$ and $-\eta p\Xi$ are at most
+$\eta|\Xi|\le\eta c_k\le\eta b=\zeta$. Apply~\eqref{s1:eqBBDexp} to both,
+multiply by $p\ge0$ and $1-p\ge0$ respectively, and add. Since
+$p(1-p)-(1-p)p=0$ and $p(1-p)^2+(1-p)p^2=p(1-p)$, this gives
+\begin{equation}\label{s1:eqBBDstep}
+p\,e^{\eta(1-p)\Xi}+(1-p)\,e^{-\eta p\Xi}
+\le1+\frac{\eta^2p(1-p)\Xi^2}{2(1-\zeta/3)}
+\le\exp\Bigl(\frac{\eta^2p_k(1-p_k)c_k^2}{2(1-\zeta/3)}\Bigr),
+\end{equation}
+where the last step uses $\Xi^2\le c_k^2$ and $1+v\le e^v$.
+
+\emph{Step 4: induction over the coordinates.} For $0\le k\le m$ put
+\[
+\mathcal{E}_k\defeq\sum_{x\in\{0,1\}^k}\mathrm{wt}_k(x)\exp\bigl(\eta(\Psi_k(x)-\Psi_0)\bigr).
+\]
+Then $\mathcal{E}_0=1$, and $\mathcal{E}_m=\Ex\exp\bigl(\eta(\Psi(I)-\Ex\Psi(I))\bigr)$.
+Let $1\le k\le m$, and write $x\in\{0,1\}^k$ as $(y,x_k)$ with
+$y\in\{0,1\}^{k-1}$; then $\mathrm{wt}_k(y,1)=p_k\mathrm{wt}_{k-1}(y)$ and
+$\mathrm{wt}_k(y,0)=(1-p_k)\mathrm{wt}_{k-1}(y)$. By~\eqref{s1:eqBBDdiff}, and then
+by~\eqref{s1:eqBBDstep} and the non-negativity of all weights,
+\begin{align*}
+\mathcal{E}_k&=\sum_{y\in\{0,1\}^{k-1}}\mathrm{wt}_{k-1}(y)\,e^{\eta(\Psi_{k-1}(y)-\Psi_0)}
+\Bigl(p_ke^{\eta(1-p_k)\Xi_k(y)}+(1-p_k)e^{-\eta p_k\Xi_k(y)}\Bigr)\\
+&\le\mathcal{E}_{k-1}\exp\Bigl(\frac{\eta^2p_k(1-p_k)c_k^2}{2(1-\zeta/3)}\Bigr).
+\end{align*}
+By induction on $k$, and since $\sum_kp_k(1-p_k)c_k^2\le\beta$,
+$\mathcal{E}_m\le\exp\bigl(\eta^2\beta/(2(1-\zeta/3))\bigr)$.
+
+\emph{Step 5: the upper tail.} Let
+$S\defeq\{x\in\{0,1\}^m:\Psi(x)\ge\Psi_0+a\}$. For $x\in S$ we have
+$\exp\bigl(\eta(\Psi(x)-\Psi_0-a)\bigr)\ge1$, as $\eta\ge0$, and all terms
+below are non-negative. Hence
+\begin{align*}
+\Prob\bigl(\Psi(I)\ge\Ex\Psi(I)+a\bigr)&=\sum_{x\in S}\mathrm{wt}_m(x)
+\le e^{-\eta a}\sum_{x\in\{0,1\}^m}\mathrm{wt}_m(x)e^{\eta(\Psi(x)-\Psi_0)}\\
+&=e^{-\eta a}\mathcal{E}_m
+\le\exp\Bigl(-\eta a+\frac{\eta^2\beta}{2(1-\eta b/3)}\Bigr).
+\end{align*}
+Now choose $\eta\defeq a/(\beta+ba/3)\ge0$. Since $\beta>0$, we have
+$\eta b/3=(ba/3)/(\beta+ba/3)<1$, so $\eta b<3$ as required in Step~3, and
+$1-\eta b/3=\beta/(\beta+ba/3)$. Therefore
+\[
+-\eta a+\frac{\eta^2\beta}{2(1-\eta b/3)}
+=-\frac{a^2}{\beta+ba/3}+\frac{a^2}{(\beta+ba/3)^2}\cdot\frac{\beta\,(\beta+ba/3)}{2\beta}
+=-\frac{a^2}{2(\beta+ba/3)},
+\]
+which is the first bound.
+
+\emph{Step 6: the lower tail.} The function $-\Psi$ satisfies the hypotheses
+with the same $b$, $c_1,\dots,c_m$ and $\beta$, and
+$\Ex(-\Psi(I))=-\Ex\Psi(I)$. So the first bound for $-\Psi$ is the second
+bound for $\Psi$.
+\end{proof}
+
+\begin{citedresult}[{Hall's theorem \cite{Hal35}}]\label{s1:citHall}
+Let $\mathcal J$ be a finite set and, for every $a\in\mathcal J$, let
+$\mathcal T(a)$ be a finite set. If
+$\bigl|\bigcup_{a\in\mathcal J'}\mathcal T(a)\bigr|\ge|\mathcal J'|$ for every
+$\mathcal J'\subseteq\mathcal J$, then there is an injective map $\chi$ from
+$\mathcal J$ to $\bigcup_{a\in\mathcal J}\mathcal T(a)$ with
+$\chi(a)\in\mathcal T(a)$ for every $a\in\mathcal J$ (a system of distinct
+representatives).
+\deps{none (standard).}
+\end{citedresult}
+
+\begin{citedresult}[{Haxell's condition for matchability \cite{Hax95}}]\label{s1:citHaxell}
+Let $q\ge1$ be an integer, and let $\mathcal H$ be a hypergraph (a set of
+subsets, called edges, of a finite vertex set) whose vertex set is the
+disjoint union of two sets $\mathcal X$ and $\mathcal Y$, such that every edge
+$e$ satisfies $|e\cap\mathcal X|=1$ and $|e\cap\mathcal Y|\le q$. Suppose that
+for every $\mathcal X'\subseteq\mathcal X$ and every $Z\subseteq\mathcal Y$ with
+$|Z|\le(2q-1)(|\mathcal X'|-1)$ there is an edge $e$ of $\mathcal H$ with
+$e\cap\mathcal X\subseteq\mathcal X'$ and $e\cap Z=\emptyset$. Then
+$\mathcal H$ has an \emph{$\mathcal X$-saturating matching}, i.e.\ a set of
+pairwise disjoint edges such that every vertex of $\mathcal X$ lies in one of
+them.
+
+For $\mathcal X'=\emptyset$ there is no such $Z$, because $(2q-1)(0-1)<0$. For
+$q=1$ (edges with at most two vertices) the result is Hall's theorem; a vertex
+$a$ with $\{a\}\in\mathcal H$ is matched by that edge. In the later literature
+the result of \cite{Hax95} is quoted for hypergraphs whose edges have at most
+(in some sources: exactly) $r$ vertices, one of them in $\mathcal X$, with the
+bound $(2r-3)(|\mathcal X'|-1)$. With $r=q+1$, the maximum edge size, this bound
+is $(2(q+1)-3)(|\mathcal X'|-1)=(2q-1)(|\mathcal X'|-1)$: the stated form agrees
+with Haxell's theorem as quoted there, and the case $q=1$ (Hall's theorem)
+confirms this reading of the parameters. The only application, in the proof of
+Lemma~\ref{s3:lemL9rho}, verifies the hypothesis for every $Z$ with
+$|Z|<q^2|\mathcal X'|$; so that application stays valid if $2q-1$ is replaced
+by any positive factor at most $q^2$. Unlike the other cited items of this
+subsection, which are standard textbook results, this is a published research
+result. The derivation below shows
+that the stated form follows from the special case in which every edge meets
+$\mathcal Y$ in exactly $q$ vertices; so the stated form holds if \cite{Hax95}
+proves either of the two quoted forms. After the derivation, a complete proof of
+the stated form is written out (Haxell's alternating-tree argument), so that
+the application does not depend on the precise form in which the result is
+stated in \cite{Hax95}.
+\deps{none (published).}
+\end{citedresult}
+\begin{proof}[Derivation from the case $|e\cap\mathcal Y|=q$]
+Let $\mathcal H$ be as stated, and let $\mathcal X_0$ be the set of
+$a\in\mathcal X$ such that $\{a\}$ is an edge. Every edge $e$ with
+$e\cap\mathcal X\not\subseteq\mathcal X_0$ has $e\cap\mathcal Y\ne\emptyset$
+(otherwise $e=\{a\}$ with $a\in\mathcal X_0$). For each such $e$ take a set
+$N_e$ of $q-|e\cap\mathcal Y|$ new vertices, the sets $N_e$ pairwise disjoint
+and disjoint from $\mathcal X\cup\mathcal Y$, and put $e^+:=e\cup N_e$. Let
+$\mathcal H^+$ be the hypergraph on
+$(\mathcal X\setminus\mathcal X_0)\sqcup\mathcal Y^+$, where
+$\mathcal Y^+:=\mathcal Y\cup\bigcup_eN_e$, whose edges are these sets $e^+$.
+Every edge of $\mathcal H^+$ meets $\mathcal X\setminus\mathcal X_0$ in exactly
+one vertex and $\mathcal Y^+$ in exactly $q$ vertices.
+
+We check the hypothesis for $\mathcal H^+$. Let
+$\mathcal X'\subseteq\mathcal X\setminus\mathcal X_0$ and
+$Z^+\subseteq\mathcal Y^+$ with $|Z^+|\le(2q-1)(|\mathcal X'|-1)$. For every
+$z\in Z^+\setminus\mathcal Y$ let $f_z$ be the unique edge of $\mathcal H$ with
+$z\in N_{f_z}$, and choose a vertex $b_z\in f_z\cap\mathcal Y$. Put
+$Z:=(Z^+\cap\mathcal Y)\cup\{b_z:z\in Z^+\setminus\mathcal Y\}\subseteq\mathcal Y$.
+Then $|Z|\le|Z^+|$, so the hypothesis for $\mathcal H$ gives an edge $e$ with
+$e\cap\mathcal X\subseteq\mathcal X'$ and $e\cap Z=\emptyset$. As
+$|e\cap\mathcal X|=1$, the set $e\cap\mathcal X$ is a single vertex of
+$\mathcal X'\subseteq\mathcal X\setminus\mathcal X_0$; so
+$e\cap\mathcal X\not\subseteq\mathcal X_0$, the set $e^+$ is an edge of
+$\mathcal H^+$, and
+$e^+\cap(\mathcal X\setminus\mathcal X_0)=e\cap\mathcal X\subseteq\mathcal X'$.
+Moreover $e^+\cap Z^+=\emptyset$: a vertex of $e^+\cap Z^+$ lies either in
+$e\cap\mathcal Y$, and then in $Z\cap e$; or it is some $z\in N_e$, and then
+$f_z=e$ and $b_z\in e\cap Z$. Both contradict $e\cap Z=\emptyset$.
+
+By the case $|e\cap\mathcal Y|=q$, $\mathcal H^+$ has an
+$(\mathcal X\setminus\mathcal X_0)$-saturating matching
+$\{e_1^+,\dots,e_k^+\}$. The edges $e_1,\dots,e_k$ of $\mathcal H$ are pairwise
+disjoint, as $e_i\subseteq e_i^+$, and they cover
+$\mathcal X\setminus\mathcal X_0$, as
+$e_i\cap\mathcal X=e_i^+\cap(\mathcal X\setminus\mathcal X_0)$. The edges
+$\{a\}$, $a\in\mathcal X_0$, are disjoint from each other and from every $e_i$,
+since $e_i\cap\mathcal X\subseteq\mathcal X\setminus\mathcal X_0$. So
+$\{e_1,\dots,e_k\}\cup\{\{a\}:a\in\mathcal X_0\}$ is an $\mathcal X$-saturating
+matching of $\mathcal H$.
+\end{proof}
+\begin{proof}[Proof of the stated form]
+This is Haxell's alternating-tree argument. For an edge $e$ let $a(e)$ denote
+the vertex of $e\cap\mathcal X$. We use induction on $|\mathcal X|$. If
+$\mathcal X=\emptyset$, the empty set of edges is an $\mathcal X$-saturating
+matching. Let $|\mathcal X|\ge1$ and fix $a_0\in\mathcal X$. The edges of
+$\mathcal H$ that do not contain $a_0$ form a hypergraph on
+$(\mathcal X\setminus\{a_0\})\sqcup\mathcal Y$ that satisfies the hypothesis
+with $\mathcal X\setminus\{a_0\}$ in place of $\mathcal X$: for
+$\mathcal X'\subseteq\mathcal X\setminus\{a_0\}$, the edge $e$ given by the
+hypothesis for $\mathcal H$ has $e\cap\mathcal X\subseteq\mathcal X'$, so
+$a_0\notin e$. By the induction hypothesis this hypergraph has an
+$(\mathcal X\setminus\{a_0\})$-saturating matching.
+
+Call a set $\mathcal M$ of pairwise disjoint edges of $\mathcal H$ \emph{good} if
+no edge of $\mathcal M$ contains $a_0$ and every vertex of
+$\mathcal X\setminus\{a_0\}$ lies in an edge of $\mathcal M$. Since every edge
+meets $\mathcal X$ in exactly one vertex, the map $m\mapsto a(m)$ is then a
+bijection from $\mathcal M$ onto $\mathcal X\setminus\{a_0\}$. We have just seen
+that a good set exists. It suffices to find a good $\mathcal M$ and an edge $x$
+with $a(x)=a_0$ and $x\cap m\cap\mathcal Y=\emptyset$ for every
+$m\in\mathcal M$: then $x$ is disjoint from every $m\in\mathcal M$ (as
+$a(m)\ne a_0$), and $\mathcal M\cup\{x\}$ is an $\mathcal X$-saturating
+matching.
+
+\emph{Configurations.} Let $\mathcal M$ be good. A \emph{configuration} for
+$\mathcal M$ is a sequence $(x_1,\mathcal S_1,\dots,x_k,\mathcal S_k)$ with
+$k\ge0$, of edges $x_i$ of $\mathcal H$ and sets
+$\mathcal S_i\subseteq\mathcal M$, with the following properties. Put
+$\mathcal X^{(0)}:=\{a_0\}$, $Z^{(0)}:=\emptyset$ and, for $1\le i\le k$,
+\[
+\mathcal X^{(i)}:=\{a_0\}\cup\{a(m):m\in\mathcal S_1\cup\dots\cup\mathcal S_i\},
+\qquad
+Z^{(i)}:=\mathcal Y\cap\Bigl(x_1\cup\dots\cup x_i\cup
+\bigcup_{m\in\mathcal S_1\cup\dots\cup\mathcal S_i}m\Bigr).
+\]
+The properties are, for every $1\le i\le k$: (C1) $a(x_i)\in\mathcal X^{(i-1)}$ and
+$x_i\cap Z^{(i-1)}=\emptyset$; (C2)
+$\mathcal S_i=\{m\in\mathcal M:m\cap x_i\cap\mathcal Y\ne\emptyset\}$ and
+$\mathcal S_i\ne\emptyset$. The \emph{signature} of the configuration is the
+sequence $(|\mathcal S_1|,\dots,|\mathcal S_k|)$ of positive integers.
+
+The sets $\mathcal S_i$ are pairwise disjoint: if $j<i$ and
+$m\in\mathcal S_j$, then $m\cap\mathcal Y\subseteq Z^{(i-1)}$, which $x_i$
+avoids by (C1), so $m\notin\mathcal S_i$. As $m\mapsto a(m)$ is injective on
+$\mathcal M$ and $a(m)\ne a_0$, we get
+$|\mathcal X^{(k)}|-1=\sum_{i\le k}|\mathcal S_i|\le|\mathcal M|=|\mathcal X|-1$.
+Each $m\in\mathcal S_i$ shares a vertex of $\mathcal Y$ with $x_i$, so
+$|(m\cap\mathcal Y)\setminus x_i|\le q-1$. Hence, using $|\mathcal S_i|\ge1$,
+\begin{align*}
+|Z^{(k)}|&\le\sum_{i\le k}\Bigl(|x_i\cap\mathcal Y|
++\sum_{m\in\mathcal S_i}|(m\cap\mathcal Y)\setminus x_i|\Bigr)
+\le\sum_{i\le k}\bigl(q+(q-1)|\mathcal S_i|\bigr)\\
+&\le(2q-1)\sum_{i\le k}|\mathcal S_i|=(2q-1)\bigl(|\mathcal X^{(k)}|-1\bigr).
+\end{align*}
+So the hypothesis, with $\mathcal X':=\mathcal X^{(k)}$ and $Z:=Z^{(k)}$, gives
+an edge $x$ with $a(x)\in\mathcal X^{(k)}$ and $x\cap Z^{(k)}=\emptyset$. $(*)$
+
+\emph{Swap step.} Suppose that $\mathcal M$ is good, that
+$(x_1,\mathcal S_1,\dots,x_j,\mathcal S_j)$ is a configuration for
+$\mathcal M$, and that $y$ is an edge with $a(y)\in\mathcal X^{(j)}$,
+$y\cap Z^{(j)}=\emptyset$ and $y\cap m\cap\mathcal Y=\emptyset$ for every
+$m\in\mathcal M$. If $a(y)=a_0$, then $\mathcal M$ and $x:=y$ are as required,
+and the swap step ends. Otherwise $a(y)=a(m)$ for exactly one $m\in\mathcal M$, and
+$m\in\mathcal S_i$ for exactly one $i\le j$. Put
+$\mathcal M':=(\mathcal M\setminus\{m\})\cup\{y\}$. It is good: $y$ shares no
+vertex of $\mathcal Y$ with an edge of $\mathcal M$, the vertex $a(y)=a(m)$
+lies in no edge of $\mathcal M\setminus\{m\}$, $a_0\notin y$, and $a(m)$ is
+covered by $y$. For $i'\le j$ we have $x_{i'}\cap\mathcal Y\subseteq Z^{(j)}$,
+so $y\cap x_{i'}\cap\mathcal Y=\emptyset$; and $m\in\mathcal S_{i'}$ only for
+$i'=i$. Hence
+$\{m'\in\mathcal M':m'\cap x_{i'}\cap\mathcal Y\ne\emptyset\}$ equals
+$\mathcal S_{i'}$ for $i'<i$ and $\mathcal S_i\setminus\{m\}$ for $i'=i$, and
+the sets $\mathcal X^{(i')}$ and $Z^{(i')}$ with $i'<i$ are the same for
+$\mathcal M'$ as for $\mathcal M$. So, if $\mathcal S_i\ne\{m\}$, then
+$(x_1,\mathcal S_1,\dots,x_{i-1},\mathcal S_{i-1},x_i,\mathcal S_i\setminus\{m\})$
+is a configuration for $\mathcal M'$, and the swap step ends. If $\mathcal S_i=\{m\}$,
+then $(x_1,\mathcal S_1,\dots,x_{i-1},\mathcal S_{i-1})$ is a configuration for
+$\mathcal M'$, the edge $x_i$ satisfies $a(x_i)\in\mathcal X^{(i-1)}$ and
+$x_i\cap Z^{(i-1)}=\emptyset$ by (C1), and $x_i$ shares no vertex of
+$\mathcal Y$ with an edge of $\mathcal M'$; we repeat the swap step with
+$\mathcal M'$, this configuration and $y:=x_i$. As $i-1<j$, and as
+$\mathcal X^{(0)}=\{a_0\}$, the swap step ends after at most $j+1$ rounds.
+
+\emph{One move.} Let $\mathcal M$ be good, with a configuration of signature
+$(s_1,\dots,s_k)$, and let $x$ be as in $(*)$. If $x$ shares a vertex of
+$\mathcal Y$ with some edge of $\mathcal M$, append $x$ and
+$\mathcal S_{k+1}:=\{m\in\mathcal M:m\cap x\cap\mathcal Y\ne\emptyset\}$; by
+$(*)$ this is a configuration for $\mathcal M$, of signature
+$(s_1,\dots,s_k,s_{k+1})$. Otherwise apply the swap step with $j:=k$ and
+$y:=x$. Either it finds $\mathcal M$ and $x$ as required, or it ends with a
+good $\mathcal M'$ and a configuration for $\mathcal M'$ of signature
+$(s_1,\dots,s_{i-1},s_i-1)$ for some $i\le k$ with $s_i\ge2$.
+
+\emph{Termination.} For finite sequences $\sigma,\tau$ of positive integers
+write $\sigma\prec\tau$ if the word $\sigma\infty$ precedes the word
+$\tau\infty$ in the lexicographic order on words over
+$\{1,2,\dots\}\cup\{\infty\}$. As $\infty$ occurs only as the last letter,
+neither of two distinct such words is a prefix of the other, so $\prec$ is a
+strict total order. A move that does not find $\mathcal M$ and $x$ as required
+replaces the signature $\sigma$
+by some $\sigma'\prec\sigma$: an extension $\sigma'$ of $\sigma$ has a finite
+entry where $\sigma\infty$ has $\infty$, and $(s_1,\dots,s_{i-1},s_i-1)$ is
+smaller at position $i$. Every signature has positive entries with sum at most
+$|\mathcal X|-1$, so there are finitely many signatures, and a sequence that
+is strictly decreasing for $\prec$ has no repetition; hence it is finite.
+Start with a good $\mathcal M$ and the configuration with $k=0$, and make
+moves as long as possible. After finitely many moves a swap step finds a good
+$\mathcal M$ and an edge $x$ as required.
+\end{proof}
+
+\begin{citedresult}[{$T$-joins and Euler circuits}]\label{s1:citEuler}
+\begin{enumerate}
+\item[(a)] Let $H$ be a connected graph and $T\subseteq V(H)$ with $|T|$ even.
+Every spanning tree $S$ of $H$ contains a $T$-join, i.e.\ a set $J\subseteq E(S)$
+such that the vertices of odd $J$-degree are exactly the vertices of $T$.
+\item[(b)] A connected graph (or multigraph, possibly with loops) with at least one
+edge in which every vertex has even degree has a closed trail using every edge
+exactly once.
+\item[(c)] A graph in which every vertex has even degree is an edge-disjoint union
+of cycles; a directed graph without loops in which every vertex has in-degree
+equal to out-degree is an arc-disjoint union of directed cycles.
+\end{enumerate}
+The Lov\'asz path decomposition is used only through Cited
+result~\ref{s1:citCor22}.
+\deps{none (standard).}
+\end{citedresult}
+\begin{proof}[Derivation of (a) and (c)]
+(a) Root $S$ at a vertex $\rho$, and put the edge from a vertex $v\ne\rho$ to its
+parent into $J$ if and only if the subtree of $S$ rooted at $v$ contains an odd
+number of vertices of $T$. For $v\ne\rho$ the $J$-degree of $v$ is congruent
+modulo $2$ to the number of $T$-vertices in its subtree minus those in the
+subtrees of its children, i.e.\ to $\ind{v\in T}$; for $\rho$ it is congruent to
+$|T|-\ind{\rho\in T}\equiv\ind{\rho\in T}$, since $|T|$ is even. (b) is Euler's
+theorem. (c) If some edge (arc) remains, start at one of its ends and walk along
+unused edges (leaving along unused out-arcs); since every vertex has even degree
+(balanced degrees), the walk can always continue until it revisits a vertex,
+which closes a cycle (directed cycle); delete it and repeat.
+\end{proof}
+
+\subsection{Constants, their order, and the galactic conditions}\label{s1:ssecConstants}
+
+\begin{definition}[the constants]\label{s1:defConstants}
+\begin{enumerate}
+\item[(i)] $\eps\defeq2^{-5}$, $\sigma\defeq100$, $\Cp\defeq103$ and
+$\Aexp\defeq105$.
+\item[(ii)] $\Nzero$ is an absolute constant, i.e.\ it depends only on $\sigma$,
+$\Cp$ and $\Aexp$, with $\Nzero\ge2^{40}$ (redundant: size condition~(i),
+$L\ge2^{10}$, already forces every $N\ge\Nzero$ to satisfy $N\ge2^{1024}$,
+i.e.\ $\lceil\Nzero\rceil\ge2^{1024}$) and $\Nzero$ at least
+each of the absolute size thresholds required in the proofs of
+Lemma~\ref{s4:lemTPV}, Lemma~\ref{s4:lemPV} and Theorem~\ref{s4:thmVXp}.
+Every requirement on $\Nzero$ in this item is an \emph{eventuality}: it holds
+for every sufficiently large value of $\Nzero$. Indeed $\Nzero\ge2^{40}$ is a
+lower bound, and every other requirement asks that an explicit inequality in
+$N$, which holds for all sufficiently large $N$, hold for every $N\ge\Nzero$. So
+such an $\Nzero$ exists (finitely many eventualities have a common threshold),
+and only its existence is used; no numerical value of $\Nzero$ enters any proof.
+(Each of these three statements carries the hypothesis that its vertex set has
+at least $\Nzero$ vertices, and its proof records the size conditions it
+needs. The lemmas of Section~\ref{s5:sec} carry the hypothesis $n\ge\Nzero$
+through the setting paragraph of that section and use $\Nzero$ only to apply
+these three statements. Lemma~\ref{s3:lemL15p} and Theorem~\ref{s3:thmT16s}
+need no lower bound on the number of vertices.)
+\item[(iii)] $\Dstar$ is a constant satisfying \ref{s1:condG1}--\ref{s1:condG4}
+of Condition~\ref{s1:condGamma}. Each of these conditions is an eventuality in
+$\Dstar$: once $\Nzero$ is fixed, every sufficiently large $\Dstar$ satisfies all
+of them (Lemma~\ref{s7:lemGammaSat}). So such a constant exists; only its
+existence is used, and no numerical value of $\Dstar$ enters any proof.
+\item[(iv)] $\epsOne(\Dstar)$ and $\epsTwo(\Dstar)$ are the explicit functions
+of $\Dstar$ defined in Proposition~\ref{s7:propCost} and
+Lemma~\ref{s7:lemUHsplit} respectively, and $\thetaQ\defeq\epsTwo(\Dstar)$. Each is a finite sum of explicit terms
+depending only on $\Dstar$, $\eps$, $\sigma$, $\Cp$ and $\Aexp$.
+\item[(v)] $\Czero\defeq\Dstar/2+\cTot+\epsOne(\Dstar)$; the function
+$\epsOne$ is counted exactly once. By \ref{s1:condG4},
+$\Czero\le\Dstar/2+\cTotR$.
+\item[(vi)] $\cEG\defeq\max\bigl\{\Czero/(1-2\thetaQ),\ \Nzero/2\bigr\}$.
+\item[(vii)] (Generic notation, proofs only; permitted, but not used in the
+present text.) Inside a proof, $\epsD$ may be
+used as shorthand for an expression written out explicitly in the same proof
+that depends only on $\Dstar$, $\eps$, $\sigma$, $\Cp$, $\Aexp$ and tends to $0$ as
+$\Dstar\to\infty$. It never appears in the final bound of a statement; every
+named small quantity ($\epsA$, $\epsU$, $\epsK=\epsChain$, $\epsCONC$,
+$\varepsilon_M$, $\epsX$, $\epsOne$, $\epsTwo$) is given by an explicit formula
+in its defining statement.
+\end{enumerate}
+\deps{none.}
+{\small\noindent(The references of this definition to later statements are not
+dependencies; see the paragraph on forward references in
+Section~\ref{s1:ssecDAG}. For instance, $\epsOne$ and $\epsTwo$ are defined in
+Proposition~\ref{s7:propCost} and Lemma~\ref{s7:lemUHsplit}.)\par}
+\end{definition}
+
+\begin{remark}[order of the constants]\label{s1:remOrder}
+The constants are fixed in the following order:
+\begin{enumerate}
+\item $\sigma$, $\Cp$, $\Aexp$, $\eps$;
+\item $\Nzero$;
+\item $\Dstar$;
+\item $\epsOne(\Dstar)$, $\epsTwo(\Dstar)=\thetaQ$ and $\Czero$;
+\item $\cEG$.
+\end{enumerate}
+Nothing earlier in this list depends on anything later. In particular $\Czero$
+and $\thetaQ$ depend on $\Dstar$ only (given the fixed $\sigma,\Cp,\Aexp,\eps$):
+they do not depend on $G$, on $n$, on the run of the hierarchy, on the
+designation, or on $\cEG$. The constant $\cEG$ enters only as the constant $c$
+of the induction, Theorem~\ref{s7:thmHI}, which is applied last; this is why
+that induction is not circular. The constants of steps~2 and~3 are only required to be sufficiently
+large: every condition on $\Nzero$ (Definition~\ref{s1:defConstants}(ii)) and on
+$\Dstar$ (Condition~\ref{s1:condGamma}) is an eventuality in that constant, given
+the constants of the earlier steps. Table~\ref{s1:tabOrder}, after
+Condition~\ref{s1:condGamma}, lists every such condition with the variable in
+which it is eventual, the constants it may depend on, and the values at which it
+is used.
+\deps{\ref{s1:defConstants}.}
+\end{remark}
+
+\begin{condition}[the galactic conditions on $\Dstar$]\label{s1:condGamma}
+The constant $\Dstar$ satisfies the following conditions. This is the single list
+of galactic conditions of the paper; every use cites the specific item.
+Every condition is an \emph{eventuality} in $\Dstar$: once $\Nzero$ is fixed, it
+holds for all sufficiently large $\Dstar$ (Lemma~\ref{s7:lemGammaSat}). Only the
+existence of a suitable $\Dstar$ is used: no proof evaluates any of the
+inequalities below at a particular numerical value.
+\begin{enumerate}
+\item[\Gc{1}]\namedlabel{s1:condG1}{\Gc{1}} (\emph{Tower condition.})
+$\Dstar>2$, so that $\log_2\log_2\Dstar$ is defined and positive; and for every real
+$\mu\ge\log_2\log_2\Dstar$, with $\lambda\defeq2^\mu$, the following hold:
+\begin{enumerate}
+\item[(a)] $\mu\ge2^8$;
+\item[(b)] $2^\mu\ge2^{14}\Aexp\mu^3$;
+\item[(c)] $2\Aexp\log_2(\Aexp\mu)\le1.6\,\mu$;
+\item[(d)] $2\log_2\mu+8\le\mu$ (this follows from (a), and is listed
+separately for direct citation);
+\item[(e)]\namedlabel{s1:condGstar}{\Gstar} (the condition \Gstar)
+$\lambda^{36}\ge2^{240}(\Aexp\mu)^{46\Aexp}$;
+\item[(f)] for every row of the COL-JV table (Table~\ref{s3:tabCOLJV}), every
+inequality in column~3 of that row holds at $\lambda$, where
+$\bar M\defeq(\Aexp\mu)^{2\Aexp}$ and $\bar k\defeq192\lambda^3+\frac43\bar M^2$ as in
+the caption of that table. (Row~13 is \Gstar, and the inequality of row~12 is
+item~(c). This item points forward to explicit formulas, as \Gc{4} does for
+$\epsOne$ and $\epsTwo$: column~3 consists of $18$ explicit inequalities, two in
+row~1, five in row~8 and one in each other row, and they involve only $\mu$,
+$\lambda=2^\mu$, $\bar M$ and $\bar k$.)
+\end{enumerate}
+Each item consists of explicit inequalities in the single real variable $\mu$,
+and each of them holds for all sufficiently large $\mu$
+(Lemma~\ref{s7:lemGammaSat}); \Gc{1} asks that
+all of them hold on the whole ray $\mu\ge\log_2\log_2\Dstar$. So \Gc{1} is upward
+closed in $\Dstar$. (The requirement $\Dstar>2$ only makes the ray well
+defined: whenever $\log_2\log_2\Dstar$ is defined, (a) at
+$\mu=\log_2\log_2\Dstar$ already gives $\Dstar\ge2^{2^{256}}$.)
+
+Every round $r\le R$ of the hierarchy has average degree $d_r\ge\Dstar$
+(Definition~\ref{s2:defHBtp}), so $\lambda_r\defeq\log_2d_r$ satisfies
+$\log_2\lambda_r\ge\log_2\log_2\Dstar$, and (a)--(f) hold at
+$\mu=\log_2\lambda_r$. They also hold at $\mu=\log_2\log_2d$ for every
+$d\ge\Dstar$, and at $\mu=\log_2\Dstar$ (as $t\ge\log_2t$ for $t>0$). By (a) at
+$\mu=\log_2\log_2\Dstar$, $\log_2\Dstar\ge2^{256}$. The consequences used later,
+each proved where it is used, are: every requirement (column~2) and every
+column-3 inequality of the COL-JV table (Lemma~\ref{s3:lemCOLJV}(ii)); the tower
+facts of Proposition~\ref{s2:propDegRec}, Lemma~\ref{s2:lemLacunary} and
+Lemma~\ref{s2:lemTower} (among them $\thGC_r>\tau_r$ and
+$\lambda_r\ge2^{2\logs d_r+2}$); and Proposition~\ref{s2:propStructure} and
+elementary estimates in Sections~\ref{s5:sec}--\ref{s7:sec}, each of which cites
+the item it uses.
+
+\item[\Gc{2}]\namedlabel{s1:condG2}{\Gc{2}}
+\begin{enumerate}
+\item[(a)] $\Dstar\ge2^{117}$; hence $\log_2(\tHB_ld_l)\ge117$ in every round
+$l$, the fixed-point requirement of the Lemma-25 size cap
+(Lemma~\ref{s2:lemCap});
+\item[(b)] $P_{l-2}/2\ge M_l\log^4M_l$ for every $3\le l\le R$, including rounds
+with $M_l=2^{40}$ (light parts two rounds back are admissible parents,
+Proposition~\ref{s2:propParentless});
+\item[(c)] every per-ancestor failure probability of Lemma~\ref{s3:lemCOL} and
+of Lemma~\ref{s5:lemE1} is at most $|V(Y)|^{-2}$ (the failure-union lines of
+Table~\ref{s3:tabCOLJV}).
+\end{enumerate}
+Each of (a)--(c) is implied by \ref{s1:condG1}: (a) is
+immediate from \ref{s1:condG1}; (b) is proved in Lemma~\ref{s2:lemTower}(b); and
+the bounds of (c) are proved in Lemma~\ref{s3:lemCOL} (with rows~6 and~7 of
+Table~\ref{s3:tabCOLJV}) and in Lemma~\ref{s5:lemE1}(b),(c). None of these
+proofs, and none of the results they use, uses (b) or (c). They are listed separately for traceability.
+
+\item[\Gc{3}]\namedlabel{s1:condG3}{\Gc{3}} $(\log_2\Dstar)^{\Cp}\ge2\Nzero$.
+
+Hence every pre-part has at least $P_R\ge(\log\Dstar)^{\Cp}\ge2\Nzero$ vertices,
+every light part at least $P_R/2\ge\Nzero$, every ancestor, part and TPV,
+P-vortex or VX$^+$ run meets the absolute size thresholds of its tools, and every
+$o(1)$ term in a per-part success probability is at most $1/100$ (each proved
+where used).
+
+\item[\Gc{4}]\namedlabel{s1:condG4}{\Gc{4}} $\epsOne(\Dstar)\le6$ and
+$\thetaQ=\epsTwo(\Dstar)\le1/4$, where $\epsOne$ and $\epsTwo$ are the explicit
+expressions of Proposition~\ref{s7:propCost} and Lemma~\ref{s7:lemUHsplit}.
+
+These expressions collect the following terms, with the coefficients stated;
+here $\epsOne$ contains $3\,\epsX$ and $\epsTwo$ contains $12\,\epsX$, where
+$\epsX=\epsU+10.3/\Dstar+2.1(6\log_2\Dstar+12)/\Dstar$
+(Lemma~\ref{s7:lemEXprime}):
+\begin{itemize}
+\item the concentration term $1.5\,\epsCONC(\Dstar)$ of $\epsOne$ (it does
+not occur in $\epsTwo$), where
+\[
+\epsCONC(\Dstar)=2^{\sigma+15}\frac{\logs\Dstar}{\log\Dstar}
++200\,\eps\,\frac{\logs\Dstar}{\Cp\log\log\Dstar}
++\frac{4(2\logs\Dstar+2)}{(\log\Dstar)^{1/2}}
+\]
+(Theorem~\ref{s6:thmCONCL}(iv); its first two terms bound the $\tau$- and
+$d^*$-terms of all ancestors as in Theorem~\ref{s6:thmCONC}(iii), with a spare
+factor $2$, and its last term bounds the guest-cap terms $\thGC_r(Y^0)$ of the
+light parts);
+\item $\epsA=31\eps/(\Cp\log\log\Dstar)$ (defined in
+Lemma~\ref{s2:lemTower}(e)), with coefficient $169$ in $\epsOne$ and $12$ in
+$\epsTwo$;
+\item $\epsU$, the demotion and lost-parent expectations
+(Lemma~\ref{s5:lemExpect}), with coefficient $3$ in $\epsOne$ and $12$ in
+$\epsTwo$ (through $\epsX$);
+\item $\epsK$, the U-chaining term (Lemma~\ref{s5:lemKRED}), with
+coefficient $1$ in $\epsOne$ (it does not occur in $\epsTwo$);
+\item the pool term
+$\sum_l(6\log_2M_l+12)/M_l\le2.1(6\log_2\Dstar+12)/\Dstar$, whose bound
+enters with coefficient $3$ in $\epsOne$ and $12$ in $\epsTwo$ (through
+$\epsX$);
+\item in $\epsTwo$ only, the quotient term $2F(\log_2\Dstar)$, with
+coefficient $4$ (so $\epsTwo$ contains $8F(\log_2\Dstar)$), where
+$F(x)=(3184+30400\log_2x)\,x^{-90.2}$ (Lemma~\ref{s7:lemUHsplit}(iv));
+\item terms $O(1/\Dstar)$: $(252+9+3\cdot10.3)/\Dstar=291.9/\Dstar$ in
+$\epsOne$ and $(12\cdot10.3+4\cdot60)/\Dstar=363.6/\Dstar$ in $\epsTwo$.
+\end{itemize}
+\end{enumerate}
+
+\emph{Remarks.} (1) \emph{Eventualities.} Each of
+\ref{s1:condG1}--\ref{s1:condG4} holds for all sufficiently large $\Dstar$, once
+$\Nzero$ is fixed: \ref{s1:condG1} because each of its finitely many items holds
+for all sufficiently large $\mu$ (and its range $\mu\ge\log_2\log_2\Dstar$
+shrinks as $\Dstar$ grows); \ref{s1:condG2}(a) and \ref{s1:condG3} because they
+are lower bounds on $\Dstar$, and \ref{s1:condG2}(b),(c) because they follow
+from \ref{s1:condG1}; and \ref{s1:condG4} because
+$\epsOne(\Dstar)\to0$ and $\epsTwo(\Dstar)\to0$ as $\Dstar\to\infty$. This is
+proved in Lemma~\ref{s7:lemGammaSat}. Hence every sufficiently large $\Dstar$
+satisfies all four conditions, and only the existence of such a $\Dstar$ is
+used.
+
+(2) \emph{Order of choice; no circularity.} Table~\ref{s1:tabOrder} lists the
+constants in the order in which they are chosen (Remark~\ref{s1:remOrder}), the
+conditions on them, the variable in which each condition is an eventuality, and
+the constants it may depend on. A condition on the constant of a step depends
+only on constants of earlier steps: the size conditions, \ref{s1:condG1},
+\ref{s1:condG2}(a) and \ref{s1:condG4} depend on absolute constants only, and
+\ref{s1:condG3} depends on $\Nzero$, which is chosen before $\Dstar$. Every
+condition is used only at values of its variable that are at least the chosen
+threshold: the size conditions at $N=|Z|$ for the vertex set $Z$ of a vortex
+run, which is a pre-part or a light part and so has $N\ge P_R/2\ge\Nzero$ by
+\ref{s1:condG3}; the items of \ref{s1:condG1} at values
+$\mu\ge\log_2\log_2\Dstar$, as described there; and \ref{s1:condG2}(a),
+\ref{s1:condG3} and \ref{s1:condG4} at $\Dstar$ itself. The quantities of a
+run ($d_r$, $\lambda_r$, $|V(Y)|$, $L_Y$) are not chosen: they are universally
+quantified, and they exceed the thresholds because $d_r\ge\Dstar$ in every round
+$r\le R$ and by \ref{s1:condG3}. The hypotheses $n\ge\Nzero$ and
+$d_1\ge\Dstar$ on the graph are not consequences of these conditions: a graph
+with $n<\Nzero$ or with $d_1<\Dstar$ is handled directly in steps~(2) and~(3) of
+the proof of Theorem~\ref{s7:thmHI}, because $\cEG\ge\Nzero/2$ and
+$\cEG\ge\Czero\ge\Dstar/2$. Finally
+$\epsOne$, $\epsTwo=\thetaQ$ and $\Czero$ are functions of $\Dstar$, and $\cEG$
+is defined last; it is used only as the constant $c$ of
+Theorem~\ref{s7:thmHI}, and no condition on $\Nzero$ or $\Dstar$ involves it.
+So no choice is circular.
+\deps{\ref{s1:defConstants}, \ref{s1:remOrder}.}
+\end{condition}
+
+\begin{table}[htbp]
+\begin{center}
+\small
+\begin{tabular}{|p{0.75cm}|p{4.6cm}|p{2.3cm}|p{2.2cm}|p{3.4cm}|}
+\hline
+Step & Constant; conditions on it & Eventual in & Depends on & Used at\\\hline
+1 & $\eps=2^{-5}$, $\sigma=100$, $\Cp=103$, $\Aexp=105$ & explicit & -- & everywhere\\\hline
+2 & $\Nzero$: $\Nzero\ge2^{40}$ (redundant: size condition~(i), $L\ge2^{10}$, already forces every $N\ge\Nzero$ to satisfy $N\ge2^{1024}$, i.e.\ $\lceil\Nzero\rceil\ge2^{1024}$), and the size conditions of Lemma~\ref{s4:lemTPV}, Lemma~\ref{s4:lemPV} and Theorem~\ref{s4:thmVXp} hold for every $N\ge\Nzero$ & $N$ (so every requirement is upward closed in $\Nzero$) & absolute constants only & $N=|Z|$ for the vertex set $Z$ of a vortex run; $N\ge\Nzero$ by \Gc{3}\\\hline
+3 & $\Dstar$: \Gc{1}, i.e.\ $\Dstar>2$ and (a)--(f), including \Gstar{} and the column-3 inequalities of Table~\ref{s3:tabCOLJV} & $\mu$, on the ray $\mu\ge\log_2\log_2\Dstar$; hence $\Dstar$ & absolute constants only & $\mu=\log_2\lambda_r$ ($r\le R$), $\log_2\log_2d$ ($d\ge\Dstar$; e.g.\ $\log_2x$ for $x\ge\log_2\Dstar$), $\log_2\Dstar$\\\cline{2-5}
+ & \Gc{2}(a): $\Dstar\ge2^{117}$ & $\Dstar$ & absolute constants only & $d_l\ge\Dstar$ (Lemma~\ref{s2:lemCap})\\\cline{2-5}
+ & \Gc{2}(b),(c) & consequences of \Gc{1} & absolute constants only; not a condition & every round, every ancestor\\\cline{2-5}
+ & \Gc{3}: $(\log_2\Dstar)^{\Cp}\ge2\Nzero$ & $\Dstar$ & $\Nzero$ (step~2) & sizes of parts, $P_R/2\ge\Nzero$\\\cline{2-5}
+ & \Gc{4}: $\epsOne(\Dstar)\le6$ and $\epsTwo(\Dstar)\le1/4$ & $\Dstar$ & absolute constants only & $\Dstar$ (cost line, Section~\ref{s7:sec}; Definition~\ref{s1:defConstants}(v); Remark~\ref{s5:remConstants}(b))\\\hline
+4 & $\epsOne(\Dstar)$, $\thetaQ=\epsTwo(\Dstar)$, $\Czero$ & defined & $\Dstar$ & Theorem~\ref{s7:thmHI}\\\hline
+5 & $\cEG=\max\{\Czero/(1-2\thetaQ),\Nzero/2\}$ & defined & $\Czero$, $\thetaQ$, $\Nzero$ & Theorem~\ref{s7:thmHI}, as its constant $c$\\\hline
+\end{tabular}
+\end{center}
+\caption{The order in which the constants are chosen, and the conditions on
+them (Condition~\ref{s1:condGamma}, Remark~(2)). ``Eventual in $x$'' means:
+holds for all sufficiently large $x$ once the constants of the earlier steps are
+fixed. A condition on the constant of a step depends only on earlier steps. For
+steps~2 and~3, the last column gives the values at which a condition is used;
+each of them is at least the chosen threshold.}
+\label{s1:tabOrder}
+\end{table}
+
+\subsection{The symbol table}\label{s1:ssecSymbols}
+
+Every symbol that is used outside a single proof has exactly one meaning, given in
+Table~\ref{s1:tabSymbols}. A symbol listed there is not reused locally. Symbols
+local to one proof or one run are introduced there and have no meaning elsewhere:
+the sans-serif symbols of a vortex run (Convention~\ref{s4:convVortex}); the
+starred parameters of the proof of Theorem~\ref{s3:thmT16s}; the node notation of
+Lemma~14$^\tau$ and Lemma SEP (Section~\ref{s2:sec}); the cluster, layer,
+demand, padding and potential notation of Lemmas~\ref{s6:lemMED}
+and~\ref{s6:lemHCCP}; and the letters $S_w$, $\mu$, $\mu^*$, $T$, $m_w$ of
+Lemmas~\ref{s7:lemCC} and~\ref{s7:lemUltra}. The letter $\eta$ is deliberately
+local as well and is not in the table: it denotes the failure terms
+$\eta_{\mathrm{TPV}}$, $\eta_{\mathrm{PV}}$ and $\eta_{\mathrm{VX}}$ of the three
+vortex statements of Section~\ref{s4:sec}; the bijections $\eta_h$ of
+Definition~\ref{s7:defSchedule} and Construction~\ref{s7:consRound}; the
+functions $\eta(x)$ of Lemma~\ref{s2:lemLacunary}(iv) and of the proof of
+Lemma~\ref{s5:lemParent}(ii) (the latter also in the overview); and numbers
+inside single proofs (for instance those of Lemmas~\ref{s1:lemBBD}
+and~\ref{s6:lemJSLC}). The column ``macro'' gives the
+\LaTeX{} macro of the preamble (``--'' if the symbol has none), and the column
+``defined in'' points to the defining statement (forward pointers are allowed in
+this table).
+
+\begin{center}
+\refstepcounter{table}\label{s1:tabSymbols}
+\textbf{Table~\thetable.} The symbol table.\\[4pt]
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{3.7cm}p{3.0cm}p{5.6cm}p{2.5cm}}
+\textbf{Symbol} & \textbf{Macro} & \textbf{Meaning} & \textbf{Defined in}\\
+\hline
+\multicolumn{4}{l}{\emph{General}}\\
+$\f(F)$, $\f(G)$, $\f(n)$ & \texttt{\string\f} & least number of objects (cycles, single edges) partitioning $F$, $E(G)$; maximum over $n$-vertex $G$ & \ref{s1:defObject}\\
+$n$ & -- & number of vertices of the input graph $G$ & \ref{s1:convGraphs}\\
+$\log$, $\logs$ & \texttt{\string\log}, \texttt{\string\logs} & base $2$; iterated logarithm & \ref{s1:convGraphs}\\
+$\Nbr_G(U)$, $\Ball{i}{G}{U,V}$ & \texttt{\string\Nbr}, \texttt{\string\Ball} & outside neighbourhood; ball through $V$ & \ref{s1:citNotation}\\
+$\Prob$, $\Ex$, $\ind{\cdot}$, $\Bin$ & \texttt{\string\Prob}, \texttt{\string\Ex}, \texttt{\string\ind}, \texttt{\string\Bin} & probability, expectation, indicator, binomial & --\\
+\hline
+\multicolumn{4}{l}{\emph{Constants}}\\
+$\eps=2^{-5}$; $\sigma=100$; $\Cp=103$; $\Aexp=105$ & \texttt{\string\eps}, --, \texttt{\string\Cp}, \texttt{\string\Aexp} & fixed parameters & \ref{s1:defConstants}\\
+$\Nzero$, $\Dstar$, $\Czero$, $\cEG$ & \texttt{\string\Nzero}, \texttt{\string\Dstar}, \texttt{\string\Czero}, \texttt{\string\cEG} & size threshold; galactic degree threshold; main constants & \ref{s1:defConstants}\\
+$\epsOne$, $\epsTwo=\thetaQ$ & \texttt{\string\epsOne}, \texttt{\string\epsTwo}, \texttt{\string\thetaQ} & cost and quotient-size functions of $\Dstar$ & \ref{s7:propCost}, \ref{s7:lemUHsplit}\\
+$\epsA$, $\epsU$, $\epsK=\epsChain$, $\epsCONC$, $\varepsilon_M$, $\epsX$ & \texttt{\string\epsA}, \texttt{\string\epsU}, \texttt{\string\epsK}, \texttt{\string\epsChain}, \texttt{\string\epsCONC}, --, \texttt{\string\epsX} & named small functions of $\Dstar$ & \ref{s2:lemTower}, \ref{s5:lemExpect}, \ref{s5:lemParent}/\ref{s5:lemKRED}, \ref{s6:thmCONCL}, \ref{s6:thmMIXC}, \ref{s7:lemEXprime}\\
+$\epsD$ & \texttt{\string\epsD} & generic, inside proofs only & \ref{s1:defConstants}(vii)\\
+\Gc{1}--\Gc{4}, \Gstar & \texttt{\string\Gc}, \texttt{\string\Gstar} & galactic conditions & \ref{s1:condGamma}\\
+$\cOV=\log_2(4/3)$ & \texttt{\string\cOV} & overlap constant & \ref{s2:lemOVgeneric}\\
+$\psi(x)=(6\log_2x+12)/x$ & -- & tower sum weight & \ref{s2:lemTower}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{3.7cm}p{3.0cm}p{5.6cm}p{2.5cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabSymbols}, continued.) \emph{Hierarchy}}\\
+\hline
+$\HBtp$ ($\HBs$, $\HBt$ only in comparisons) & \texttt{\string\HBtp} (\texttt{\string\HBs}, \texttt{\string\HBt}) & the hierarchy & \ref{s2:defHBtp}\\
+$G_l$, $G'_l$, $d_l$, $\lambda_l=\log d_l$, $R$, $E_0$, $\Cyc_l$ & --, \texttt{\string\Cyc} & round-$l$ graph, the same after removing long cycles; average degree; its logarithm; last round; leftover; long cycles & \ref{s2:defHBtp}\\
+$\tHB_l=\log^2d_l$; $M_l\in\mathbb N$ (a ceiling, (R2)); $\Lambda_l=\log M_l$; $s_l=\lceil\Lambda_l^\sigma\rceil$; $P_l=\lceil\lambda_l^{\Cp}\rceil$; $\tau_l=\lceil128s_l\log^2M_l\rceil$ & \texttt{\string\tHB} & round parameters & \ref{s2:defHBtp}\\
+$\piece$ & \texttt{\string\piece} & piece of the $s=0$ run of Lemma~14 & \ref{s2:defHBtp}\\
+$Z^0$, $X^0_Z$, $S_Z$, $\home(v)$, $D_l$ & \texttt{\string\home} & pre-part, its leaf expander, guests, home, duplicated vertices & \ref{s2:defHBtp}\\
+light part $Z=Z^0\setminus S_Z$, $X_Z=X^0_Z-S_Z$; $\Std_l$; GC-part; $\thGC_l(Z^0)=\lceil|Z^0|\lambda_l^{-1/2}\rceil$ & \texttt{\string\Std}, \texttt{\string\thGC} & light/standalone split; guest cap & \ref{s2:defHBtp}\\
+$E_l(Z)$ & -- & edges assigned at round $l$ to $Z$ & \ref{s2:defHBtp}\\
+witness $(U,F)$, $N$, $F_0$, $\Hout$, $U'$, $N'$, $F_1$, $\Hin$, $N''$, $F''$, $G_1$, $G_2$ & \texttt{\string\Hout}, \texttt{\string\Hin} & $\tau$-rules (local to Section~\ref{s2:sec}) & \ref{s2:defWitness}, \ref{s2:defTauRules}\\
+leaf $\Leaf$, $\Dup$, $\Dups_l$ & \texttt{\string\Leaf}, \texttt{\string\Dup}, \texttt{\string\Dups} & leaf of a recursion; vertices in at least two leaves (of one recursion; of round $l$'s two-level recursion) & \ref{s2:lemSEP}, \ref{s2:defHBtp}\\
+ancestor $Y$; $V(Y)$; $H_Y$; $\eps_Y$; $s_Y$; $L_Y=\log|V(Y)|$ & -- & ancestor of round $r$ and its expander & \ref{s2:defAncestors}\\
+$\anc_l(x)$; $A_Z$; $U_Z$; $F_Z$; $Q_Z$ & \texttt{\string\anc} & ancestors; hubs; ports; fresh ports; classed ports & \ref{s2:defAncestors}\\
+$\mu_r(w)$, $\dup_r$, $\mult_r(w)$ & \texttt{\string\dup}, \texttt{\string\mult} & number of round-$r$ pre-parts containing $w$; duplication; number of round-$r$ ancestors containing $w$ & \ref{s2:defAncestors}\\
+$j_0(x)$, $j_1(x)$ & -- & first round in which $x$ lies in a pre-part; in a light part & \ref{s2:defAncestors}\\
+$\nu_l$ & -- & number of ancestors of rounds $\le l-2$ (at most $2.74n/P_{l-2}$) & \ref{s2:propOV} (bound: \ref{s2:lemTower}(b))\\
+$(\alpha)$, $(\beta)$ & -- & ORIGIN edge types & \ref{s2:propOrigin}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{3.7cm}p{3.0cm}p{5.6cm}p{2.5cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabSymbols}, continued.) \emph{Colouring, lending, zones, light parts}}\\
+\hline
+$\Own_Y$, $\Lend_Y$, $\klend(Y)$, $\kown$ & \texttt{\string\Own}, \texttt{\string\Lend}, \texttt{\string\klend}, \texttt{\string\kown} & two-stage colouring & \ref{s3:defCOL}\\
+$\IU$, $\IJS$, $\IJV$ & \texttt{\string\IU}, \texttt{\string\IJS}, \texttt{\string\IJV} & lent index families & \ref{s3:defCOL}\\
+$\LU_{Y,l,c,\uslot}$, $\LJS_{Y,l,j}$, $\LJV_{Y,l}$ & \texttt{\string\LU}, \texttt{\string\LJS}, \texttt{\string\LJV} & U-, JS- and JV-lent classes & \ref{s3:defCOL}\\
+$\KJS_l=M_l^2$; $\tJS_l=2M_l+2$; $\rho_l=M_l^{-4}$; $\lab_{Y,l}(y)$; $T_j(Y,l)$ & \texttt{\string\KJS}, \texttt{\string\tJS}, \texttt{\string\lab} & JS layers, multiplicity, label probability, labels, junction sets & \ref{s3:defCOL}\\
+$p_Y=1/(2\klend(Y))$ & -- & probability that an edge of $H_Y$ lies in $\LJV_{Y,l}$ & \ref{s3:defCOL}\\
+$\Tslot_Y=\lceil L_Y^2\rceil$ & \texttt{\string\Tslot} & number of U-slots & \ref{s3:defCOL}\\
+$t_Y=\lceil\lambda_r^{1.6}\rceil$ & -- & U-multiplicity parameter of a light ancestor $Y$ of round $r$ & \ref{s3:defCOL}\\
+$\Aw(w)$ & \texttt{\string\Aw} & candidate sets of Lemma HB & \ref{s3:lemHB}\\
+$\mathrm{choice}(v)$, $\zp_Y=L_Y^{-2}$, sublabel $(l,c,\uslot)$, $\Zone_{Y,l,c,\uslot}$, $\rho_Y$ & \texttt{\string\zp}, \texttt{\string\uslot}, \texttt{\string\Zone} & Theorem-U zones & \ref{s5:defZones}, \ref{s5:lemZones}\\
+(E1), demoted, parent-bad, good parent, $\Bad$, $\Rt(Z)$, $\Pl(Z)$, $\parU(v)$, $\mathrm{dem}$, $\mathrm{lp}$ & \texttt{\string\Bad}, \texttt{\string\Rt}, \texttt{\string\Pl}, \texttt{\string\parU} & stage-2 statuses of light parts & \ref{s5:defStages}\\
+$\extph$ & \texttt{\string\extph} & external phase map: phase of a vertex's round-$l$ zone, or $*$ & \ref{s4:lemPV}, \ref{s5:lemChild}\\
+U-bundle $\Bdl_{l,c}$; U-quotient multigraph $\UQ_{l,c,i}$ & \texttt{\string\Bdl}, \texttt{\string\UQ} & Theorem-U chaining & \ref{s5:lemParent}\\
+$\LentU(Y)$, $\Lentext(Y)$, $\Kstd$ & \texttt{\string\LentU}, \texttt{\string\Lentext}, \texttt{\string\Kstd} & used U-lent edges; externally used lent edges; standalone edges & \ref{s5:lemKRED}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{3.7cm}p{3.0cm}p{5.6cm}p{2.5cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabSymbols}, continued.) \emph{Standalone parts and chaining}}\\
+\hline
+designation $\delta$, class $Y(u)$ & -- & class of a classed port & \ref{s6:defDesign}\\
+$d_{Y,l}(h)$, $m_{Y,l}$, $d^*_{Y,l}$, $\alpha_{Y,l}$ & -- & class degree, its maximum, duplicated class ports, guest core degree & \ref{s6:defDesign}\\
+$\Bead_{Y,l}$, $\gamma_l=\lfloor P_{l-2}/M_l\rfloor$, giant & \texttt{\string\Bead} & deterministic bead graph; giant threshold ($(Y,l)$ is giant iff a component has more than $2\gamma_l$ edges) & \ref{s6:defDesign}\\
+$\cagg_{h,l}$, $c_x(Z)$, $\cpp(u)$ & \texttt{\string\cagg}, \texttt{\string\cpp} & class counts at hubs, fresh centres, ports & \ref{s6:defDesign}\\
+cluster $\clu=(A_\clu,U_\clu,B_\clu)$, $b(\clu)$, $\exc(u)$, $\Phi(\clu)$, $\MED(<)$, $\pot$ & \texttt{\string\clu}, \texttt{\string\exc}, \texttt{\string\MED}, \texttt{\string\pot} & clusters & \ref{s6:defCluster}, \ref{s6:lemMED}\\
+$\LayP_j$, $\pad(u)$, $\dem^{\pm}(u)$, $\Phi_j$, $\mathcal P_j$, $F_j$ & \texttt{\string\LayP}, \texttt{\string\pad}, \texttt{\string\dem} & HCC-P data & \ref{s6:lemHCCP}\\
+lend-bad; $\Lost_Z$, $\Lost_l$; $\Ret_Z=A_Z\cup F_Z\cup\Lost_Z$; $\Qs_Z=Q_Z\setminus\Lost_Z$; $O_Z$; $\XU$ & \texttt{\string\Lost}, \texttt{\string\Ret}, \texttt{\string\Qs}, \texttt{\string\XU} & stage-2 lending data and the functional $X_U$ & \ref{s6:defLending}\\
+$\sco_{Y,l}$, $g_{Y,l}$, $S_0(Y,l)$ & \texttt{\string\sco} & cherry split cost, number of cherry classes, non-giant system (local to the proof) & \ref{s6:lemJSLC} (proof)\\
+$J_l=\Jlost_l+\Jhub_l+\Jfr_l+\Jpar_l$; \Jp{1}--\Jp{3} & \texttt{\string\Jlost}, \texttt{\string\Jhub}, \texttt{\string\Jfr}, \texttt{\string\Jpar}, \texttt{\string\Jp} & the J-set & \ref{s6:lemJplus}\\
+J-consumer, $\Obj_l$, $\LentJV_l$, \JC{1}--\JC{3} & \texttt{\string\Obj}, \texttt{\string\LentJV}, \texttt{\string\JC} & consumer interface & \ref{s6:defJconsumer}\\
+$\Lent(Y)$, $\LentU(Y)$, $\LentJS(Y)$, $\LentJV(Y)$, $\Erem(Y)$, $H_0(Y)$ & \texttt{\string\Lent}, \texttt{\string\LentU}, \texttt{\string\LentJS}, \texttt{\string\LentJV}, \texttt{\string\Erem} & used lent edges and remainders (defined recursively along the processing order) & \ref{s6:consOrder}, \ref{s6:lemLent}\\
+$\EV(Z)$, $\EQ(Z)$, $B_Z=\EQ(Z)$ & \texttt{\string\EV}, \texttt{\string\EQ} & TPV output & \ref{s4:lemTPV}, \ref{s6:consOrder}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{3.7cm}p{3.0cm}p{5.6cm}p{2.5cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabSymbols}, continued.) \emph{Junction-vertex quotient}}\\
+\hline
+$\plab(v)$, $q_l=M_l^{-2}$, $\pi_{l,r}=2^{-(l-1-r)}$, $\Pool_{l,r}$, $\Pool_l$, $r(w)$ & \texttt{\string\plab}, \texttt{\string\Pool} & round-split pool & \ref{s7:defPool}\\
+$\Cand_l(u)$, $\Hcd_l=\lambda_{l-2}^{95}/(8M_l^2)$, JV-bad & \texttt{\string\Cand}, \texttt{\string\Hcd} & candidates & \ref{s7:defCand}\\
+$\xi_l$, $\Past_l$ & \texttt{\string\Past} & round-$l$ randomness; the fixed past & \ref{s7:defSchedule}\\
+items, live items, $\Live$, $\clive_h$, $\thult_l=\lfloor M_l\Hcd_l/7\rfloor$, ultra, $k_h$, $\KHUB_l=4M_l$ & \texttt{\string\Live}, \texttt{\string\clive}, \texttt{\string\thult}, \texttt{\string\KHUB} & round-step data & \ref{s7:consRound}\\
+PAR object, cherry, unpaired fresh leg & -- & PAR data & \ref{s7:consRound}\\
+$\Used(u)$, $\Used_\kappa(h)$ & \texttt{\string\Used} & junctions already used & \ref{s7:consRound}\\
+$\BP_\kappa$, $\BH_\kappa$, $B^{(\iota)}$, $Q_l$, $\Dec_l$ & \texttt{\string\BP}, \texttt{\string\BH}, \texttt{\string\Dec} & layers, sub-layers, quotient, its decomposition & \ref{s7:consRound}\\
+$\copies_l$, $\payrd_l$ & \texttt{\string\copies}, \texttt{\string\payrd} & round-$l$ quotient size and random payments & \ref{s7:consRound}\\
+$m_\kappa(h,w)$, $m_\kappa(w,w')$ & -- & multiplicities in HUB and PAR layers & \ref{s7:lemMULT}, \ref{s7:lemCC}\\
+$\tCC_l=\lceil2\log_2M_l\rceil$ & \texttt{\string\tCC} & parameter of Lemma CC & \ref{s7:lemCC}\\
+$X_{V,l}$, $\XV$ & \texttt{\string\XV} & junction-copy weight & \ref{s7:lemVstar}\\
+$\omega_l(v)$ & -- & pooled-vertex weight ($\cagg_{v,l}$ for $v\in D_l$, $M_l$ otherwise) & \ref{s7:lemPay}\\
+$\Xpool$, $\Xp=\XU+\Xpool+\XV$ & \texttt{\string\Xpool}, \texttt{\string\Xp} & stage-1 functional & \ref{s7:defXprime}\\
+$\dett_l$ & \texttt{\string\dett} & deterministic part of the quotient size & \ref{s7:lemUHsplit}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\subsection{The dependency table}\label{s1:ssecDAG}
+
+Table~\ref{s1:tabDAG} has one row for every numbered statement of
+Sections~\ref{s1:sec}--\ref{s7:sec}, in the order in which the statements appear
+(sectioning units such as the overview are not statements and have no row). The
+columns are: the label; a short name and the number of the statement; its
+section; and the statements it depends on (this column copies the
+``Dependencies'' line printed at the end of the statement).
+
+\emph{What an entry means.} The entries of the row of a statement $A$ are
+its logical inputs: the statements that the statement or the proof of $A$ uses
+through a reference, by name (for instance ``by Hall's theorem'' or ``by
+Markov's inequality''), or through a named item such as \Gc{3}, (K1), \Jp{2},
+COL(g) or (R5). A fact that is proved in the running text between two
+statements (for instance \eqref{s5:eqLY}, \eqref{s5:eqZp},
+\eqref{s6:eqTowerHalf}, the observations of Section~\ref{s4:ssecConv}, or the
+bounds on the numbers of PAR objects and hub items in the opening paragraph of
+the subsection on quotient size and payments in Section~\ref{s7:sec}) has no
+row; a statement that
+uses such a fact lists the statements from which the fact is proved.
+Convention~\ref{s1:convGraphs} (graphs are finite and simple, unless they are
+called multigraphs) holds throughout; it is listed only in the rows of the
+statements that cite it, directly or through an observation of
+Section~\ref{s4:ssecConv}. Definition~\ref{s1:defConstants} fixes the constants
+used throughout. It is listed in the row of every later statement that cites it
+or invokes a requirement that it places on a constant (for instance ``by the
+choice of $\Nzero$''); every other statement that uses one of these constants
+reaches it through the entries of its row. The row of a remark lists the earlier
+statements that the remark is about. A few rows also list the result of
+\cite{BM} whose proof the statement modifies and writes out in full.
+Theorem~\ref{s3:thmT16s} does not list \cite[Theorem~16]{BM}: its proof follows
+that of \cite[Theorem~16]{BM}, but it is written out in full in
+Section~\ref{s3:sec} and uses neither that theorem nor a step of its proof. A few
+rows list a statement that is used only where the statement of the row is
+applied, or only through another entry of the same row: for instance \Gc{3} in
+the rows of Lemma~\ref{s4:lemTPV}, Lemma~\ref{s4:lemPV} and
+Theorem~\ref{s4:thmVXp}, and \Gc{2} in the row of Lemma~\ref{s2:lemTower}. These
+entries are harmless over-declarations. The following are not entries: pointers
+that only say where a result is proved, used or modified, or that it is not
+used (except in the row of Theorem~\ref{s1:thmMain}, whose one entry is its
+proof, Corollary~\ref{s7:thmMainProof}; see below); comparisons with \cite{BM}; and the mere use of notation introduced
+elsewhere. The items whose name is marked ``not used'' (or ``not used
+directly'') are entries of no row.
+
+\emph{Forward references.} Apart from pointers (see above) and the reference of
+Theorem~\ref{s1:thmMain} to its proof, Corollary~\ref{s7:thmMainProof}, four
+kinds of forward reference occur in the text. They are not entries, and none of
+them is circular.
+(1) Constants. Theorem~\ref{s1:thmMain}, Definition~\ref{s1:defConstants},
+Remark~\ref{s1:remOrder} and Condition~\ref{s1:condGamma} use explicit
+functions of $\Dstar$ ($\epsOne$, $\epsTwo$ and the terms they collect),
+explicit size thresholds and, in \Gc{1}(f), the explicit inequalities of
+column~3 of Table~\ref{s3:tabCOLJV}; these are written out in later
+statements, proofs and tables.
+These are explicit formulas; no lemma of the paper is needed to state them.
+What is used about them is that finitely many explicit inequalities hold
+eventually: in $N$ for $\Nzero$ (Definition~\ref{s1:defConstants}(ii) and the
+size conditions of Section~\ref{s4:sec}), and in $\Dstar$ for $\Dstar$
+(Lemma~\ref{s7:lemGammaSat}). The existence of $\Nzero$ and of such a $\Dstar$
+is used only in Corollary~\ref{s7:thmMainProof}; every other statement uses only
+the properties that Definition~\ref{s1:defConstants} requires of the fixed
+constants. Remark~\ref{s1:remOrder} also says where
+constants enter later (for instance, that $\cEG$ enters only through the
+induction of Theorem~\ref{s7:thmHI}); this is a description, verified in those
+statements.
+(2) Announced consequences. Condition~\ref{s1:condGamma} records consequences
+of its items that are proved later, where they are used. For instance,
+\Gc{2}(b) is proved in Lemma~\ref{s2:lemTower}(b), and the bounds of \Gc{2}(c)
+in Lemma~\ref{s3:lemCOL} (with rows~6 and~7 of Table~\ref{s3:tabCOLJV}) and in
+Lemma~\ref{s5:lemE1}(b),(c). None of these lemmas uses \Gc{2}(b) or (c), and
+\Gc{2}(a) enters them only through Lemma~\ref{s2:lemCap}; the only statement
+that uses \Gc{2}(b),(c) as such, Lemma~\ref{s7:lemGammaSat}, lists all three
+lemmas. Definition~\ref{s7:defCand} notes that every JV-good port $u$ has
+$|\Cand_l(u)|\ge\Hcd_l$. This is Lemma~\ref{s7:lemCand}(iv), which is proved
+from the definition of JV-good and from Lemma~\ref{s7:lemCand}(ii), not from the
+note. Definition~\ref{s3:defCOL} notes, in its paragraph ``Consumers'', that
+for $r\ge R-1$ the set $\Lent(Y)$ is empty, so that $\Erem(Y)=E_r(Y)$ or
+$H_0(Y)=E_r(Y)$ (Construction~\ref{s6:consOrder}); and
+Definition~\ref{s5:defStages} notes that for $r\ge R-1$
+Lemma~\ref{s5:lemE1}(c) reduces to~(b). None of these conditions and
+definitions uses these consequences.
+(3) Constructions. That Construction~\ref{s6:consOrder} applies every device
+within its hypotheses is shown in Lemma~\ref{s6:lemLent} and
+Theorem~\ref{s6:thmMIXC}(a); that Construction~\ref{s7:consRound} is well defined
+is Lemma~\ref{s7:lemWellDef}(i), (ii), (iv) and~(v). These results are proved
+about the constructions. Besides earlier statements, each part uses only the
+definitions of the steps it concerns and of the steps before them (for
+Construction~\ref{s6:consOrder}, the steps at the rounds already processed), and
+not the well-definedness of the step that it proves.
+(4) Definition~\ref{s7:defSchedule} describes the choice of the stage-1 outcome
+through the functional $\Xp$ of Definition~\ref{s7:defXprime}, and the choice of
+each $\xi_l$ through step~(f) of Construction~\ref{s7:consRound}. These choices
+are made in Lemma~\ref{s7:lemOneOutcome}, whose row lists
+Construction~\ref{s7:consRound} and Lemma~\ref{s7:lemEXprime} (the latter rests
+on Definition~\ref{s7:defXprime}). Moreover, $\Xp$ is a function of the run,
+$\delta$ and stage~1 only (Definition~\ref{s7:defXprime}), so the selection~(1e)
+of Definition~\ref{s7:defSchedule} depends neither on the later stages of the
+schedule nor on the round step.
+
+\begin{center}
+\refstepcounter{table}\label{s1:tabDAG}
+\textbf{Table~\thetable.} Dependency table of all numbered statements.\\[4pt]
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s1:thmMain} & Main Theorem (\ref{s1:thmMain}) & 1 & \ref{s7:thmMainProof}\\
+\texttt{s1:remStatus} & organization of the proof (\ref{s1:remStatus}) & 1 & --\\
+\texttt{s1:convGraphs} & graph conventions (\ref{s1:convGraphs}) & 1 & --\\
+\texttt{s1:defObject} & objects; $\f$ (\ref{s1:defObject}) & 1 & --\\
+\texttt{s1:factAdd} & properties of $\f$ (\ref{s1:factAdd}) & 1 & \ref{s1:defObject}\\
+\texttt{s1:factEG0} & long-cycle bound (\ref{s1:factEG0}) & 1 & \ref{s1:convGraphs}, \ref{s1:defObject}\\
+\texttt{s1:citNotation} & B--M notation (\ref{s1:citNotation}) & 1 & --\\
+\texttt{s1:citChernoff} & B--M Thm 4 (Chernoff) (\ref{s1:citChernoff}) & 1 & --\\
+\texttt{s1:citDef7} & B--M Def 7 (\ref{s1:citDef7}) & 1 & --\\
+\texttt{s1:citProp8} & B--M Prop 8 (\ref{s1:citProp8}) & 1 & --\\
+\texttt{s1:citLem9} & B--M Lemma 9 (\ref{s1:citLem9}) & 1 & --\\
+\texttt{s1:citDef11} & B--M Def 11 (\ref{s1:citDef11}) & 1 & --\\
+\texttt{s1:citProp12} & B--M Prop 12 (\ref{s1:citProp12}) & 1 & --\\
+\texttt{s1:citProp13} & B--M Prop 13 (\ref{s1:citProp13}) & 1 & --\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s1:citLem14} & B--M Lemma 14 and its proof (\ref{s1:citLem14}) & 1 & --\\
+\texttt{s1:citLem15} & B--M Lemma 15 (not used) (\ref{s1:citLem15}) & 1 & --\\
+\texttt{s1:citThm16} & B--M Thm 16 (not used; see Thm 16$^*$) (\ref{s1:citThm16}) & 1 & --\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s1:citLem17} & B--M Lemma 17 (\ref{s1:citLem17}) & 1 & --\\
+\texttt{s1:citProp18} & B--M Prop 18 (\ref{s1:citProp18}) & 1 & --\\
+\texttt{s1:citLem19} & B--M Lemma 19 (\ref{s1:citLem19}) & 1 & --\\
+\texttt{s1:citThm21} & B--M Thm 21 (not used directly) (\ref{s1:citThm21}) & 1 & --\\
+\texttt{s1:citCor22} & B--M Cor 22 (\ref{s1:citCor22}) & 1 & --\\
+\texttt{s1:citLem25} & B--M Lemma 25 (\ref{s1:citLem25}) & 1 & --\\
+\texttt{s1:remBMused} & where B--M is used (\ref{s1:remBMused}) & 1 & \ref{s1:citNotation}, \ref{s1:citChernoff}, \ref{s1:citDef7}, \ref{s1:citProp8}, \ref{s1:citLem9}, \ref{s1:citDef11}, \ref{s1:citProp12}, \ref{s1:citProp13}, \ref{s1:citLem14}, \ref{s1:citLem17}, \ref{s1:citProp18}, \ref{s1:citLem19}, \ref{s1:citCor22}, \ref{s1:citLem25}, \ref{s1:factEG0}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s1:citChernoffGen} & Chernoff (Poisson-binomial) (\ref{s1:citChernoffGen}) & 1 & --\\
+\texttt{s1:citMarkov} & Markov (\ref{s1:citMarkov}) & 1 & --\\
+\texttt{s1:lemBBD} & Lemma BBD (Bernstein, bounded differences) (\ref{s1:lemBBD}) & 1 & --\\
+\texttt{s1:citHall} & Hall's theorem (\ref{s1:citHall}) & 1 & --\\
+\texttt{s1:citHaxell} & Haxell 1995 (\ref{s1:citHaxell}) & 1 & --\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s1:citEuler} & $T$-joins, Euler (\ref{s1:citEuler}) & 1 & --\\
+\texttt{s1:defConstants} & the constants (\ref{s1:defConstants}) & 1 & --\\
+\texttt{s1:remOrder} & order of constants (\ref{s1:remOrder}) & 1 & \ref{s1:defConstants}\\
+\texttt{s1:condGamma} & galactic conditions (\ref{s1:condGamma}) & 1 & \ref{s1:defConstants}, \ref{s1:remOrder}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s2:defWitness} & witness (\ref{s2:defWitness}) & 2 & \ref{s1:citDef11}, \ref{s1:defConstants}\\
+\texttt{s2:defTauRules} & $\tau$-rules and split (\ref{s2:defTauRules}) & 2 & \ref{s2:defWitness}\\
+\texttt{s2:lemSEP} & Lemma SEP (\ref{s2:lemSEP}) & 2 & \ref{s2:defTauRules}\\
+\texttt{s2:lemThinCut} & thin cut (\ref{s2:lemThinCut}) & 2 & \ref{s2:lemSEP}, \ref{s2:defTauRules}\\
+\texttt{s2:lemOVgeneric} & Lemma OV (generic overlap) (\ref{s2:lemOVgeneric}) & 2 & \ref{s2:lemSEP}, \ref{s2:defWitness}, \ref{s1:citLem14}\\
+\texttt{s2:lem14tau} & Lemma 14$^\tau$ (\ref{s2:lem14tau}) & 2 & \ref{s1:citLem14}, \ref{s1:citDef11}, \ref{s2:defTauRules}, \ref{s2:lemThinCut}, \ref{s2:lemOVgeneric}, \ref{s2:lemSEP}, \ref{s2:defWitness}\\
+\texttt{s2:defHBtp} & the hierarchy $\HBtp$ (\ref{s2:defHBtp}) & 2 & \ref{s1:citLem14}, \ref{s2:lem14tau}, \ref{s1:defConstants}, \ref{s2:lemOVgeneric}, \ref{s2:lemSEP}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s2:defAncestors} & ancestors, typing (\ref{s2:defAncestors}) & 2 & \ref{s2:defHBtp}\\
+\texttt{s2:lemCap} & Lemma-25 size cap (\ref{s2:lemCap}) & 2 & \ref{s1:citLem25}, \ref{s1:condG2}, \ref{s2:defHBtp}, \ref{s2:lem14tau}\\
+\texttt{s2:lemHS} & Lemma HS (\ref{s2:lemHS}) & 2 & \ref{s1:citDef11}\\
+\texttt{s2:propStructure} & structure of a run (\ref{s2:propStructure}) & 2 & \ref{s2:defHBtp}, \ref{s2:defAncestors}, \ref{s2:lem14tau}, \ref{s2:lemCap}, \ref{s2:lemHS}, \ref{s1:citDef11}, \ref{s1:citLem14}, \ref{s2:lemSEP}, \ref{s1:condG1}\\
+\texttt{s2:lemEL} & edge laminarity EL (\ref{s2:lemEL}) & 2 & \ref{s2:defHBtp}, \ref{s2:defAncestors}\\
+\texttt{s2:propOV} & overlap constants (\ref{s2:propOV}) & 2 & \ref{s2:lemOVgeneric}, \ref{s2:lem14tau}, \ref{s2:propStructure}, \ref{s2:defAncestors}, \ref{s2:defHBtp}, \ref{s2:lemSEP}\\
+\texttt{s2:propDegRec} & degree recursion (\ref{s2:propDegRec}) & 2 & \ref{s2:lem14tau}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:defHBtp}, \ref{s2:lemSEP}, \ref{s1:condG1}, \ref{s2:lemOVgeneric}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s2:propExists} & existence, termination (\ref{s2:propExists}) & 2 & \ref{s2:lem14tau}, \ref{s2:propDegRec}, \ref{s2:defHBtp}, \ref{s2:lemCap}, \ref{s2:lemOVgeneric}, \ref{s2:defWitness}, \ref{s2:propOV}\\
+\texttt{s2:lemLacunary} & tower-lacunary sums (\ref{s2:lemLacunary}) & 2 & \ref{s2:propDegRec}, \ref{s1:condG1}\\
+\texttt{s2:lemTower} & tower facts (\ref{s2:lemTower}) & 2 & \ref{s2:propDegRec}, \ref{s2:lemLacunary}, \ref{s2:defHBtp}, \ref{s1:condG1}, \ref{s1:condG2}, \ref{s2:propStructure}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:defAncestors}\\
+\texttt{s2:lemGC} & rule GC (\ref{s2:lemGC}) & 2 & \ref{s2:defHBtp}, \ref{s2:lemTower}, \ref{s2:lemEL}, \ref{s2:defAncestors}\\
+\texttt{s2:propOrigin} & ORIGIN$^\tau$ (\ref{s2:propOrigin}) & 2 & \ref{s2:lemThinCut}, \ref{s2:lemSEP}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:lemEL}, \ref{s2:defHBtp}, \ref{s2:lemGC}, \ref{s2:lemOVgeneric}, \ref{s2:propStructure}\\
+\texttt{s2:propParentless} & fresh, parentless mass (\ref{s2:propParentless}) & 2 & \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s2:lemCap}, \ref{s2:defAncestors}, \ref{s2:defHBtp}\\
+\texttt{s2:remTauConstants} & $\tau{+}$ constants (\ref{s2:remTauConstants}) & 2 & \ref{s2:propOV}, \ref{s2:lem14tau}, \ref{s2:lemTower}, \ref{s2:defHBtp}, \ref{s2:lemOVgeneric}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s3:lemMonotone} & monotonicity (\ref{s3:lemMonotone}) & 3 & \ref{s1:citDef7}, \ref{s1:citDef11}\\
+\texttt{s3:lemL15p} & Lemma 15$^+$ (\ref{s3:lemL15p}) & 3 & \ref{s1:citDef11}, \ref{s1:citChernoff}\\
+\texttt{s3:remMultiset} & multiset remark (\ref{s3:remMultiset}) & 3 & \ref{s1:citDef7}, \ref{s1:citLem9}\\
+\texttt{s3:propP13s} & Prop 13$^*$ (\ref{s3:propP13s}) & 3 & \ref{s1:citProp12}, \ref{s1:citProp13}, \ref{s1:citDef11}\\
+\texttt{s3:lemL17s} & Lemma 17$^*$ (\ref{s3:lemL17s}) & 3 & \ref{s3:propP13s}, \ref{s1:citLem17}, \ref{s1:lemBBD}, \ref{s1:citChernoff}, \ref{s1:citChernoffGen}\\
+\texttt{s3:lemP18s} & Prop 18$^*$, Lemma 19$^*$ (\ref{s3:lemP18s}) & 3 & \ref{s1:citProp18}, \ref{s1:citLem19}, \ref{s3:lemL17s}, \ref{s1:citDef11}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s3:lemL9rho} & Lemma 9$_\rho$ (\ref{s3:lemL9rho}) & 3 & \ref{s1:citLem9}, \ref{s1:citProp8}, \ref{s1:citHaxell}, \ref{s1:citDef7}, \ref{s3:remMultiset}\\
+\texttt{s3:thmT16s} & Theorem 16$^*$ (\ref{s3:thmT16s}) & 3 & \ref{s3:lemL15p}, \ref{s3:propP13s}, \ref{s3:lemL17s}, \ref{s3:lemP18s}, \ref{s3:lemL9rho}, \ref{s3:lemMonotone}, \ref{s1:citDef11}, \ref{s1:citChernoff}\\
+\texttt{s3:lemHB} & Lemma HB (\ref{s3:lemHB}) & 3 & \ref{s1:citHall}, \ref{s1:citDef11}\\
+\texttt{s3:defCOL} & lending data COL-JV (\ref{s3:defCOL}) & 3 & \ref{s2:defAncestors}, \ref{s2:propStructure}, \ref{s2:lemTower}\\
+\texttt{s3:lemCOLJV} & COL-JV table (\ref{s3:lemCOLJV}) & 3 & \ref{s1:condG1}, \ref{s1:condGstar}, \ref{s2:lemTower}, \ref{s3:defCOL}, \ref{s2:defAncestors}, \ref{s2:propStructure}, \ref{s3:lemL15p}, \ref{s3:thmT16s}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s3:lemCOLJVev} & eventual form of COL-JV (\ref{s3:lemCOLJVev}) & 3 & --\\
+\texttt{s3:lemCOL} & Lemma COL (\ref{s3:lemCOL}) & 3 & \ref{s3:defCOL}, \ref{s3:lemL15p}, \ref{s3:thmT16s}, \ref{s3:lemMonotone}, \ref{s3:lemCOLJV}, \ref{s2:lemTower}, \ref{s2:propStructure}, \ref{s2:defAncestors}, \ref{s1:condG1}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s4:convVortex} & vortex notation (\ref{s4:convVortex}) & 4 & --\\
+\texttt{s4:lemTPV} & Lemma TPV (\ref{s4:lemTPV}) & 4 & \ref{s3:lemL15p}, \ref{s3:thmT16s}, \ref{s3:lemHB}, \ref{s3:lemMonotone}, \ref{s1:citCor22}, \ref{s1:factEG0}, \ref{s1:citChernoff}, \ref{s1:citMarkov}, \ref{s1:condG3}, \ref{s4:convVortex}, \ref{s1:convGraphs}, \ref{s1:defConstants}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s4:lemPV} & Lemma PV (P-vortex) (\ref{s4:lemPV}) & 4 & \ref{s3:thmT16s}, \ref{s3:lemHB}, \ref{s3:lemMonotone}, \ref{s1:citCor22}, \ref{s1:factEG0}, \ref{s1:citChernoff}, \ref{s1:citMarkov}, \ref{s1:condG3}, \ref{s4:convVortex}, \ref{s4:lemTPV}, \ref{s1:convGraphs}, \ref{s1:defConstants}\\
+\texttt{s4:thmVXp} & Theorem VX$^+$ (\ref{s4:thmVXp}) & 4 & \ref{s3:lemL15p}, \ref{s3:thmT16s}, \ref{s3:lemHB}, \ref{s3:lemMonotone}, \ref{s1:citCor22}, \ref{s1:factEG0}, \ref{s1:citChernoff}, \ref{s1:condG3}, \ref{s4:convVortex}, \ref{s1:convGraphs}, \ref{s1:defConstants}\\
+\texttt{s4:remTPVVX} & TPV versus VX$^+$ (not used) (\ref{s4:remTPVVX}) & 4 & \ref{s4:lemTPV}, \ref{s4:thmVXp}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s5:defZones} & zones (\ref{s5:defZones}) & 5 & \ref{s2:defAncestors}, \ref{s3:defCOL}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:condG1}\\
+\texttt{s5:lemZones} & zone lemma (\ref{s5:lemZones}) & 5 & \ref{s5:defZones}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:condG1}, \ref{s3:defCOL}\\
+\texttt{s5:defStages} & stage-2 statuses (\ref{s5:defStages}) & 5 & \ref{s5:defZones}, \ref{s3:defCOL}, \ref{s3:lemHB}, \ref{s2:propParentless}, \ref{s2:defAncestors}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:citDef7}\\
+\texttt{s5:lemE1} & bad probabilities (\ref{s5:lemE1}) & 5 & \ref{s3:lemCOL}, \ref{s3:lemHB}, \ref{s5:lemZones}, \ref{s5:defStages}, \ref{s1:citChernoffGen}, \ref{s3:defCOL}, \ref{s3:lemL15p}, \ref{s3:lemCOLJV}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:condG1}\\
+\texttt{s5:lemExpect} & expected bad mass (\ref{s5:lemExpect}) & 5 & \ref{s5:lemE1}, \ref{s5:defStages}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:lemLacunary}, \ref{s1:condG1}, \ref{s2:propStructure}\\
+\texttt{s5:lemChild} & child side (\ref{s5:lemChild}) & 5 & \ref{s4:lemPV}, \ref{s5:defStages}, \ref{s5:lemZones}, \ref{s3:lemCOL}, \ref{s2:propStructure}, \ref{s3:defCOL}, \ref{s1:condG3}\\
+\texttt{s5:lemParent} & parent side (\ref{s5:lemParent}) & 5 & \ref{s5:lemChild}, \ref{s5:defStages}, \ref{s5:lemZones}, \ref{s3:defCOL}, \ref{s3:lemCOLJV}, \ref{s3:lemMonotone}, \ref{s1:citEuler}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:propStructure}, \ref{s1:condG1}, \ref{s1:citDef7}\\
+\texttt{s5:lemDemoted} & demoted parts (\ref{s5:lemDemoted}) & 5 & \ref{s4:thmVXp}, \ref{s2:propStructure}, \ref{s3:lemCOLJV}, \ref{s2:lemTower}, \ref{s1:condG1}, \ref{s1:condG3}, \ref{s5:defStages}, \ref{s5:lemParent}\\
+\texttt{s5:lemKRED} & Lemma K-RED (\ref{s5:lemKRED}) & 5 & \ref{s5:lemChild}, \ref{s5:lemParent}, \ref{s5:lemDemoted}, \ref{s2:propStructure}, \ref{s2:propParentless}, \ref{s2:lemEL}, \ref{s3:defCOL}, \ref{s5:defStages}\\
+\texttt{s5:remConstants} & 369 and 745 (\ref{s5:remConstants}) & 5 & \ref{s4:lemPV}, \ref{s5:lemKRED}, \ref{s2:propStructure}, \ref{s2:propParentless}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s4:thmVXp}, \ref{s1:condG4}, \ref{s1:factEG0}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s6:lemGATE} & Lemma GATE (\ref{s6:lemGATE}) & 6 & \ref{s1:defObject}\\
+\texttt{s6:defCluster} & clusters (\ref{s6:defCluster}) & 6 & --\\
+\texttt{s6:lemMED} & Lemma MED (\ref{s6:lemMED}) & 6 & \ref{s6:defCluster}\\
+\texttt{s6:lemEQLPT} & Lemma EQ-LPT (\ref{s6:lemEQLPT}) & 6 & --\\
+\texttt{s6:lemPAR} & Lemma PAR (\ref{s6:lemPAR}) & 6 & \ref{s1:citEuler}\\
+\texttt{s6:lemHCCP} & Lemma HCC-P (\ref{s6:lemHCCP}) & 6 & \ref{s6:lemGATE}, \ref{s6:lemMED}, \ref{s6:defCluster}\\
+\texttt{s6:lemHCCglob} & union of systems (\ref{s6:lemHCCglob}) & 6 & \ref{s1:factAdd}, \ref{s6:lemHCCP}\\
+\texttt{s6:defDesign} & designation, classes (\ref{s6:defDesign}) & 6 & \ref{s2:defAncestors}, \ref{s2:defHBtp}\\
+\texttt{s6:thmCONC} & Theorem CONC (\ref{s6:thmCONC}) & 6 & \ref{s2:propOrigin}, \ref{s2:lemTower}, \ref{s2:propOV}, \ref{s2:lemLacunary}, \ref{s6:defDesign}, \ref{s2:defHBtp}, \ref{s1:condG1}\\
+\texttt{s6:thmCONCL} & Theorem CONC-L (\ref{s6:thmCONCL}) & 6 & \ref{s2:propOrigin}, \ref{s2:lemSEP}, \ref{s2:lemThinCut}, \ref{s2:lemGC}, \ref{s2:lemEL}, \ref{s2:lemTower}, \ref{s2:lemLacunary}, \ref{s6:thmCONC}, \ref{s2:propOV}, \ref{s2:defHBtp}, \ref{s6:defDesign}, \ref{s1:condG1}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s6:defLending} & lending statuses (\ref{s6:defLending}) & 6 & \ref{s3:defCOL}, \ref{s3:lemCOL}, \ref{s5:defStages}, \ref{s6:defDesign}, \ref{s5:defZones}\\
+\texttt{s6:lemLost} & the sets Lost (\ref{s6:lemLost}) & 6 & \ref{s6:defLending}, \ref{s3:lemCOL}, \ref{s5:lemE1}, \ref{s5:lemExpect}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s3:defCOL}\\
+\texttt{s6:lemJSLC} & Lemma JS-LC (\ref{s6:lemJSLC}) & 6 & \ref{s6:lemPAR}, \ref{s6:lemMED}, \ref{s6:lemEQLPT}, \ref{s6:lemHCCP}, \ref{s6:lemHCCglob}, \ref{s6:defDesign}, \ref{s6:defLending}, \ref{s3:lemCOL}, \ref{s3:lemMonotone}, \ref{s2:lemEL}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:defHBtp}, \ref{s2:propStructure}, \ref{s3:defCOL}, \ref{s1:citDef7}\\
+\texttt{s6:remStar} & star split (not used) (\ref{s6:remStar}) & 6 & \ref{s6:lemJSLC}\\
+\texttt{s6:lemJplus} & Lemma J$^+$ (\ref{s6:lemJplus}) & 6 & \ref{s6:lemJSLC}, \ref{s6:lemPAR}, \ref{s6:defDesign}, \ref{s2:propStructure}, \ref{s2:lemEL}, \ref{s2:lemCap}, \ref{s3:defCOL}, \ref{s2:defHBtp}, \ref{s6:lemHCCP}, \ref{s6:defLending}\\
+\texttt{s6:defJconsumer} & J-consumer (\ref{s6:defJconsumer}) & 6 & \ref{s3:defCOL}, \ref{s6:lemJplus}\\
+\texttt{s6:consOrder} & processing order (\ref{s6:consOrder}) & 6 & \ref{s4:lemTPV}, \ref{s5:lemChild}, \ref{s5:lemParent}, \ref{s5:lemDemoted}, \ref{s6:lemJSLC}, \ref{s6:defJconsumer}, \ref{s6:defLending}, \ref{s5:defStages}, \ref{s4:thmVXp}, \ref{s3:defCOL}\\
+\texttt{s6:lemLent} & Lent sets (\ref{s6:lemLent}) & 6 & \ref{s6:consOrder}, \ref{s6:defLending}, \ref{s6:defJconsumer}, \ref{s6:lemJSLC}, \ref{s5:lemParent}, \ref{s5:lemKRED}, \ref{s3:defCOL}, \ref{s6:lemJplus}, \ref{s5:defStages}, \ref{s4:lemTPV}, \ref{s5:lemChild}, \ref{s5:lemDemoted}, \ref{s4:thmVXp}\\
+\texttt{s6:thmMIXC} & Theorem MIX-C (\ref{s6:thmMIXC}) & 6 & \ref{s6:consOrder}, \ref{s4:lemTPV}, \ref{s5:lemKRED}, \ref{s5:lemDemoted}, \ref{s6:lemJSLC}, \ref{s6:lemJplus}, \ref{s6:defJconsumer}, \ref{s6:lemLent}, \ref{s6:thmCONCL}, \ref{s2:propStructure}, \ref{s2:propParentless}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s3:defCOL}, \ref{s3:lemCOL}, \ref{s4:lemPV}, \ref{s5:lemChild}, \ref{s4:thmVXp}, \ref{s2:defHBtp}, \ref{s1:condG3}, \ref{s6:defDesign}, \ref{s6:defLending}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s7:defPool} & pool labels (\ref{s7:defPool}) & 7 & \ref{s2:lemTower}, \ref{s3:defCOL}\\
+\texttt{s7:defCand} & candidates (\ref{s7:defCand}) & 7 & \ref{s7:defPool}, \ref{s3:defCOL}, \ref{s6:defDesign}\\
+\texttt{s7:lemCand} & candidate counts (\ref{s7:lemCand}) & 7 & \ref{s7:defCand}, \ref{s7:defPool}, \ref{s3:defCOL}, \ref{s3:lemCOLJV}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:citChernoffGen}\\
+\texttt{s7:defSchedule} & randomness schedule (\ref{s7:defSchedule}) & 7 & \ref{s3:defCOL}, \ref{s5:defZones}, \ref{s7:defPool}, \ref{s6:defLending}, \ref{s5:defStages}, \ref{s7:defCand}, \ref{s4:lemTPV}, \ref{s4:lemPV}, \ref{s4:thmVXp}, \ref{s5:lemChild}, \ref{s5:lemDemoted}\\
+\texttt{s7:consRound} & JV$^{+*}$ round step (\ref{s7:consRound}) & 7 & \ref{s6:lemJplus}, \ref{s6:defJconsumer}, \ref{s7:defCand}, \ref{s7:defPool}, \ref{s7:defSchedule}, \ref{s1:citMarkov}\\
+\texttt{s7:lemWellDef} & round step well defined (\ref{s7:lemWellDef}) & 7 & \ref{s7:consRound}, \ref{s6:lemJplus}, \ref{s7:lemCand}, \ref{s3:lemCOLJV}, \ref{s1:citHall}, \ref{s2:defHBtp}\\
+\texttt{s7:lemMULT} & Lemma MULT (\ref{s7:lemMULT}) & 7 & \ref{s7:consRound}, \ref{s6:lemJplus}, \ref{s7:defCand}, \ref{s7:defPool}, \ref{s2:propOV}\\
+\texttt{s7:lemSimple} & $Q_l$ is simple (\ref{s7:lemSimple}) & 7 & \ref{s7:consRound}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s7:lemLift} & Lemma JV-L (lift) (\ref{s7:lemLift}) & 7 & \ref{s7:consRound}, \ref{s7:lemSimple}, \ref{s7:lemWellDef}, \ref{s6:lemJplus}, \ref{s6:defJconsumer}, \ref{s3:defCOL}, \ref{s2:propStructure}, \ref{s6:defLending}\\
+\texttt{s7:lemCC} & Lemma CC (\ref{s7:lemCC}) & 7 & \ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s1:citChernoffGen}, \ref{s6:lemJplus}\\
+\texttt{s7:lemUltra} & ultra-hub copies (\ref{s7:lemUltra}) & 7 & \ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s6:lemJplus}, \ref{s1:citChernoffGen}, \ref{s7:lemMULT}, \ref{s7:lemCand}\\
+\texttt{s7:lemVstar} & the weight $\XV$ (\ref{s7:lemVstar}) & 7 & \ref{s7:defPool}, \ref{s2:propOV}, \ref{s2:lemTower}\\
+\texttt{s7:lemPay} & payments (\ref{s7:lemPay}) & 7 & \ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s6:lemJplus}, \ref{s2:propParentless}, \ref{s2:lemTower}\\
+\texttt{s7:defXprime} & the functional $\Xp$ (\ref{s7:defXprime}) & 7 & \ref{s6:defLending}, \ref{s7:lemVstar}, \ref{s7:lemPay}\\
+\texttt{s7:lemEXprime} & expectation of $\Xp$ (\ref{s7:lemEXprime}) & 7 & \ref{s7:defXprime}, \ref{s6:lemLost}, \ref{s7:lemCand}, \ref{s7:lemVstar}, \ref{s2:propOV}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s5:lemExpect}, \ref{s2:lemCap}\\
+\texttt{s7:lemUHsplit} & Lemma UH$^*$-split (\ref{s7:lemUHsplit}) & 7 & \ref{s7:lemCC}, \ref{s7:lemMULT}, \ref{s7:lemUltra}, \ref{s7:lemVstar}, \ref{s7:lemEXprime}, \ref{s7:defSchedule}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:lemLacunary}, \ref{s1:condG4}, \ref{s1:condG1}, \ref{s7:consRound}, \ref{s7:lemWellDef}, \ref{s2:defHBtp}, \ref{s6:lemJplus}\\
+\hline
+\end{tabular}}
+\end{center}
+
+\begin{center}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.2cm}p{3.6cm}p{0.5cm}p{7.6cm}}
+\multicolumn{4}{l}{(Table~\ref{s1:tabDAG}, continued.)}\\
+\textbf{Label} & \textbf{Name} & \textbf{S.} & \textbf{Depends on}\\
+\hline
+\texttt{s7:lemOneOutcome} & one joint outcome (\ref{s7:lemOneOutcome}) & 7 & \ref{s7:defSchedule}, \ref{s7:consRound}, \ref{s6:consOrder}, \ref{s4:lemTPV}, \ref{s4:lemPV}, \ref{s4:thmVXp}, \ref{s5:lemChild}, \ref{s5:lemDemoted}, \ref{s7:lemEXprime}, \ref{s7:lemPay}, \ref{s7:lemUHsplit}, \ref{s1:citMarkov}, \ref{s1:condG3}\\
+\texttt{s7:propCost} & cost (\ref{s7:propCost}) & 7 & \ref{s6:thmMIXC}, \ref{s6:thmCONCL}, \ref{s7:lemLift}, \ref{s7:lemPay}, \ref{s7:lemEXprime}, \ref{s7:lemOneOutcome}, \ref{s5:lemKRED}, \ref{s2:propParentless}, \ref{s2:propOV}, \ref{s7:consRound}, \ref{s2:lemTower}, \ref{s1:condG4}, \ref{s6:defLending}, \ref{s7:defXprime}\\
+\texttt{s7:thmJVps} & Theorem JV$^{+*}$ (\ref{s7:thmJVps}) & 7 & \ref{s7:propCost}, \ref{s7:lemUHsplit}, \ref{s7:lemSimple}, \ref{s7:lemLift}, \ref{s7:lemOneOutcome}, \ref{s6:thmMIXC}, \ref{s2:propExists}, \ref{s7:lemPay}, \ref{s7:lemUltra}, \ref{s1:condGamma}\\
+\texttt{s7:thmHI} & Theorem HI$''$ (\ref{s7:thmHI}) & 7 & \ref{s1:factAdd}, \ref{s1:defObject}, \ref{s1:defConstants}\\
+\texttt{s7:lemGammaSat} & satisfiability of the conditions (\ref{s7:lemGammaSat}) & 7 & \ref{s1:condGamma}, \ref{s7:propCost}, \ref{s7:lemUHsplit}, \ref{s5:lemExpect}, \ref{s5:lemKRED}, \ref{s2:lemTower}, \ref{s7:lemEXprime}, \ref{s6:thmCONCL}, \ref{s1:defConstants}, \ref{s3:lemCOL}, \ref{s5:lemE1}, \ref{s3:lemCOLJVev}\\
+\texttt{s7:thmMainProof} & proof of the Main Theorem (\ref{s7:thmMainProof}) & 7 & \ref{s7:thmHI}, \ref{s7:thmJVps}, \ref{s2:propExists}, \ref{s7:lemGammaSat}, \ref{s6:defDesign}, \ref{s1:condGamma}, \ref{s1:defConstants}\\
+\texttt{s7:remNonCirc} & non-circularity (\ref{s7:remNonCirc}) & 7 & \ref{s7:thmHI}, \ref{s7:thmJVps}, \ref{s7:propCost}, \ref{s7:lemUHsplit}, \ref{s7:lemCC}, \ref{s7:lemUltra}, \ref{s7:lemPay}, \ref{s7:lemSimple}, \ref{s7:consRound}, \ref{s4:lemTPV}, \ref{s4:lemPV}, \ref{s4:thmVXp}, \ref{s1:condG4}, \ref{s1:factEG0}\\
+\hline
+\end{tabular}}
+\end{center}
+
+Every edge of this table points from a statement to one appearing earlier in the
+paper; the only exception is the Main Theorem, stated in
+Section~\ref{s1:sec} and proved in Section~\ref{s7:sec}.

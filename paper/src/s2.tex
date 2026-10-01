@@ -1,0 +1,1534 @@
+\section{The hierarchy \texorpdfstring{$\HBtp$}{HB*tau+}}\label{s2:sec}
+
+This section defines the hierarchy $\HBtp$ on which the whole construction
+runs, and proves the structural facts about it that later sections use. The
+hierarchy follows the round structure of the proof of \cite[Theorem~2]{BM}:
+in each round, long cycles are removed, the remaining graph is cut by the
+recursion of \cite[Lemma~14]{BM} with $s=0$ into pieces, and each large piece
+is cut again into robust expanders. There are two changes inside a round.
+First, the robust recursion is replaced by Lemma~14$^\tau$ below: at every
+split, vertices with many deleted edges across the cut are moved into the
+separator (the \emph{$\tau$-rules}), which caps the number of deleted edges
+from any vertex into the non-duplicated vertices of a leaf (the thin-cut
+lemma). Second, a \emph{guest cap}
+(rule~(GC)) is added to the definition of light pre-parts. The leaves of this
+recursion are still certified expanders, and the overlap between leaves stays
+small (Lemma OV).
+
+All constants in this section are the constants of $\HBtp$. The
+hierarchy without the $\tau$-rules and without (GC) (``plain $\HBs$''), and the
+hierarchy with the $\tau$-rules but without (GC) (``$\HBt$''), appear only in
+the final remark of this section, for comparison. Round parameters are written
+$\tHB_l$, $\tau_r$ and $\thGC_r$.
+
+\emph{Standing assumption.} Throughout this section, as everywhere in this
+text, $\Dstar$ denotes the constant of Definition~\ref{s1:defConstants}(iii):
+it satisfies \Gc{1}--\Gc{4} (Condition~\ref{s1:condGamma}). The proofs use
+these conditions either directly or through the results they apply; for
+instance the termination part of Proposition~\ref{s2:propExists} uses
+Proposition~\ref{s2:propDegRec}, and hence \Gc{1}.
+
+\emph{Local notation.} In the first two subsections of this section the
+letter $H$ denotes a node graph with $m=|H|$ vertices, and $(U,F)$, $N$,
+$F_0$, $F_1$, $F''$, $\Hout$, $\Hin$, $U'$, $N'$, $N''$, $G_1$, $G_2$, $n_1$,
+$n_2$, $\nu^*$ are local to these subsections, as are $S$ (a total leaf
+size), $M$ (a size threshold) and $c$ (a constant) in
+Lemma OV. Throughout, $\eps=2^{-5}$, $\log=\log_2$, and
+$|H|\defeq|V(H)|$ (Convention~\ref{s1:convGraphs}).
+
+\subsection{Witnesses, the \texorpdfstring{$\tau$}{tau}-rules and separation}
+
+\begin{definition}[witness and its minimal part]\label{s2:defWitness}
+Let $s\ge0$ and let $H$ be a graph on $m=|H|$ vertices that is not an
+$(\eps,s)$-expander (Cited result~\ref{s1:citDef11}). Then $m\ge2$, since a
+graph on one vertex has no set $U$ with $1\le|U|\le2m/3$. A \emph{witness} at
+$H$ is a pair $(U,F)$ with $U\subseteq V(H)$ and $F\subseteq E(H)$ such that
+\[
+1\le|U|\le\tfrac23m,\qquad |F|\le s|U|,\qquad
+|\Nbr_{H-F}(U)|<\frac{\eps|U|}{\log^2m}.
+\]
+Since $H$ is not an $(\eps,s)$-expander, a witness exists. For a witness
+$(U,F)$ put
+\[
+N\defeq\Nbr_{H-F}(U),\qquad F_0\defeq E_H\bigl(U,\,V(H)\setminus(U\cup
+N)\bigr).
+\]
+\emph{Fact.} $F_0\subseteq F$ and $\Nbr_{H-F_0}(U)=N$. In particular
+$(U,F_0)$ is again a witness at $H$, with the same set $N$.
+\deps{\ref{s1:citDef11}, \ref{s1:defConstants}}
+\end{definition}
+
+\begin{proof}[Proof of the Fact]
+Let $uv\in F_0$ with $u\in U$ and $v\notin U\cup N$. If $uv\notin F$, then
+$uv$ is an edge of $H-F$, so $v\in\Nbr_{H-F}(U)=N$, a contradiction. Hence
+$F_0\subseteq F$. Consequently $H-F\subseteq H-F_0$, so
+$N\subseteq\Nbr_{H-F_0}(U)$. Conversely, let $v\notin U$ have a neighbour
+$u\in U$ with $uv\notin F_0$. If $v\notin N$ then $uv\in
+E_H(U,V(H)\setminus(U\cup N))=F_0$, a contradiction; so $v\in N$. Thus
+$\Nbr_{H-F_0}(U)=N$. Finally $|F_0|\le|F|\le s|U|$, so $(U,F_0)$ is a witness.
+\end{proof}
+
+\begin{definition}[the $\tau$-rules and the split]\label{s2:defTauRules}
+Let $H$, $m$ and $s$ be as in Definition~\ref{s2:defWitness}, let $(U,F)$ be a
+witness at $H$ with $N$ and $F_0$ as there, write $V\defeq V(H)$, and let
+$\tau>s$ be real. The \emph{$\tau$-rules} are:
+\begin{enumerate}
+\item[(1)] $\Hout\defeq\{v\in U:\deg_{F_0}(v)\ge\tau\}$,\quad
+$U'\defeq U\setminus\Hout$,\quad $N'\defeq N\cup\Hout$;
+\item[(2)] $F_1\defeq E_H\bigl(U',V\setminus(U'\cup N')\bigr)$,\quad
+$\Hin\defeq\{x\in V\setminus(U'\cup N'):\deg_{F_1}(x)\ge\tau\}$,\quad
+$N''\defeq N'\cup\Hin$,\quad $F''\defeq E_H\bigl(U',V\setminus(U'\cup
+N'')\bigr)$.
+\end{enumerate}
+The \emph{split of $H$ by the $\tau$-rules} has the two children
+$G_1\defeq H[U'\cup N'']-F''$ and $G_2\defeq H-U'-E(G_1)-F''$, and its
+\emph{deleted set} is $F''$. Every edge of $F''$ has one end in $U'$ and the
+other outside $U'\cup N''$, so no edge of $F''$ lies inside $U'\cup N''$, and
+every edge of $F''$ meets $U'$. Hence
+\begin{equation}\label{s2:eqSplit}
+G_1=H[U'\cup N''],\qquad G_2=H[V\setminus U']-E\bigl(H[N'']\bigr).
+\end{equation}
+\emph{Facts.}
+\begin{enumerate}
+\item[(a)] $U'\cap N''=\emptyset$, $U'\cup N'=U\cup N$, and
+$F''\subseteq F_1\subseteq F_0\subseteq F$.
+\item[(b)] $E(H)=E(G_1)\sqcup E(G_2)\sqcup F''$ (disjoint union),
+$V(G_1)=U'\cup N''$ and $V(G_2)=V\setminus U'$. A vertex of $U'$ lies only in
+$G_1$, a vertex of $N''$ lies in both children, and a vertex of
+$V\setminus(U'\cup N'')$ lies only in $G_2$.
+\item[(c)] Given the pair $(U,N)$, the objects $\Hout$, $U'$, $N'$,
+$F_1$, $\Hin$, $N''$, $F''$, $G_1$, $G_2$ depend only on $(U,N)$, because
+they are defined from $F_0=E_H(U,V\setminus(U\cup N))$. The choice of $F$
+matters only through $N=\Nbr_{H-F}(U)$: every witness $(U,F)$ yields the
+same split as its minimal part $(U,F_0)$. (It is not true that the choice of
+$F$ is irrelevant, since $F$ determines $N$.)
+\end{enumerate}
+\deps{\ref{s2:defWitness}}
+\end{definition}
+
+\begin{proof}[Proof of the Facts]
+(a) $U'\subseteq U$ and $N\cap U=\emptyset$, so $U'\cap N=\emptyset$;
+$\Hout\cap U'=\emptyset$ by definition; and $\Hin\cap(U'\cup N')=\emptyset$ by
+definition. Hence $U'\cap N''=\emptyset$. As $\Hout\subseteq U$, we get
+$U'\cup N'=(U\setminus\Hout)\cup N\cup\Hout=U\cup N$. Therefore
+$F_1=E_H(U',V\setminus(U\cup N))\subseteq E_H(U,V\setminus(U\cup N))=F_0$, and
+since $N'\subseteq N''$, $F''=E_H(U',V\setminus(U'\cup N''))\subseteq
+E_H(U',V\setminus(U'\cup N'))=F_1$. Finally $F_0\subseteq F$ by
+Definition~\ref{s2:defWitness}.
+
+(b) The vertex sets follow from \eqref{s2:eqSplit}, and the statement about
+where vertices go follows from $U'\cap N''=\emptyset$. Let $e=xy\in E(H)$. If
+$x,y\in U'\cup N''$ then $e\in E(G_1)$, and $e\notin F''$. Otherwise one end,
+say $y$, lies outside $U'\cup N''$. If $x\in U'$ then $e\in F''$. If
+$x\notin U'$ then both ends lie in $V\setminus U'$ and not both lie in $N''$,
+so $e\in E(G_2)$; and $e\notin F''$ because $e$ does not meet $U'$. An edge in
+$E(G_1)\cap E(G_2)$ would have both ends in $(U'\cup N'')\cap(V\setminus
+U')=N''$, which \eqref{s2:eqSplit} excludes from $G_2$. So the three sets are
+disjoint and cover $E(H)$.
+
+(c) $F_0$ is determined by $(U,N)$, and every later object in (1)--(2) and in
+\eqref{s2:eqSplit} is defined from $U$, $N$ and $F_0$ alone. By the Fact of
+Definition~\ref{s2:defWitness}, $(U,F_0)$ is a witness with the same $N$.
+\end{proof}
+
+\begin{lemma}[Lemma SEP]\label{s2:lemSEP}
+A \emph{split recursion} on a graph $H_0$ is a finite rooted binary tree whose
+nodes $\nu$ carry graphs $H_\nu$, with $H_\nu=H_0$ at the root, such that at
+every non-leaf node $\nu$ there are disjoint sets $U'_\nu,N''_\nu\subseteq
+V(H_\nu)$ for which the two children $\nu_1,\nu_2$ of $\nu$ carry
+\[
+H_{\nu_1}=H_\nu[U'_\nu\cup N''_\nu],\qquad
+H_{\nu_2}=H_\nu[V(H_\nu)\setminus U'_\nu]-E\bigl(H_\nu[N''_\nu]\bigr),
+\]
+and the \emph{deleted set} at $\nu$ is $F''_\nu\defeq
+E_{H_\nu}(U'_\nu,V(H_\nu)\setminus(U'_\nu\cup N''_\nu))$. (By
+\eqref{s2:eqSplit}, every split by the $\tau$-rules has this form.) We write
+$|\nu|\defeq|H_\nu|$, say that a vertex $v$ \emph{lies in} $\nu$ if $v\in
+V(H_\nu)$, and call the leaf nodes \emph{leaves} (distinct leaf nodes are
+distinct leaves even if their vertex sets coincide). A \emph{deleted edge} is an
+edge of some $F''_\nu$. Let $\Dup$ be the set of vertices lying in at least two
+leaves. Then:
+\begin{enumerate}
+\item[(0)] at every non-leaf $\nu$, $E(H_\nu)=E(H_{\nu_1})\sqcup
+E(H_{\nu_2})\sqcup F''_\nu$; a vertex of $U'_\nu$ lies only in $\nu_1$, a
+vertex of $N''_\nu$ lies in both children, every other vertex of $\nu$ lies
+only in $\nu_2$, and $|\nu_1|+|\nu_2|=|\nu|+|N''_\nu|$. Every vertex of a node
+lies in at least one leaf below it, and the total size of the leaves is
+$|H_0|+\sum_{\nu}|N''_\nu|$, the sum over the non-leaf nodes;
+\item[(i)] every edge $xy$ of $H_0$ either lies in exactly one leaf, which
+contains $x$ and $y$, or is deleted at exactly one node $\nu$. In the second
+case $x$ and $y$ lie in $\nu$ and go to different children of $\nu$, each to
+only one child, and $\nu$ is the first node on the path of nodes having $xy$
+as an edge at which this happens;
+\item[(ii)] if $u\notin\Dup$ and $u\in V(H_0)$, then the nodes in which $u$
+lies are exactly the ancestors of the unique leaf $\Leaf_u$ containing $u$
+($\Leaf_u$ included), and $u\notin N''_\nu$ at every node $\nu$ on that path;
+\item[(iii)] if $u\notin\Dup$, $u,h\in V(H_0)$, $h\notin V(\Leaf_u)$, and $\nu^*$ is the
+deepest ancestor of $\Leaf_u$ in which $h$ lies, then every deleted edge
+$hu'$ with $u'\in V(\Leaf_u)\setminus\Dup$ is deleted at $\nu^*$.
+\end{enumerate}
+\deps{\ref{s2:defTauRules}}
+\end{lemma}
+
+\begin{proof}
+(0) Fix a non-leaf $\nu$ and write $H=H_\nu$, $V=V(H)$, $U'=U'_\nu$,
+$N''=N''_\nu$. The proof of Fact~(b) of Definition~\ref{s2:defTauRules} used
+only that $U'\cap N''=\emptyset$ and the formulas \eqref{s2:eqSplit}, so it
+gives $E(H)=E(H_{\nu_1})\sqcup E(H_{\nu_2})\sqcup F''_\nu$ and the statement
+about where vertices go. As $U'\cap N''=\emptyset$,
+$|\nu_1|+|\nu_2|=|U'|+|N''|+|V|-|U'|=|\nu|+|N''|$. Every vertex of $\nu$ lies
+in a child of $\nu$, so by induction on the height of the subtree every vertex
+of a node lies in some leaf below it. Summing $|\nu_1|+|\nu_2|-|\nu|=|N''_\nu|$
+over all non-leaf nodes gives the total leaf size.
+
+(i) Let $\Omega_{xy}$ be the set of nodes having $xy$ as an edge; the root is in $\Omega_{xy}$.
+Every edge of a child is an edge of its parent, so $\Omega_{xy}$ is closed under taking
+parents. By (0), at a non-leaf $\nu\in\Omega_{xy}$ the edge $xy$ lies in exactly one of
+$E(H_{\nu_1})$, $E(H_{\nu_2})$ and $F''_\nu$; so at most one child of $\nu$ is
+in $\Omega_{xy}$, and none is exactly when $xy\in F''_\nu$. Hence $\Omega_{xy}$ is a path from the
+root ending at a node $\nu_\circ$. If $\nu_\circ$ is a leaf, then $xy$ is an
+edge of exactly one leaf, namely $\nu_\circ$ (other leaves are not in $\Omega_{xy}$), and
+$xy$ is deleted nowhere (at nodes of $\Omega_{xy}\setminus\{\nu_\circ\}$ it passes to a
+child; at nodes outside $\Omega_{xy}$ it is not an edge). If $\nu_\circ$ is not a leaf,
+then $xy\in F''_{\nu_\circ}$, $xy$ lies in no leaf, and it is deleted at no
+other node. At $\nu_\circ$, one end lies in $U'_{\nu_\circ}$ and goes only to
+the first child, and the other lies outside $U'_{\nu_\circ}\cup
+N''_{\nu_\circ}$ and goes only to the second. At every earlier node of $\Omega_{xy}$ the
+edge $xy$ passes to a child, which contains both $x$ and $y$.
+
+(ii) By (0), $u$ lies in at least one leaf, hence in exactly one, $\Leaf_u$.
+The nodes in which $u$ lies form a set closed under taking parents (vertex sets
+shrink downwards), and at each non-leaf node of this set at least one child
+contains $u$. If some node $\nu$ had both children containing $u$, then $u$
+would lie in a leaf below each child, i.e.\ in two distinct leaves. So exactly
+one child of every such non-leaf node contains $u$: the nodes containing $u$
+form a path from the root to a leaf, which is $\Leaf_u$. A vertex of
+$N''_\nu$ lies in both children of $\nu$, so $u\notin N''_\nu$ on this path.
+
+(iii) As $h\in V(H_0)$, the root is an ancestor of $\Leaf_u$ in which $h$
+lies, so $\nu^*$ exists. Let $u'\in V(\Leaf_u)\setminus\Dup$. By (ii) applied to $u'$, whose
+unique leaf is $\Leaf_u$, the nodes containing $u'$ are exactly the ancestors
+of $\Leaf_u$. Suppose $hu'$ is deleted at $\nu$. Then $h$ and $u'$ lie in
+$\nu$, so $\nu$ is an ancestor of $\Leaf_u$ in which $h$ lies, and $\nu$ is
+not below $\nu^*$. By (i), at $\nu$ the vertices $h$ and $u'$ go to different
+children, each to only one. The vertex $u'$ goes to the child of $\nu$ on the
+path to $\Leaf_u$, so $h$ does not lie in that child. Hence $\nu$ is the
+deepest ancestor of $\Leaf_u$ containing $h$, that is, $\nu=\nu^*$.
+\end{proof}
+
+\begin{lemma}[thin cut]\label{s2:lemThinCut}
+Let $\tau>0$ and consider a split recursion (Lemma~\ref{s2:lemSEP}) in which
+every split is produced by the $\tau$-rules at threshold $\tau$: at each
+non-leaf node $\nu$ there are $s_\nu<\tau$ and a witness at $H_\nu$ (with
+parameter $s_\nu$) whose $\tau$-rules (Definition~\ref{s2:defTauRules}) give
+$U'_\nu$ and $N''_\nu$. Then for every leaf $\Leaf$ and every vertex $h$,
+\[
+\#\bigl\{\text{deleted edges } hu:\ u\in V(\Leaf)\setminus\Dup\bigr\}\le
+\lceil\tau\rceil-1,
+\]
+which is $\tau-1$ when $\tau$ is an integer (as in all applications), and this
+number is $0$ if $h\in V(\Leaf)$. Moreover, if $u\notin\Dup$ then
+every edge at $u$ is either deleted or an edge of the unique leaf containing
+$u$.
+\deps{\ref{s2:lemSEP}, \ref{s2:defTauRules}}
+\end{lemma}
+
+\begin{proof}
+The condition $s_\nu<\tau$ only ensures that the $\tau$-rules are defined
+(Definition~\ref{s2:defTauRules} asks for $\tau>s$); the argument below uses only
+the structure of the $\tau$-rules.
+Fix $\Leaf$ and $h$; we may assume $h$ lies in the root (otherwise no edge
+of $H_0$ meets $h$) and that some deleted
+edge $hu$ with $u\in V(\Leaf)\setminus\Dup$ exists. For such $u$ we have
+$\Leaf_u=\Leaf$, so by Lemma~\ref{s2:lemSEP}(ii) the nodes containing $u$ are
+the ancestors of $\Leaf$.
+
+\emph{Case $h\in V(\Leaf)$.} Let $hu$ be deleted at $\nu$. Then $\nu$ is an
+ancestor of $\Leaf$, and by Lemma~\ref{s2:lemSEP}(i) the vertices $h$ and $u$
+go to different children of $\nu$, each to only one. But the child of $\nu$ on
+the path to $\Leaf$ contains $V(\Leaf)\ni h,u$. This is a contradiction, so
+the number is $0$.
+
+\emph{Case $h\notin V(\Leaf)$.} Let $\nu^*$ be the deepest ancestor of
+$\Leaf$ in which $h$ lies. By Lemma~\ref{s2:lemSEP}(iii), every deleted edge
+$hu$ with $u\in V(\Leaf)\setminus\Dup$ is deleted at $\nu^*$, i.e.\ lies in
+$F''=F''_{\nu^*}$. Use the notation of Definition~\ref{s2:defTauRules} at
+$\nu^*$. The vertex $h$ does not lie in the child of $\nu^*$ on the path to
+$\Leaf$ (the \emph{path child}), so $h\notin N''$, since vertices of $N''$ lie
+in both children.
+
+\emph{Case A: the path child is $G_1$.} Then $h\notin V(G_1)=U'\cup N''$; in
+particular $h\notin U'\cup N'$ and $h\notin\Hin$, so by the definition of
+$\Hin$ we have $\deg_{F_1}(h)<\tau$, i.e.\ $\deg_{F_1}(h)\le\lceil\tau\rceil-1$.
+As $F''\subseteq F_1$, at most $\lceil\tau\rceil-1$ edges of $F''$ meet $h$.
+
+\emph{Case B: the path child is $G_2$.} Then $h\notin V(G_2)=V\setminus U'$,
+so $h\in U'=U\setminus\Hout$, and by the definition of $\Hout$,
+$\deg_{F_0}(h)<\tau$. As $F''\subseteq F_0$, at most $\lceil\tau\rceil-1$ edges
+of $F''$ meet $h$.
+
+In both cases the count is at most $\lceil\tau\rceil-1$. The last assertion is
+Lemma~\ref{s2:lemSEP}(i): an edge $uy$ that is not deleted lies in exactly one
+leaf, which contains $u$ and is therefore the unique leaf $\Leaf_u$.
+\end{proof}
+
+\subsection{Overlap, and Lemma 14\texorpdfstring{$^\tau$}{-tau}}
+
+\begin{lemma}[generic overlap bound, Lemma OV]\label{s2:lemOVgeneric}
+Let $c>0$ with $3.42\,c\,\eps<1$, and put $\cOV\defeq\log_2(4/3)$. Consider a
+split recursion (Lemma~\ref{s2:lemSEP}) on a root graph with $n_0\ge1$
+vertices such that at every non-leaf node $\nu$, with $m\defeq|\nu|$,
+\[
+m\ge2,\qquad |\nu_1|\le\tfrac34m,\qquad
+|N''_\nu|\le\frac{c\,\eps\,|U'_\nu|}{\log^2m}.
+\]
+(Recall that vertices of $U'_\nu$ go only to the first child $\nu_1$.) Let $S$
+be the total size of the leaves. For $M\ge2$ let
+$\Delta_{\ge M}\defeq\sum_\nu|N''_\nu|$, the sum over the non-leaf nodes $\nu$
+with $|\nu|\ge M$ (the number of \emph{duplication events} at nodes of size at
+least $M$; this is a number, not to be confused with the vertex set $\Dup$ of
+Lemma~\ref{s2:lemSEP}), and for a vertex $v$ let $\dup_{\ge M}(v)$ be the number of
+non-leaf nodes $\nu$ with $|\nu|\ge M$ and $v\in N''_\nu$ (so
+$\sum_v\dup_{\ge M}(v)=\Delta_{\ge M}$). Then:
+\begin{enumerate}
+\item[(a)] $\displaystyle\Delta_{\ge M}\le
+c\,\eps\Bigl(\frac1{\log^2M}+\frac1{\cOV\log M}\Bigr)S\le
+\frac{3.42\,c\,\eps\,S}{\log M}$;
+\item[(b)] for every vertex $v$, the number of leaves $\Leaf$ with
+$|\Leaf|\ge M$ containing $v$ is at most $1+\dup_{\ge M}(v)$; consequently
+$\sum_{\Leaf:|\Leaf|\ge M}|\Leaf|-\bigl|\bigcup_{\Leaf:|\Leaf|\ge
+M}V(\Leaf)\bigr|\le\Delta_{\ge M}$;
+\item[(c)] $S\le n_0/(1-3.42\,c\,\eps)$.
+\end{enumerate}
+\emph{Instance $c=1$ (the $s=0$ recursion).} Call a split recursion an
+\emph{$s=0$ recursion} if at every non-leaf node $\nu$ there is a witness
+$(U_\nu,F_\nu)$ at $H_\nu$ with parameter $s=0$ (Definition~\ref{s2:defWitness})
+and $U'_\nu=U_\nu$, $N''_\nu=\Nbr_{H_\nu}(U_\nu)$. This is exactly the
+recursion in the proof of \cite[Lemma~14]{BM} with $s=0$
+(Cited result~\ref{s1:citLem14}): there $F_\nu=\emptyset$, the children are
+$H_\nu[U_\nu\cup N_\nu]$ and $H_\nu\setminus U_\nu-E(H_\nu[U_\nu\cup
+N_\nu])=H_\nu[V(H_\nu)\setminus U_\nu]-E(H_\nu[N_\nu])$, and the deleted set
+$E_{H_\nu}(U_\nu,V(H_\nu)\setminus(U_\nu\cup N_\nu))$ is empty. (It is also
+the split by the $\tau$-rules at $s=0$ for any $\tau>0$: then $F_0=\emptyset$
+and $\Hout=\Hin=\emptyset$.) Every $s=0$ recursion satisfies the hypotheses
+with $c=1$; hence its total leaf size is at most $n_0/(1-3.42\eps)\le1.12\,n_0$.
+The lemma is applied with $c=1.6$ to the recursion of Lemma~14$^\tau$ below,
+and with $c=1.6$ to the two-level recursion of a round of $\HBtp$.
+\deps{\ref{s2:lemSEP}, \ref{s2:defWitness}, \ref{s1:citLem14}}
+\end{lemma}
+
+\begin{proof}
+(a) If no non-leaf node has size at least $M$ there is nothing to prove. For
+every non-leaf node $\nu$ with $|\nu|\ge M$ and every $u\in U'_\nu$, give the
+pair $(\nu,u)$ the charge $c\eps/\log^2|\nu|$. The total charge at $\nu$ is
+$c\eps|U'_\nu|/\log^2|\nu|\ge|N''_\nu|$, so $\Delta_{\ge M}$ is at most the
+total charge. A \emph{leaf copy} is a pair $(\Leaf,v)$ with $\Leaf$ a leaf and
+$v\in V(\Leaf)$; there are exactly $S$ leaf copies. For each charged pair
+$(\nu,u)$, the vertex $u$ lies in $\nu_1$, hence (Lemma~\ref{s2:lemSEP}(0)) in
+some leaf $\Leaf$ below $\nu_1$; fix one and map $(\nu,u)$ to the leaf copy
+$(\Leaf,u)$. The pair $(\nu,u)$ is recovered from $u$ and $\nu$, and $\nu$ is
+an ancestor of $\Leaf$; so each leaf copy $(\Leaf,u)$ receives the charges of
+pairs $(\nu,u)$ for a set of ancestors $\nu$ of $\Leaf$ with $|\nu|\ge M$,
+$u\in U'_\nu$ and $\Leaf$ below $\nu_1$. List these ancestors as
+$\nu^{(1)},\nu^{(2)},\dots,\nu^{(k)}$ from $\Leaf$ upwards. For $i<k$, the
+node $\nu^{(i)}$ lies strictly below $\nu^{(i+1)}$ on the path from
+$\nu^{(i+1)}$ to $\Leaf$, which passes through the first child of
+$\nu^{(i+1)}$; vertex sets shrink downwards, so
+$|\nu^{(i)}|\le|\nu^{(i+1)}_1|\le\frac34|\nu^{(i+1)}|$. Hence
+$|\nu^{(i)}|\ge(4/3)^{i-1}|\nu^{(1)}|\ge(4/3)^{i-1}M$, i.e.\
+$\log|\nu^{(i)}|\ge\log M+(i-1)\cOV$. The charge received by $(\Leaf,u)$ is
+therefore at most
+\[
+c\eps\sum_{j\ge0}\frac1{(\log M+j\cOV)^2}\le
+c\eps\Bigl(\frac1{\log^2M}+\int_0^\infty\frac{dx}{(\log M+x\cOV)^2}\Bigr)
+=c\eps\Bigl(\frac1{\log^2M}+\frac1{\cOV\log M}\Bigr),
+\]
+because the summand is decreasing in $j$. Summing over the $S$ leaf copies
+gives the first bound. For $M\ge2$ we have $\log M\ge1$, so
+$1/\log^2M\le1/\log M$, and $1+1/\cOV=3.4094\ldots\le3.42$.
+
+(b) Let $\mathcal{C}_v$ be the set of nodes of size at least $M$ in which $v$ lies. It
+is closed under taking parents (vertex sets, hence sizes, shrink downwards), so
+if nonempty it is a rooted subtree containing the root. Every leaf of the
+recursion of size at least $M$ that contains $v$ belongs to $\mathcal{C}_v$ and has no
+children, so it is a leaf of $\mathcal{C}_v$. In a finite rooted tree the number of
+leaves is $1+\sum_\nu(\kappa_\nu-1)$, the sum over the nodes with
+$\kappa_\nu\ge1$ children; here $\kappa_\nu\le2$, and $\kappa_\nu=2$ means that
+$v$ lies in both children of $\nu$, i.e.\ $v\in N''_\nu$
+(Lemma~\ref{s2:lemSEP}(0)), with $|\nu|\ge M$. So the number of such leaves is
+at most $1+\dup_{\ge M}(v)$. Summing $(\#\{\Leaf\ni v:|\Leaf|\ge M\}-1)^+\le
+\dup_{\ge M}(v)$ over $v$ gives the consequence.
+
+(c) All non-leaf nodes have size at least $2$, so by
+Lemma~\ref{s2:lemSEP}(0), $S=n_0+\sum_\nu|N''_\nu|=n_0+\Delta_{\ge2}\le
+n_0+3.42c\eps S$ by (a) with $M=2$. Rearranging gives (c).
+
+\emph{Instance $c=1$.} By Definition~\ref{s2:defWitness} with $s=0$ we have
+$F_\nu=\emptyset$, so $N_\nu=\Nbr_{H_\nu}(U_\nu)$, and every neighbour of
+$U_\nu$ outside $U_\nu$ lies in $N_\nu$; this gives the three formulas stated.
+The node has $m\ge2$ vertices (Definition~\ref{s2:defWitness}), and
+$|N''_\nu|=|N_\nu|<\eps|U_\nu|/\log^2m$, which is the hypothesis with $c=1$;
+and $|\nu_1|=|U_\nu|+|N_\nu|<(1+\eps)\frac23m<\frac34m$, using $\log m\ge1$.
+Finally $1/(1-3.42/32)=1.1196\ldots\le1.12$.
+\end{proof}
+
+\begin{lemma}[Lemma 14$^\tau$]\label{s2:lem14tau}
+Let $H_0$ be a graph on $n_0$ vertices, $s\ge1$ an integer, $\eps=2^{-5}$, and
+$\tau\ge128\,s\log^2n_0$. The \emph{$\tau$-run} of $H_0$ (with parameters
+$s,\tau$) is the recursion that, at a node $H$, stops if $H$ is an
+$(\eps,s)$-expander (the node is then a leaf), and otherwise picks any witness
+$(U,F)$ at $H$ with parameter $s$ (Definition~\ref{s2:defWitness}) and splits
+$H$ by the $\tau$-rules at threshold $\tau$ (Definition~\ref{s2:defTauRules};
+note $\tau\ge128s>s$ whenever $n_0\ge2$). Let $\Dup$ be the set of vertices
+lying in at least two leaves. Then, for every choice of witnesses:
+\begin{enumerate}
+\item[(a)] at every split, at a node of size $m$,
+\[
+|\Hout|+|\Hin|\le\frac{|F_0|}{\tau}\le\frac{s|U|}{\tau}\le\frac{|U|}{128\log^2m},
+\qquad |N''|<\frac{1.25\,\eps|U|}{\log^2m}<\frac{1.5\,\eps|U|}{\log^2m},
+\]
+$|U'|\ge\frac{127}{128}|U|>0$, $U\subseteq U'\cup N''$, $n_1\defeq|U'\cup
+N''|\le0.698\,m<\frac34m$ and $n_2\defeq m-|U'|<m$. The recursion terminates;
+it is a split recursion; at most $4sn_0\log n_0$ edges are deleted; the
+remaining edges are partitioned into the leaves; every leaf is an
+$(\eps,s)$-expander; and the total size of the leaves is at most
+$2n_0-2n_0/(2+\log n_0)$;
+\item[(b)] (OV at $1.6\eps$) at every split, $|N''|\le1.6\,\eps|U'|/\log^2m$,
+the vertices of $U'$ go only to $G_1$, and $|G_1|\le\frac34m$. Hence, by
+Lemma~\ref{s2:lemOVgeneric} with $c=1.6$, the total leaf size $S$ satisfies
+$S\le n_0/(1-5.5\eps)\le1.21\,n_0$, and, by the first bound of
+Lemma~\ref{s2:lemOVgeneric}(a) with $c=1.6$, for every $M\ge2$ the duplication at
+nodes of size at least $M$ is $\Delta_{\ge M}\le5.46\,\eps S/\log M$;
+\item[(c)] for every leaf $\Leaf$ and every vertex $h$, if $\tau>0$ then
+$\#\{\text{deleted edges }hu:u\in V(\Leaf)\setminus\Dup\}\le\lceil\tau\rceil-1$
+($=\tau-1$ for integer $\tau$); the number is $0$ if $h\in V(\Leaf)$;
+\item[(d)] if $u\notin\Dup$, every edge at $u$ is deleted or lies in the unique
+leaf containing $u$.
+\end{enumerate}
+\deps{\ref{s1:citLem14}, \ref{s1:citDef11}, \ref{s2:defTauRules}, \ref{s2:lemThinCut}, \ref{s2:lemOVgeneric}, \ref{s2:lemSEP}, \ref{s2:defWitness}}
+\end{lemma}
+
+\begin{proof}
+If $n_0=1$ the root is an $(\eps,s)$-expander, no edge is deleted, and (a), (b),
+(d) and the last clause of (c) are trivial (the bound in (c) assumes $\tau>0$);
+let $n_0\ge2$. Every node of the recursion is a subgraph of $H_0$ on $m\le n_0$
+vertices, so $\tau\ge128\,s\log^2m$ at every node. The argument follows the
+proof of \cite[Lemma~14]{BM} (Cited result~\ref{s1:citLem14}) with the split
+of Definition~\ref{s2:defTauRules} in place of the split of \cite{BM}.
+
+\emph{Counting at one split.} Fix a non-leaf node $H$ on $m\ge2$ vertices,
+with witness $(U,F)$, and use the notation of
+Definition~\ref{s2:defTauRules}; put $V\defeq V(H)$. Every edge of $F_0$ has
+exactly one end in $U$, so $\sum_{v\in U}\deg_{F_0}(v)=|F_0|$. Let
+$a\defeq\sum_{v\in\Hout}\deg_{F_0}(v)$; then $\tau|\Hout|\le a$. By Fact~(a) of
+Definition~\ref{s2:defTauRules},
+$F_1=E_H(U',V\setminus(U\cup N))$ is $F_0$ minus the edges at $\Hout$, so
+$|F_1|=|F_0|-a$. Every edge of $F_1$ has exactly one end outside $U'\cup
+N'=U\cup N$, so $\tau|\Hin|\le\sum_{x\notin U\cup N}\deg_{F_1}(x)=|F_1|$.
+Adding, $\tau(|\Hout|+|\Hin|)\le|F_0|\le|F|\le s|U|$. With
+$\tau\ge128\,s\log^2m$ this gives $|\Hout|+|\Hin|\le|U|/(128\log^2m)$, and
+$1/128=\eps/4$. Therefore
+\[
+|N''|=|N|+|\Hout|+|\Hin|<\frac{\eps|U|}{\log^2m}+\frac{\eps|U|}{4\log^2m}
+=\frac{1.25\,\eps|U|}{\log^2m}.
+\]
+Since $|\Hout|\le|U|/128$, $|U'|\ge\frac{127}{128}|U|>0$. As
+$\Hout\subseteq N'\subseteq N''$, $U=U'\cup\Hout\subseteq U'\cup N''$, so
+$|U|\le n_1$. Also $n_1=|U'|+|N''|\le|U|+|N''|<(1+1.5\eps)|U|\le
+\frac23(1+\frac{3}{64})m\le0.698\,m$, using $\log m\ge1$; and $n_2=|V\setminus
+U'|=m-|U'|<m$. By Fact~(b) of Definition~\ref{s2:defTauRules},
+$n_1+n_2=m+|N''|$. Finally $\log n_1\le\log m+\log0.698<\log m-\frac25$, since
+$\log_20.698=-0.518\ldots$.
+
+\emph{Termination.} Both children of every split have fewer vertices than
+their parent, so every root-to-node path has at most $n_0$ nodes, and the
+binary tree is finite. By \eqref{s2:eqSplit} the recursion is a split
+recursion. Its leaves are $(\eps,s)$-expanders by the stopping rule, and by
+Lemma~\ref{s2:lemSEP}(i) every edge of $H_0$ is either deleted (exactly once)
+or lies in exactly one leaf.
+
+\emph{The induction.} We show by induction on the height of the subtree below
+a node $\nu$, with $m=|\nu|$, that the subtree deletes at most $4sm\log m$ edges
+and its leaves have total size at most $2m-2m/(2+\log m)$. For a leaf this
+holds, since nothing is deleted and $m\le2m-2m/(2+\log m)$ (as
+$2+\log m\ge2$). Let $\nu$ be a non-leaf node, with $n_1,n_2$ as above
+($1\le n_1,n_2<m$), and let $E^{\mathrm{del}}_i$ be the set of edges deleted in the subtree
+below the $i$-th child; by induction $|E^{\mathrm{del}}_i|\le4sn_i\log n_i$. The edges
+deleted in the subtree below $\nu$ are $F''\cup E^{\mathrm{del}}_1\cup E^{\mathrm{del}}_2$, and $|F''|\le
+|F_0|\le s|U|\le sn_1$. As $|U|\le n_1$, we have $|N''|<1.5\eps n_1/\log^2m$.
+Hence, as in \cite[inequality~(8)]{BM},
+\begin{align*}
+\frac{|F''|+|E^{\mathrm{del}}_1|+|E^{\mathrm{del}}_2|}{s}
+&\le n_1+4n_1\log n_1+4n_2\log n_2
+\le n_1+4n_1\bigl(\log m-\tfrac25\bigr)+4n_2\log m\\
+&=4(n_1+n_2)\log m-\tfrac35n_1=4(m+|N''|)\log m-\tfrac35n_1\\
+&<4m\log m+n_1\Bigl(\frac{6\eps}{\log m}-\frac35\Bigr)\le4m\log m,
+\end{align*}
+since $6\eps/\log m\le6/32<3/5$. For the leaf sizes put $L\defeq\log m\ge1$.
+As $n_2<m$, $2n_2/(2+\log n_2)\ge2n_2/(2+L)$. As $\log n_1<L-\frac25$,
+\[
+\frac{2n_1}{2+\log n_1}>\frac{2n_1}{\frac85+L}=\frac{2n_1}{2+L}
++\frac{\frac45n_1}{(\frac85+L)(2+L)}\ge\frac{2n_1}{2+L}+\frac{n_1}{10L^2},
+\]
+where the last step is $8L^2\ge(\frac85+L)(2+L)$, i.e.\
+$7L^2-3.6L-3.2\ge0$, which holds for $L\ge1$ (the left side is $0.2$ at
+$L=1$ and increasing for $L\ge1$). By induction the total leaf size below
+$\nu$ is therefore
+\begin{align*}
+\sum_{i=1}^2\Bigl(2n_i-\frac{2n_i}{2+\log n_i}\Bigr)
+&<(n_1+n_2)\Bigl(2-\frac2{2+L}\Bigr)-\frac{n_1}{10L^2}
+=(m+|N''|)\Bigl(2-\frac2{2+L}\Bigr)-\frac{n_1}{10L^2}\\
+&\le2m-\frac{2m}{2+L}+2|N''|-\frac{n_1}{10L^2}\\
+&<2m-\frac{2m}{2+L}+\Bigl(3\eps-\frac1{10}\Bigr)\frac{n_1}{L^2}
+\le2m-\frac{2m}{2+L},
+\end{align*}
+as in \cite[inequality~(9)]{BM}, because $3\eps=3/32<1/10$. At the root this gives (a).
+
+(b) By (a), $|N''|<1.5\eps|U|/\log^2m\le1.5\cdot\frac{128}{127}\eps|U'|/\log^2m
+<1.52\,\eps|U'|/\log^2m$. (The first bound of (a) even gives
+$|N''|<1.25\cdot\frac{128}{127}\eps|U'|/\log^2m<1.26\,\eps|U'|/\log^2m$; the
+looser constant $1.6$ suffices.) Vertices of $U'$ go only to $G_1$ and $|G_1|=n_1\le
+\frac34m$ (Fact~(b) of Definition~\ref{s2:defTauRules} and (a)); every
+non-leaf node has $m\ge2$. As $3.42\cdot1.6\,\eps=0.171<1$,
+Lemma~\ref{s2:lemOVgeneric} applies with $c=1.6$: by its part (c),
+$S\le n_0/(1-5.472\eps)\le n_0/(1-5.5\eps)=1.2075\ldots\,n_0\le1.21\,n_0$; by its
+part (a), $\Delta_{\ge M}\le1.6\eps(1+1/\cOV)S/\log M\le5.46\,\eps S/\log M$,
+since $1.6\,(1+1/\cOV)=5.455\ldots$.
+
+(c), (d) Every split is produced by the $\tau$-rules at threshold $\tau$ from a
+witness with parameter $s<\tau$, so Lemma~\ref{s2:lemThinCut} applies.
+\end{proof}
+
+\subsection{The hierarchy}
+
+\begin{definition}[the hierarchy $\HBtp$]\label{s2:defHBtp}
+Let $G$ be a graph on $n$ vertices, and let $\eps=2^{-5}$, $\sigma=100$,
+$\Cp=103$, $\Aexp=105$ and $\Dstar$ be as in Definition~\ref{s1:defConstants}.
+Put $G_1\defeq G$. All graphs $G_l$, $G'_l$ below have vertex set $V(G)$. For
+$l=1,2,\dots$:
+\begin{enumerate}
+\item[(R0)]\namedlabel{s2:R0}{(R0)} $d_l\defeq2|E(G_l)|/n$. If $d_l<\Dstar$,
+stop, and put $E_0\defeq E(G_l)$ and $R\defeq l-1$. Otherwise put
+$\lambda_l\defeq\log d_l$.
+\item[(R1)]\namedlabel{s2:R1}{(R1)} $\tHB_l\defeq\log^2d_l$. As long as the
+current graph contains a cycle of length at least $\tHB_ld_l$, delete one (the
+lexicographically first, for a fixed order of $V(G)$). The deleted cycles form
+$\Cyc_l$; the remaining graph is $G'_l$. Thus $G'_l$ has no cycle of length at
+least $\tHB_ld_l$.
+\item[(R2)]\namedlabel{s2:R2}{(R2)}
+$M_l\defeq\bigl\lceil\max\bigl(2^{40},\,2^{16}\,\tHB_ld_l\log^4(\tHB_ld_l)\bigr)\bigr\rceil\in\mathbb N$,\quad
+$\Lambda_l\defeq\log M_l$,\quad $s_l\defeq\lceil\Lambda_l^{\sigma}\rceil$,\quad
+$P_l\defeq\lceil\lambda_l^{\Cp}\rceil$,\quad
+$\tau_l\defeq\lceil128\,s_l\log^2M_l\rceil$.
+The ceiling makes $M_l$ a natural number, as its later uses require (it counts
+classes and colours, for instance $\KJS_l=M_l^2$ in Definition~\ref{s3:defCOL}
+and the palettes $[3M_l]$, $[4M_l]$ of Section~\ref{s7:sec}); $\Lambda_l$ is the
+logarithm of this integer. Besides integrality, only two facts about the ceiling are used:
+$M_l\ge\max\bigl(2^{40},\,2^{16}\,\tHB_ld_l\log^4(\tHB_ld_l)\bigr)$, and
+$M_l\le\max\bigl(2^{40},\,2^{16}\,\tHB_ld_l\log^4(\tHB_ld_l)\bigr)+1$.
+\item[(R3)]\namedlabel{s2:R3}{(R3)} Run an $s=0$ recursion
+(Lemma~\ref{s2:lemOVgeneric}) on $G'_l$ that stops exactly at
+$(\eps,0)$-expanders: a node is a leaf iff its graph is an
+$(\eps,0)$-expander, and otherwise any witness with parameter $0$ is used. This
+is the recursion of the proof of \cite[Lemma~14]{BM} with $s=0$ (Cited
+result~\ref{s1:citLem14}). Its leaves are the \emph{$s=0$ pieces} $\piece$ of
+round $l$. Inside every piece with $|\piece|\ge P_l$, run the $\tau$-run of
+$\piece$ with $s=s_l$ and $\tau=\tau_l$ (Lemma~\ref{s2:lem14tau}), with any
+witnesses. The \emph{two-level recursion} of round $l$ is the split recursion
+obtained from the $s=0$ recursion by attaching, at every piece $\piece$ with
+$|\piece|\ge P_l$, the tree of its $\tau$-run. Its leaves are the pieces of
+size less than $P_l$ and the leaves of the $\tau$-runs. The \emph{round-$l$
+pre-parts} are the leaves of the $\tau$-runs with at least $P_l$ vertices;
+equivalently, the leaves of the two-level recursion with at least $P_l$
+vertices. For a pre-part named $Z$, $Z^0$ denotes its vertex set and $X^0_Z$
+its leaf graph, a graph on $Z^0$. Finally
+$\Dups_l\defeq$ the set of vertices lying in at least two leaves (of any size,
+singletons included) of the two-level recursion of round $l$.
+\item[(R4)]\namedlabel{s2:R4}{(R4)} $D_l\defeq$ the set of vertices lying in at
+least two round-$l$ pre-parts. Fix an order of the round-$l$ pre-parts (the
+\emph{home order}). For a vertex $v$ lying in some pre-part,
+$\home(v)=\home_l(v)\defeq$ the first pre-part containing $v$. The
+\emph{guests} of a pre-part $Z$ are $S_Z\defeq\{v\in Z^0\cap D_l:\home(v)\ne
+Z\}$. The pre-part $Z$ is \emph{light} iff
+\begin{enumerate}
+\item[(L1)] $|S_Z|\le|Z^0|/2$;
+\item[(L2)] every $u\in Z^0$ has at most $s_l/2$ neighbours in $S_Z$ in the
+graph $G'_l[Z^0]$;
+\item[(GC)]\namedlabel{s2:ruleGC}{(GC)} no $x\in S_Z$ has at least
+\[
+\thGC_l(Z^0)\defeq\bigl\lceil|Z^0|\,\lambda_l^{-1/2}\bigr\rceil
+\]
+neighbours in $Z^0\setminus S_Z$ in the graph $X^0_Z$ (the \emph{guest cap}).
+\end{enumerate}
+Otherwise $Z$ is \emph{standalone}. A pre-part satisfying (L1) and (L2) but
+failing (GC) is a \emph{GC-part}; it is standalone. A light pre-part $Z$ gives
+the \emph{light part} with vertex set $Z^0\setminus S_Z$ and graph
+$X_Z\defeq X^0_Z-S_Z$. $\Std_l$ is the set of round-$l$ standalone pre-parts;
+it contains the GC-parts and the pre-parts failing (L1) or (L2), and it is a
+deterministic function of the run.
+\item[(R5)]\namedlabel{s2:R5}{(R5)} The edges of $G'_l$ are assigned in this
+order.
+(1) For every light pre-part $Z$ the edges of $X_Z$ are assigned to the light
+part $Z$; for every standalone pre-part $Z$ the edges of $X^0_Z$ are assigned
+to $Z$. (The graphs $X^0_Z$ of distinct pre-parts are edge-disjoint, being
+distinct leaves of the two-level recursion, Lemma~\ref{s2:lemSEP}(i), and
+$X_Z\subseteq X^0_Z$; so no edge is assigned twice in this step.)
+(2) Every edge not yet assigned whose ends both lie in some light part is
+assigned to the first such light part (in the home order).
+(3) Every edge not yet assigned whose ends both lie in $Z^0$ for some
+standalone pre-part $Z$ is assigned to the first such pre-part (in the home
+order).
+(4) Every other edge of $G'_l$ passes down: $E(G_{l+1})$ is the set of these
+edges.
+$E_l(Z)$ denotes the set of edges assigned at round $l$ to $Z$ (a light part or
+a standalone pre-part).
+\end{enumerate}
+\emph{Naming.} Pre-parts are leaves, so distinct pre-parts are counted
+separately even if their vertex sets coincide. If a pre-part $Z$ is light, the
+letter $Z$ also denotes the vertex set $Z^0\setminus S_Z$ of its light part.
+A \emph{round-$l$ part} is a light part or a standalone pre-part of round $l$.
+We write $\home_l$, $S_Z$ and so on with the round when it is not clear from
+the context.
+
+A \emph{valid $\HBtp$ run} is an execution of this procedure with any
+witnesses in both levels of (R3), any vertex order in (R1), and any home
+orders in (R4). At $s=0$ the $\tau$-rules are idle
+(Lemma~\ref{s2:lemOVgeneric}), so the first level of (R3) is the recursion
+of \cite{BM} unchanged; the $\tau$-rules act only inside the pieces.
+\deps{\ref{s1:citLem14}, \ref{s2:lem14tau}, \ref{s1:defConstants}, \ref{s2:lemOVgeneric}, \ref{s2:lemSEP}}
+\end{definition}
+
+\begin{definition}[ancestors, typing, multiplicities]\label{s2:defAncestors}
+Fix a valid $\HBtp$ run. An \emph{ancestor of round $r$} is either
+\begin{itemize}
+\item a light part $Y$ of round $r$; then $V(Y)\defeq Y$ (the vertex set
+$Y^0\setminus S_Y$), $H_Y\defeq X_Y$, $\eps_Y\defeq2^{-6}$ and
+$s_Y\defeq s_r/2$; or
+\item a standalone pre-part $Y\in\Std_r$, GC-parts included; then
+$V(Y)\defeq Y^0$, $H_Y\defeq X^0_Y$, $\eps_Y\defeq2^{-5}$ and $s_Y\defeq s_r$.
+\end{itemize}
+We write $r(Y)$ for the round of $Y$ and $L_Y\defeq\log|V(Y)|$. Every ancestor
+corresponds to a distinct pre-part $Y^0\supseteq V(Y)$ of its round. For
+$l\ge3$ and a vertex $x$,
+\[
+\anc_l(x)\defeq\{Y:\ Y\text{ an ancestor of a round }r\le l-2\text{ with }x\in
+V(Y)\},
+\]
+and $\anc_l(x)\defeq\emptyset$ for $l\le2$. For $Z\in\Std_l$:
+\begin{itemize}
+\item the \emph{hubs} of $Z$ are $A_Z\defeq Z^0\cap D_l$;
+\item the \emph{ports} of $Z$ are $U_Z\defeq Z^0\setminus D_l$;
+\item the \emph{fresh ports} are $F_Z\defeq\{x\in U_Z:\anc_l(x)=\emptyset\}$
+(so all ports are fresh for $l\le2$);
+\item the \emph{classed ports} are $Q_Z\defeq U_Z\setminus F_Z$.
+\end{itemize}
+For a round $r$ and a vertex $w$: $\mu_r(w)$ is the number of round-$r$
+pre-parts containing $w$ (so $D_r=\{w:\mu_r(w)\ge2\}$);
+$\dup_r\defeq\sum_w(\mu_r(w)-1)^+$; and $\mult_r(w)$ is the number of ancestors
+$Y$ of round $r$ with $w\in V(Y)$. Finally $j_0(x)$ is the first round in which
+$x$ lies in a pre-part, and $j_1(x)$ the first round in which $x$ lies in a
+light part ($\infty$ if there is none).
+\deps{\ref{s2:defHBtp}}
+\end{definition}
+
+\subsection{Basic properties of valid runs}
+
+\begin{lemma}[Lemma-25 size cap]\label{s2:lemCap}
+\begin{enumerate}
+\item[(i)] If $m\ge2^{40}$, $T\ge2^{117}$ and $m<18432\,T\log^4m$, then
+$m\le2^{16}T\log^4T$.
+\item[(ii)] In every round $l\le R$ of a valid $\HBtp$ run, every $s=0$ piece
+$\piece$ satisfies $|\piece|\le M_l$. Hence every round-$l$ pre-part has
+$|Z^0|\le M_l$; for every round-$l$ part $Z$ (light or standalone) every vertex
+is incident with at most $M_l-1$ edges of $E_l(Z)$; and
+$\tau_l\ge128\,s_l\log^2|\piece|$, so Lemma~\ref{s2:lem14tau} applies to the
+$\tau$-run of every piece with $|\piece|\ge P_l$.
+\end{enumerate}
+\emph{Remark (not used).} Part (i) is false for small $T$: for $T=2^{20}$ and
+$m=2^{55}$ we have $m\ge2^{40}$ and $18432\,T\log^4m=2^{57.29\ldots}>m$, but
+$2^{16}T\log^4T=2^{53.28\ldots}<m$. The uniform form $m\le\max\bigl(2^{40},
+2^{16}T(\log T+40)^4\bigr)$ holds for all $T\ge1$.
+\deps{\ref{s1:citLem25}, \ref{s1:condG2}, \ref{s2:defHBtp}, \ref{s2:lem14tau}}
+\end{lemma}
+
+\begin{proof}
+(i) Put $\chi(y)\defeq y/\log^4y$; since $\frac{d}{dy}\ln \chi(y)=\frac1y\bigl(1-
+\frac4{\ln y}\bigr)$, $\chi$ is increasing for $y>e^4$. The hypothesis says
+$\chi(m)<18432\,T$. Put $x\defeq\log T\ge117$ and $B\defeq2^{16}T\log^4T=2^{16}Tx^4$,
+so $\log B=16+x+4\log x$. We have $(2^{16}/18432)^{1/4}=(32/9)^{1/4}=1.37317\ldots$,
+and $0.37317\,x\ge16+4\log x$ for $x\ge117$: at $x=117$ the two sides are
+$43.66\ldots$ and $43.48\ldots$, and for $x\ge117$ the derivative of the left
+side ($0.373\ldots$) exceeds that of the right side ($4/(x\ln2)<0.05$). Hence
+$(32/9)^{1/4}x\ge16+x+4\log x=\log B$, i.e.\ $2^{16}x^4\ge18432\,(\log B)^4$,
+i.e.\ $\chi(B)\ge18432\,T$. If $m>B$, then, as $B>e^4$, $\chi(m)>\chi(B)\ge18432\,T$,
+contradicting the hypothesis. So $m\le B$.
+
+\emph{Remark.} The numbers in the counterexample are direct computations. For
+the uniform form put $B'\defeq2^{16}T(x+40)^4$ with $x=\log T\ge0$; then $\log
+B'=16+x+4\log(x+40)$ and $\chi(B')\ge18432\,T$ is equivalent to
+$(32/9)^{1/4}(x+40)\ge16+x+4\log(x+40)$, which follows from
+$0.37317\,x+38.9\ge4\log(x+40)$; this holds at $x=0$ ($38.9\ge21.3$) and the
+left side grows faster ($0.373$ against at most $4/(40\ln2)<0.15$). As
+$B'>e^4$, $m>\max(2^{40},B')$ would give $\chi(m)>\chi(B')\ge18432\,T$.
+
+(ii) Let $l\le R$ and $T\defeq\tHB_ld_l=d_l\log^2d_l$. By \Gc{2}(a)
+(Condition~\ref{s1:condG2}), $d_l\ge\Dstar\ge2^{117}$, so $\log^2d_l\ge1$ and
+$T\ge2^{117}$; and $M_l\ge\max(2^{40},2^{16}T\log^4T)$ by (R2). Let $\piece$ be an
+$s=0$ piece and $m\defeq|\piece|$. If $m<2^{40}$ then $m\le M_l$. Otherwise the
+graph of $\piece$ is an $(\eps,0)$-expander (the stopping rule in (R3)) with
+$\eps=2^{-5}$ on $m\ge2^{40}=2^{30}/\eps^2$ vertices, so by Cited
+result~\ref{s1:citLem25} it contains a cycle of length at least
+$\eps^2m/(18\log^4m)=m/(18432\log^4m)$. This cycle lies in $G'_l$, which has no
+cycle of length at least $T$ by (R1). Hence $m<18432\,T\log^4m$, and (i) gives
+$m\le2^{16}T\log^4T\le M_l$. Every pre-part is a leaf of the $\tau$-run of some
+piece, so $Z^0\subseteq V(\piece)$ and $|Z^0|\le M_l$. By (R5) every edge of
+$E_l(Z)$ has both ends in $Z^0$ (in the light part $Z\subseteq Z^0$ if $Z$ is
+light), so every vertex meets at most $|Z^0|-1\le M_l-1$ of them. Finally
+$\tau_l\ge128\,s_l\log^2M_l\ge128\,s_l\log^2|\piece|$.
+\end{proof}
+
+\begin{lemma}[Lemma HS]\label{s2:lemHS}
+Let $\varepsilon'>0$ and $s\ge0$, let $X$ be an $(\varepsilon',s)$-expander on
+a vertex set of size $z\ge11$, let $W\subseteq V(X)$ with $|W|\le z/2$, and
+suppose every $u\in V(X)\setminus W$ has at most $s_W\le s$ neighbours in $W$ in
+$X$. Then $X-W$ is an $\bigl(\varepsilon'(\log z'/\log z)^2,\,s-s_W\bigr)$-expander
+on $z'\defeq z-|W|$ vertices, and $\varepsilon'(\log z'/\log z)^2\ge
+\varepsilon'/2$. In particular, if $X$ is a $(2^{-5},s)$-expander and
+$s_W=s/2$, then $X-W$ is a spanning $(2^{-6},s/2)$-expander of $V(X)\setminus
+W$.
+\deps{\ref{s1:citDef11}}
+\end{lemma}
+
+\begin{proof}
+Note $z'\ge z/2\ge5.5$. Let $U\subseteq V(X)\setminus W$ with $1\le|U|\le2z'/3$
+and $F'\subseteq E(X-W)$ with $|F'|\le(s-s_W)|U|$. Put $F\defeq F'\cup
+E_X(U,W)$. Then $|E_X(U,W)|\le s_W|U|$, so $|F|\le s|U|$, and $|U|\le2z'/3\le
+2z/3$. By Cited result~\ref{s1:citDef11} applied to $X$,
+$|\Nbr_{X-F}(U)|\ge\varepsilon'|U|/\log^2z$. No vertex of $W$ lies in
+$\Nbr_{X-F}(U)$, because all edges between $U$ and $W$ are in $F$. For
+$v\notin U\cup W$ and $u\in U$, the edge $uv$ (if present) lies in $X-W$ and not
+in $E_X(U,W)$, so $uv\notin F$ iff $uv\notin F'$. Hence
+$\Nbr_{X-F}(U)=\Nbr_{(X-W)-F'}(U)$, and
+\[
+|\Nbr_{(X-W)-F'}(U)|\ge\frac{\varepsilon'|U|}{\log^2z}
+=\varepsilon'\Bigl(\frac{\log z'}{\log z}\Bigr)^2\frac{|U|}{\log^2z'}.
+\]
+This is the expansion claimed. Next, $(\log z'/\log z)^2\ge\frac12$ iff $z'\ge
+z^{1/\sqrt2}$. Since $z'\ge z/2$, it suffices that $z^{1-1/\sqrt2}\ge2$, i.e.\
+$\log z\ge1/(1-1/\sqrt2)=3.414\ldots$, i.e.\ $z\ge10.67$; this holds as $z\ge11$.
+The last sentence follows because an $(\varepsilon_a,s)$-expander is an
+$(\varepsilon_b,s)$-expander whenever $\varepsilon_b\le\varepsilon_a$.
+\end{proof}
+
+\begin{proposition}[structure of a valid run]\label{s2:propStructure}
+For every valid $\HBtp$ run on a graph $G$ with $n\ge\Nzero$ and $d_1\ge\Dstar$:
+\begin{enumerate}
+\item[(i)] each $X^0_Z$ is a $(2^{-5},s_l)$-expander on $Z^0$; each light $X_Z$
+is a $(2^{-6},s_l/2)$-expander on the light part $Z$; every $H_Y$ has minimum
+degree greater than $s_Y$; and $s_r\ge\lambda_r^{100}$ for every $r\le R$;
+\item[(ii)] the conclusions of Lemma~\ref{s2:lemCap}(ii) hold;
+\item[(iii)] $E(G_{l+1})\subseteq E(G'_l)\subseteq E(G_l)$ for every $l\le R$,
+so $d_{l+1}\le d_l$; and
+\[
+E(G)=\bigsqcup_{l\le R}E(\Cyc_l)\ \sqcup\ E_0\ \sqcup
+\bigsqcup_{Y\text{ light}}E_{r(Y)}(Y)\ \sqcup\bigsqcup_{l\le R}\
+\bigsqcup_{Z\in\Std_l}E_l(Z)
+\]
+(disjoint unions); $E(H_Y)\subseteq E_{r(Y)}(Y)$ for every ancestor $Y$; every
+edge of $E_{r(Y)}(Y)$ has both ends in $V(Y)$; the graphs $H_Y$ of all
+ancestors $Y$ of all rounds are pairwise edge-disjoint, and the graphs $X^0_Z$
+of the pre-parts of one round are pairwise edge-disjoint; $\sum_{l\le
+R}|\Cyc_l|\le n$ (the number of long cycles); and $|E_0|<\Dstar n/2$;
+\item[(iv)] light parts of one round are pairwise vertex-disjoint, and
+$|Y|\ge|Y^0|/2\ge P_r/2$ for every light part $Y$ of round $r$; every vertex
+outside $D_l$ lies in at most one round-$l$ pre-part; the port sets $U_Z$ of
+distinct $Z\in\Std_l$ are pairwise disjoint; and each vertex lies in at most one
+light part per round, namely in the light part of $\home_l(v)$ if that
+pre-part is light.
+\end{enumerate}
+\deps{\ref{s2:defHBtp}, \ref{s2:defAncestors}, \ref{s2:lem14tau}, \ref{s2:lemCap}, \ref{s2:lemHS}, \ref{s1:citDef11}, \ref{s1:citLem14}, \ref{s2:lemSEP}, \ref{s1:condG1}}
+\end{proposition}
+
+\begin{proof}
+By \Gc{1}(a) (Condition~\ref{s1:condG1}) at $\mu=\log\log\Dstar$, we have
+$\log\log\Dstar\ge2^8$, so $\lambda_l\ge\log\Dstar\ge2^{256}$ for every $l\le R$;
+we use only much weaker consequences, such as $P_l\ge11$ and $\Dstar\ge8$.
+
+(iv) Let $v$ lie in the light part of a light pre-part $Z$ of round $l$, i.e.\
+$v\in Z^0\setminus S_Z$. If $v\in D_l$ then, as $v\notin S_Z$,
+$\home_l(v)=Z$. If $v\notin D_l$ then $Z$ is the only round-$l$ pre-part
+containing $v$, so again $\home_l(v)=Z$. Hence $v$ lies only in the light part
+of $\home_l(v)$ (if that pre-part is light), which proves the first and last
+assertions. $|Y|=|Y^0|-|S_Y|\ge|Y^0|/2$ by (L1), and $|Y^0|\ge P_r$. By
+definition of $D_l$, a vertex outside $D_l$ lies in at most one round-$l$
+pre-part, so the sets $U_Z=Z^0\setminus D_l$ are pairwise disjoint.
+
+(i) Each $X^0_Z$ is a leaf of a $\tau$-run, hence a $(2^{-5},s_l)$-expander by
+the stopping rule (Lemma~\ref{s2:lem14tau}(a)). For a light pre-part $Z$ apply
+Lemma~\ref{s2:lemHS} to $X=X^0_Z$, $z=|Z^0|\ge P_l\ge11$, $W=S_Z$ and
+$s_W=s_l/2$: $|S_Z|\le|Z^0|/2$ by (L1), and $X^0_Z$ is a subgraph of
+$G'_l[Z^0]$ (node graphs of a split recursion are subgraphs of the root), so by
+(L2) every vertex has at most $s_l/2$ neighbours in $S_Z$ in $X^0_Z$. So
+$X_Z=X^0_Z-S_Z$ is a $(2^{-6},s_l/2)$-expander on $Z^0\setminus S_Z$. For an
+ancestor $Y$, $H_Y$ is an $(\eps_Y,s_Y)$-expander on $|V(Y)|\ge P_r/2\ge2$
+vertices (by (iv)), so its minimum degree exceeds $s_Y$ by the remark in Cited
+result~\ref{s1:citDef11}. Finally $M_r\ge2^{16}T\log^4T\ge T=d_r\log^2d_r\ge d_r$
+(with $T=\tHB_rd_r$), so $\Lambda_r\ge\lambda_r$ and
+$s_r\ge\Lambda_r^{100}\ge\lambda_r^{100}$.
+
+(ii) is Lemma~\ref{s2:lemCap}(ii).
+
+(iii) By (R1), $E(G_l)=E(\Cyc_l)\sqcup E(G'_l)$. By Lemma~\ref{s2:lemSEP}(i)
+applied to the two-level recursion of round $l$, every edge of $G'_l$ is
+deleted exactly once or lies in exactly one leaf. By (R5), every edge of $G'_l$
+is assigned to exactly one light part or standalone pre-part, or passes to
+$G_{l+1}$: step (1) assigns each edge at most once (the $X^0_Z$ are
+edge-disjoint and $X_Z\subseteq X^0_Z$), and steps (2)--(4) treat each
+remaining edge once. So $E(G'_l)=\bigsqcup_{Z\text{ light}}E_l(Z)\sqcup
+\bigsqcup_{Z\in\Std_l}E_l(Z)\sqcup E(G_{l+1})$; in particular
+$E(G_{l+1})\subseteq E(G'_l)\subseteq E(G_l)$. By (R0), $E(G_{R+1})=E_0$, and
+iterating from $l=1$ to $l=R$ gives the displayed partition. By (R5)(1),
+$E(X_Y)$ is assigned to a light $Y$ and $E(X^0_Y)$ to a standalone $Y$, so
+$E(H_Y)\subseteq E_{r(Y)}(Y)$; and each step of (R5) assigns an edge to $Y$
+only if both its ends lie in $V(Y)$. Two pre-parts of the same round are
+distinct leaves of the two-level recursion, so their leaf graphs are
+edge-disjoint by Lemma~\ref{s2:lemSEP}(i). For distinct ancestors $Y\ne Y'$ (of
+any rounds), $E(H_Y)\subseteq E_{r(Y)}(Y)$ and $E(H_{Y'})\subseteq
+E_{r(Y')}(Y')$, and these assigned sets are disjoint by the partition above.
+(The graphs $X^0_Y$ of light pre-parts of different rounds need not be
+edge-disjoint: an edge of $X^0_Y$ between a guest $x\in S_Y$ and the light part
+$Y$ may be assigned by no step of (R5) at round $r(Y)$, pass down, and lie in a
+leaf graph of a later round. Only the statement above is claimed.)
+
+\emph{Long cycles.} For $l\le R$ put $y_l\defeq d_l\ge\Dstar$; by the first part
+of (iii), $y_{l+1}\le y_l$. The cycles of $\Cyc_l$ are edge-disjoint, each has
+length at least $\tHB_ld_l=y_l\log^2y_l$, and together they have at most
+$|E(G_l)|-|E(G'_l)|\le|E(G_l)|-|E(G_{l+1})|=\frac n2(y_l-y_{l+1})$ edges. Hence
+\[
+|\Cyc_l|\le\frac n2\cdot\frac{y_l-y_{l+1}}{y_l\log^2y_l}.
+\]
+Group the rounds $l\le R$ by $k\defeq\lfloor\log y_l\rfloor\ge k_0\defeq
+\lfloor\log\Dstar\rfloor$. The rounds with a given $k$ are consecutive, and for
+them $y_l\ge2^k$ and $\log^2y_l\ge k^2$, while the sum of $y_l-y_{l+1}$ over
+them is at most the first $y_l$ of the group, which is less than $2^{k+1}$. So
+these rounds contribute at most $\frac n2\cdot\frac{2^{k+1}}{2^kk^2}=n/k^2$,
+and $\sum_{l\le R}|\Cyc_l|\le n\sum_{k\ge k_0}k^{-2}\le n/(k_0-1)\le n$, as
+$k_0\ge3$.
+
+Finally $E_0=E(G_{R+1})$ and $d_{R+1}<\Dstar$ by (R0), so
+$|E_0|=nd_{R+1}/2<\Dstar n/2$.
+\end{proof}
+
+\begin{lemma}[edge laminarity, EL]\label{s2:lemEL}
+For every ancestor $Y$ of round $r$ and every round $l>r$, no edge of $G_l$ has
+both ends in $V(Y)$.
+\deps{\ref{s2:defHBtp}, \ref{s2:defAncestors}}
+\end{lemma}
+
+\begin{proof}
+By (R1) and (R5)(4), $E(G_{j+1})\subseteq E(G'_j)\subseteq E(G_j)$ for every
+round $j$, so $E(G_l)\subseteq E(G_{r+1})\subseteq E(G'_r)$. Let $e\in
+E(G_{r+1})$; then $e$ is an edge of $G'_r$ that was not assigned at round $r$.
+If $Y$ is light and both ends of $e$ lie in $V(Y)=Y$, then $e$, if not assigned
+in step (1) of (R5), is assigned in step (2) to the first light part containing
+both ends; a contradiction. If $Y$ is standalone (a GC-part or not) and both
+ends lie in $V(Y)=Y^0$, then $e$, if not assigned in steps (1) or (2), is
+assigned in step (3) to the first standalone pre-part whose vertex set contains
+both ends; again a contradiction.
+\end{proof}
+
+\begin{proposition}[overlap constants on $\HBtp$]\label{s2:propOV}
+Fix a valid $\HBtp$ run and a round $r\le R$. Let $S_r$ be the total size of the
+leaves of the two-level recursion of round $r$, and $S^{\piece}_r$ the total
+size of the $s=0$ pieces. Then $S^{\piece}_r\le1.12\,n$ and $S_r\le1.21\,n$,
+and:
+\begin{enumerate}
+\item[(K1)]\namedlabel{s2:K1}{(K1)} $\sum|Z^0|\le1.37\,n$, the sum over the
+round-$r$ pre-parts; $|\Std_r|\le1.37\,n/P_r$; the number of ancestors of round
+$r$ is at most $1.37\,n/P_r$ (each ancestor corresponds to a distinct pre-part
+$Y^0\supseteq V(Y)$); hence the number $\nu_l$ of ancestors of rounds at most
+$l-2$ satisfies $\nu_l\le1.37\,n\sum_{r\le l-2}P_r^{-1}$;
+\item[(K2)]\namedlabel{s2:K2}{(K2)} $|D_r|\le\dup_r\le7.6\,\eps n/\log P_r$,
+and $\sum_{Z\in\Std_r}|A_Z|\le\sum|Z^0\cap D_r|\le2\dup_r\le15.2\,\eps n/\log
+P_r$, the middle sum over all round-$r$ pre-parts;
+\item[(K3)]\namedlabel{s2:K3}{(K3)} the total size $\sum|Z^0|$ of the round-$r$
+pre-parts failing (L1) is at most $30.4\,\eps n/\log P_r$, and
+$\sum_Y|Y^0\cap\Dups_r|\le16\,\eps n/\log P_r$, the sum over all round-$r$
+pre-parts $Y$;
+\item[(F11)] $\sum_w\mult_r(w)=\sum_Y|V(Y)|\le1.37\,n$, the second sum over the
+ancestors $Y$ of round $r$, and $\mult_r(w)\le\mu_r(w)$ for every vertex $w$.
+\end{enumerate}
+\deps{\ref{s2:lemOVgeneric}, \ref{s2:lem14tau}, \ref{s2:propStructure}, \ref{s2:defAncestors}, \ref{s2:defHBtp}, \ref{s2:lemSEP}}
+\end{proposition}
+
+\begin{proof}
+\emph{The composite tree.} The two-level recursion of round $r$ is a split
+recursion on $G'_r$, whose vertex set $V(G)$ has $n$ elements. Its splits in the
+first level are splits of an $s=0$ recursion, which satisfy the hypotheses of
+Lemma~\ref{s2:lemOVgeneric} with $c=1$ (the instance $c=1$ there), hence with
+$c=1.6$. Its splits in the second level are splits of the $\tau$-run of a piece
+$\piece$ with $|\piece|\ge P_r$; since $\tau_r\ge128\,s_r\log^2|\piece|$
+(Proposition~\ref{s2:propStructure}(ii)), Lemma~\ref{s2:lem14tau}(b) shows that
+they satisfy the hypotheses with $c=1.6$. Every non-leaf node has at least two
+vertices. So Lemma~\ref{s2:lemOVgeneric} applies to the whole two-level
+recursion with $c=1.6$ and $n_0=n$: by its part (c),
+$S_r\le n/(1-5.472\eps)\le1.21\,n$; by the first bound of its part (a) and
+$\log M\ge1$, for $M\ge2$, $\Delta_{\ge M}\le1.6\eps(1+1/\cOV)S_r/\log M$, and
+$1.6(1+1/\cOV)=5.455\ldots\le5.46$ (the rounded constant $3.42$ would only give
+$5.472$):
+\begin{equation}\label{s2:eqDupComposite}
+\Delta_{\ge M}\le\frac{5.46\,\eps S_r}{\log M}\le\frac{6.61\,\eps n}{\log M}.
+\end{equation}
+Applied to the first level alone (an $s=0$ recursion on $n$ vertices, $c=1$),
+the lemma gives $S^{\piece}_r\le1.12\,n$.
+
+(K1) Pre-parts are leaves, so $\sum|Z^0|\le S_r\le1.21\,n\le1.37\,n$. Every
+pre-part has at least $P_r$ vertices, so there are at most $1.37\,n/P_r$
+pre-parts. $\Std_r$ is a set of pre-parts, and the map from ancestors of round
+$r$ to pre-parts (a light part to its pre-part, a standalone pre-part to
+itself) is injective. Summing over $r\le l-2$ gives the bound on $\nu_l$.
+
+(K2) The round-$r$ pre-parts are exactly the leaves of the two-level recursion
+with at least $P_r$ vertices (by (R3) its leaves are the pieces with fewer than
+$P_r$ vertices and the leaves of the $\tau$-runs; a piece with at least $P_r$
+vertices whose $\tau$-run is a single node is such a leaf, hence a pre-part). By
+Lemma~\ref{s2:lemOVgeneric}(b) with $M=P_r\ge2$, $\mu_r(w)\le1+\dup_{\ge
+P_r}(w)$ for every $w$. Hence $\dup_r=\sum_w(\mu_r(w)-1)^+\le\Delta_{\ge P_r}\le
+6.61\,\eps n/\log P_r\le7.6\,\eps n/\log P_r$ by \eqref{s2:eqDupComposite}.
+Every $w\in D_r$ contributes at least $1$ to $\dup_r$, so $|D_r|\le\dup_r$.
+Next, $\sum_{Z\in\Std_r}|A_Z|=\sum_{Z\in\Std_r}|Z^0\cap D_r|\le\sum_Z|Z^0\cap
+D_r|=\sum_{w\in D_r}\mu_r(w)\le\sum_{w\in D_r}2(\mu_r(w)-1)=2\dup_r$, using
+$\mu\le2(\mu-1)$ for $\mu\ge2$.
+
+(K3) If $Z$ fails (L1) then $|Z^0|<2|S_Z|\le2|Z^0\cap D_r|$; summing and using
+(K2) gives at most $4\dup_r\le30.4\,\eps n/\log P_r$. For the second bound, let
+$u\in\Dups_r$ lie in a pre-part $Y$. Then $u$ lies in another leaf $\Leaf\ne Y$
+of the two-level recursion. Let $\nu$ be the lowest common ancestor of the
+leaves $Y$ and $\Leaf$; they lie below different children of $\nu$, and $u$
+lies in both (vertex sets shrink downwards), so $u\in N''_\nu$ by
+Lemma~\ref{s2:lemSEP}(0); and $|\nu|\ge|Y^0|\ge P_r$. Hence
+$\dup_{\ge P_r}(u)\ge1$ and $\mu_r(u)\le1+\dup_{\ge P_r}(u)\le2\dup_{\ge
+P_r}(u)$. Summing over $u\in\Dups_r$,
+\[
+\sum_Y|Y^0\cap\Dups_r|=\sum_{u\in\Dups_r}\mu_r(u)\le2\Delta_{\ge P_r}
+\le\frac{13.3\,\eps n}{\log P_r}\le\frac{16\,\eps n}{\log P_r}.
+\]
+
+(F11) Counting pairs $(w,Y)$ with $w\in V(Y)$ gives
+$\sum_w\mult_r(w)=\sum_Y|V(Y)|$. The injective map $Y\mapsto Y^0$ of (K1)
+satisfies $V(Y)\subseteq Y^0$, so $\sum_Y|V(Y)|\le\sum_{Z}|Z^0|\le1.37\,n$ and,
+restricted to the ancestors containing $w$, it shows $\mult_r(w)\le\mu_r(w)$.
+\end{proof}
+
+\subsection{Degree recursion, existence, and tower facts}
+
+\begin{proposition}[degree recursion]\label{s2:propDegRec}
+Let $l$ be a round of a valid $\HBtp$ run with $d_l\ge\Dstar$ (that is,
+$l\le R$), and put $x\defeq\lambda_l$. Then $M_l\le d_l^2$, $\Lambda_l\le2x$,
+$s_l\le P_l$, and
+\[
+d_{l+1}\le1.21\,P_l+9\,s_l\log M_l\le6P_l+9\,s_l\log M_l+1.2\,s_l\le
+7\,x^{103}\le x^{\Aexp}<d_l
+\]
+($\Aexp=104$ would suffice; $\Aexp=105$ is used). More precisely, every edge of
+$G_{l+1}$ is of one of the following kinds:
+\begin{enumerate}
+\item[(a)] an edge deleted by the $\tau$-run of a piece $\piece$ with
+$|\piece|\ge P_l$; there are at most $4s_l|\piece|\log|\piece|$ of them for
+each piece and at most $4.5\,n\,s_l\log M_l$ in total;
+\item[(b)] an edge of a leaf of the two-level recursion with fewer than $P_l$
+vertices (a small leaf of a $\tau$-run, or a piece with $|\piece|<P_l$); such a
+leaf, with $q<P_l$ vertices, has fewer than $qP_l/2$ edges;
+\item[(c)] a \emph{guest edge}: an edge of $X^0_Z$ with an end in $S_Z$, for a
+light pre-part $Z$; there are at most $|Z^0|s_l/2$ of them for each light $Z$.
+\end{enumerate}
+Standalone pre-parts, GC-parts included, pass none of the edges of their leaf
+graphs down; in particular, declaring a pre-part a GC-part (instead of light)
+can only decrease the set of passed-down edges.
+\deps{\ref{s2:lem14tau}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:defHBtp}, \ref{s2:lemSEP}, \ref{s1:condG1}, \ref{s2:lemOVgeneric}}
+\end{proposition}
+
+\begin{proof}
+Put $\mu\defeq\log x$, where $x=\log d_l\ge\log\Dstar$; so $\mu\ge\log\log\Dstar$,
+and \Gc{1}(a),(b) (Condition~\ref{s1:condG1}) hold at $\mu$: $\mu\ge2^8$ and
+$x=2^\mu\ge2^{14}\Aexp\mu^3$. Hence $x\ge2^{256}$, so $x\ge7$, $x^2\ge2^{107}$ and
+$x^3\ge2^{101}$; and $x\ge2^{14}\cdot105\log^3x$, so $x\ge21+6\log x$ and
+$x>105\log x$.
+
+\emph{Parameters.} Let $T\defeq\tHB_ld_l=2^xx^2$. Then $\log T=x+2\log x\le2x$,
+so $2^{16}T\log^4T\le2^{16}\cdot2^xx^2\cdot16x^4=2^{20}x^62^x\le2^{2x-1}$ because
+$x\ge21+6\log x$; also $2^{40}\le2^{2x-1}$. By (R2), $M_l$ is at most this
+maximum plus $1$, so $M_l\le2^{2x-1}+1\le2^{2x}=d_l^2$ and
+$\Lambda_l=\log M_l\le2x$. Then $s_l\le\Lambda_l^{100}+1\le2^{100}x^{100}+1\le
+2^{101}x^{100}\le x^{103}\le P_l$.
+
+\emph{Classification.} Let $e\in E(G_{l+1})$; by (R5), $e$ is an edge of $G'_l$
+not assigned at round $l$. By Lemma~\ref{s2:lemSEP}(i) applied to the two-level
+recursion, $e$ is deleted at some split, or lies in exactly one leaf $\Leaf$.
+Splits of the first level delete nothing (Lemma~\ref{s2:lemOVgeneric}, instance
+$c=1$), so a deleted $e$ is of kind (a). If $|\Leaf|<P_l$, $e$ is of kind (b).
+Otherwise $\Leaf$ is a pre-part $Z$ and $e\in E(X^0_Z)$. If $Z$ is standalone,
+$e$ is assigned to $Z$ by (R5)(1), which is impossible. If $Z$ is light and $e$
+has no end in $S_Z$, then $e\in E(X_Z)$ is assigned by (R5)(1), again
+impossible. So $e$ is of kind (c). The same argument shows the assertion about
+standalone pre-parts and GC-parts.
+
+\emph{Counting.} (a) By Lemma~\ref{s2:lemCap}(ii), Lemma~\ref{s2:lem14tau}(a)
+applies to the $\tau$-run of $\piece$ and gives at most
+$4s_l|\piece|\log|\piece|\le4s_l|\piece|\log M_l$ deleted edges. By
+Proposition~\ref{s2:propOV}, the pieces have total size
+$S^{\piece}_l\le1.12\,n$, so kind (a) has at most $4.48\,n\,s_l\log M_l$ edges.
+(b) Every leaf of the two-level recursion is non-empty (both children of every
+split, of the $s=0$ recursion and of a $\tau$-run, are non-empty). So a leaf
+with $1\le q<P_l$ vertices has at most $q(q-1)/2<qP_l/2$ edges.
+(c) Every guest edge of $X^0_Z$ joins some $u\in Z^0$ to a vertex of $S_Z$, so
+it is counted in $\sum_{u\in Z^0}|N_{X^0_Z}(u)\cap S_Z|$; each term is at most
+$s_l/2$ by (L2), since $X^0_Z\subseteq G'_l[Z^0]$. The leaves of kind (b) and
+the light pre-parts are distinct leaves of the two-level recursion, so the sum
+of $q$ over the leaves of kind (b) plus the sum of $|Z^0|$ over the light
+pre-parts is at most $S_l\le1.21\,n$ (Proposition~\ref{s2:propOV}). As
+$s_l\le P_l$, kinds (b) and (c) together have at most
+$\frac12\cdot1.21\,n\cdot P_l$ edges. Therefore
+$|E(G_{l+1})|\le4.5\,n\,s_l\log M_l+0.605\,n\,P_l$, that is,
+$d_{l+1}\le9\,s_l\log M_l+1.21\,P_l$, which is at most
+$6P_l+9s_l\log M_l+1.2s_l$.
+
+\emph{Final bounds.} Using $P_l\le x^{103}+1$, $s_l\le2^{101}x^{100}$ and
+$\log M_l\le2x$:
+\[
+6P_l+9s_l\log M_l+1.2s_l\le6x^{103}+6+9\cdot2^{102}x^{101}+1.2\cdot2^{101}x^{100}
+\le6x^{103}+2^{107}x^{101}\le7x^{103},
+\]
+since $x^2\ge2^{107}$. Next $7x^{103}\le x^{104}\le x^{105}$ as $x\ge7$, and
+$x^{105}<2^x=d_l$ as $105\log x<x$.
+\end{proof}
+
+\begin{proposition}[existence and termination]\label{s2:propExists}
+For every graph $G$ a valid $\HBtp$ run exists, and every sequence of admissible
+choices terminates. More precisely: within a round, (R1) and the first level of
+(R3) terminate; the $\tau$-runs terminate with any witnesses ($U'\ne\emptyset$
+and $n_1,n_2<m$ at every split); (GC) is a deterministic relabelling that feeds
+back into neither $D_l$ nor $\home$ nor the guest sets; and $d_{l+1}<d_l$ while
+$d_l\ge\Dstar$, so $R$ is finite.
+\deps{\ref{s2:lem14tau}, \ref{s2:propDegRec}, \ref{s2:defHBtp}, \ref{s2:lemCap}, \ref{s2:lemOVgeneric}, \ref{s2:defWitness}, \ref{s2:propOV}}
+\end{proposition}
+
+\begin{proof}
+The proofs of Lemma~\ref{s2:lemCap}(ii), Proposition~\ref{s2:propOV} and
+Proposition~\ref{s2:propDegRec} use only the data of the round $l$ in question
+and $d_l\ge\Dstar$; so they apply to every round $l$ with $d_l\ge\Dstar$ of any
+(possibly unfinished) execution of the procedure.
+
+Fix a round $l$ with $d_l\ge\Dstar$ (if $d_1<\Dstar$ the run stops at once
+with $R=0$). (R1) deletes at least one edge per step, so it terminates. In the
+first level of (R3), a node that is not an $(\eps,0)$-expander has a witness
+(Definition~\ref{s2:defWitness}), and its children have $|U|+|N|<\frac34m$ and
+$m-|U|<m$ vertices (Lemma~\ref{s2:lemOVgeneric}, instance $c=1$); so every
+root-to-node path has at most $n$ nodes and this level terminates. By
+Lemma~\ref{s2:lemCap}(ii), $\tau_l\ge128\,s_l\log^2|\piece|$ for every piece,
+so Lemma~\ref{s2:lem14tau}(a) applies to every $\tau$-run with every choice of
+witnesses: $U'\ne\emptyset$, $n_1,n_2<m$, and the $\tau$-run terminates.
+In (R4), $D_l$, $\home$ and the sets $S_Z$ are determined by the pre-parts and
+the home order alone; conditions (L1), (L2) and (GC) are evaluated afterwards,
+and their outcome is not used in defining $D_l$, $\home$ or $S_Z$. (R5) is
+deterministic. All required choices (witnesses, vertex orders, home orders)
+exist. So each round is a finite procedure. By
+Proposition~\ref{s2:propDegRec}, $d_{l+1}<d_l$ whenever $d_l\ge\Dstar$; as
+$|E(G_l)|$ is a non-negative integer, (R0) stops after finitely many rounds.
+\end{proof}
+
+\begin{lemma}[tower-lacunary sums]\label{s2:lemLacunary}
+Let $x_0\defeq\log\Dstar$.
+\begin{enumerate}
+\item[(i)] If $X_1,\dots,X_R\ge0$ and $X_r\le X_{r+1}/2$ for all $r<R$, then
+$\sum_{r\le R}X_r\le2X_R$ and $\sum_{r\le R}(R-r+1)X_r\le4X_R$.
+\item[(ii)] For a valid run with $R\ge1$, the degree recursion gives
+$\lambda_r\ge2^{\lambda_{r+1}/\Aexp}$ for all $r<R$. Hence, if
+$F:[x_0,\infty)\to[0,\infty)$ is non-increasing and $F(2^{x/\Aexp})\le F(x)/2$
+for all $x\ge x_0$, then $\sum_{r\le R}F(\lambda_r)\le2F(\lambda_R)\le
+2F(x_0)$ and $\sum_{r\le R}(R-r+1)F(\lambda_r)\le4F(x_0)$; for the shifted
+sums (when $R\ge3$), $\sum_{l=3}^RF(\lambda_{l-2})\le2F(\lambda_{R-2})\le2F(x_0)$
+and $\sum_{l=3}^R(R-l+1)F(\lambda_{l-2})\le4F(\lambda_{R-2})\le4F(x_0)$.
+\item[(iii)] More generally, if $F:[x_0,\infty)\to[0,\infty)$ satisfies
+\[
+\text{(H)}\qquad F(y)\le F(x)/2\quad\text{whenever } x\ge x_0\text{ and }
+y\ge2^{x/\Aexp},
+\]
+then $\sum_{r\le R}F(\lambda_r)\le2F(\lambda_R)$ and $\sum_{r\le
+R}(R-r+1)F(\lambda_r)\le4F(\lambda_R)$ (and likewise for $F(\lambda_{l-2})$).
+\item[(iv)] Under \Gc{1}, condition (H) holds for $F(x)=x^{-a}$ (every $a\ge
+1/100$), for $F(x)=1/\log x$ and for $F(x)=(95\log x+8)\,x^{-b}$ (every $b\ge
+1$; not used in this paper), all three non-increasing on $[x_0,\infty)$;
+and for the three
+functions $F(x)=(2\logs(2^x)+2)/\eta(x)$ with $\eta(x)\in\{x,\ x^{1/2},\
+\log x\}$ (note $2\logs(2^x)+2=2\logs x+4$ for $x>1$; not used in this
+paper). Each of these three
+satisfies $F(x)\le2F(x_0)$ for all $x\ge x_0$ (not used in this paper).
+\end{enumerate}
+Round-$l$ quantities such as $1/M_l$ or
+$M_l^3(95\log\lambda_{l-2}+8)/\lambda_{l-2}^{95}$ are summed either by (i),
+once the halving of consecutive terms is known, or by bounding them by
+$F(\lambda_{l-2})$ for an $F$ as in (ii); for instance the bound
+$M_l\le\lambda_{l-2}^{1.6}$, proved in part~(b) of the next lemma (this
+example is not used in the proof of the present lemma), gives
+$M_l^3(95\log\lambda_{l-2}+8)/\lambda_{l-2}^{95}\le(95\log\lambda_{l-2}+8)\,
+\lambda_{l-2}^{-90.2}$. (This example is not used in this paper:
+Lemma~\ref{s7:lemUHsplit}(iv) bounds its round-$l$ terms by a function of its
+own and sums them by~(i).)
+\deps{\ref{s2:propDegRec}, \ref{s1:condG1}}
+\end{lemma}
+
+\begin{proof}
+(i) By induction $X_r\le2^{-(R-r)}X_R$, so $\sum_rX_r\le X_R\sum_{k\ge0}2^{-k}
+=2X_R$ and $\sum_r(R-r+1)X_r\le X_R\sum_{k\ge0}(k+1)2^{-k}=4X_R$.
+
+(iii) For $r<R$, Proposition~\ref{s2:propDegRec} at round $r$ gives
+$d_{r+1}\le\lambda_r^{\Aexp}$, i.e.\ $\lambda_{r+1}\le\Aexp\log\lambda_r$,
+i.e.\ $\lambda_r\ge2^{\lambda_{r+1}/\Aexp}$; and $\lambda_{r+1}\ge x_0$. By (H)
+with $x=\lambda_{r+1}$ and $y=\lambda_r$, $F(\lambda_r)\le F(\lambda_{r+1})/2$,
+and (i) applies to $X_r\defeq F(\lambda_r)$. For sums of $F(\lambda_{l-2})$
+over $3\le l\le R$ apply the same to $r=l-2\le R-2$.
+
+(ii) Let $x\ge x_0$. Then $\mu\defeq\log x\ge\log x_0=\log\log\Dstar$, so \Gc{1}(a),(b)
+at $\mu$ give $\mu\ge2^8$ and $x=2^\mu\ge2^{14}\Aexp\mu^3\ge\Aexp\mu=\Aexp\log x$, that is,
+$2^{x/\Aexp}\ge x$. Hence $2^{x/\Aexp}\ge x\ge x_0$ for $x\ge x_0$.
+If $F$ is non-increasing and $F(2^{x/\Aexp})\le F(x)/2$, then for $y\ge
+2^{x/\Aexp}$ we get $F(y)\le F(2^{x/\Aexp})\le F(x)/2$, which is (H). So (iii)
+applies, and $F(\lambda_R)\le F(x_0)$ as $\lambda_R\ge x_0$.
+
+(iv) Let $x\ge x_0$ and $y\ge2^{x/\Aexp}$, and put $\mu\defeq\log x\ge\log\log\Dstar$.
+By \Gc{1}(a),(b) at $\mu$, $\mu\ge2^8$ and $x=2^\mu\ge2^{14}\Aexp\mu^3$; hence
+$x\ge2^{256}$, $x/\Aexp\ge101\log x$, $x\ge2\Aexp\log x$, $x\ge\Aexp\log^2x/4$ and
+$x/\Aexp\ge2^{12}$, and all of this holds in particular for $x=x_0$. Then
+$\log y\ge x/\Aexp$, and $2^{x/\Aexp}\ge x^{101}$ because $x/\Aexp\ge101\log x$; so
+$y\ge x^{101}\ge2^{32}$.
+We use two facts about $\logs$: $\logs z\le z$ for $z\ge1$ (if $z\le2$ then
+$\logs z\le1$; if $z>2$ then $\logs z=1+\logs(\log z)\le1+\log z\le z$ by
+induction), and hence, for $y\ge4$, $\logs y=2+\logs(\log\log y)\le2+\log\log y
+\le1+\log y$.
+
+\emph{$F(x)=x^{-a}$, $a\ge1/100$:} $F(y)/F(x)=(x/y)^a\le x^{-100a}\le x^{-1}\le
+1/2$.
+
+\emph{$F(x)=1/\log x$:} $F(y)=1/\log y\le\Aexp/x\le1/(2\log x)=F(x)/2$, as
+$x\ge2\Aexp\log x$.
+
+\emph{$F(x)=(95\log x+8)x^{-b}$, $b\ge1$:} $x^{b+1}F'(x)=95/\ln2-b(95\log x+8)
+<0$, so $F$ is decreasing; and $F(y)\le y^{-b/2}$, because $95\log y+8\le
+y^{1/2}$ for $y\ge2^{30}$ (true at $2^{30}$, and the right side grows faster).
+Hence $F(y)\le x^{-50b}\le x^{-b}/2\le F(x)/2$.
+
+\emph{$F(x)=(2\logs x+4)/\eta(x)$.} Here $F(x)\ge4/\eta(x)$, so it suffices to
+show $F(y)\le2/\eta(x)$. For $\eta(x)=x$: $F(y)\le(2\log y+6)/y\le y^{-1/2}$
+(the inequality $2\log y+6\le y^{1/2}$ holds at $y=2^{12}$, and the right side
+grows faster beyond), and $y^{1/2}\ge x^{50}\ge x/2$. For $\eta(x)=x^{1/2}$:
+$F(y)\le(2\log y+6)/y^{1/2}\le y^{-1/4}$ (valid for $y\ge2^{32}$ in the same
+way), and $y^{1/4}\ge x^{25}\ge x^{1/2}/2$. For $\eta(x)=\log x$: with
+$u\defeq\log y\ge x/\Aexp$, $F(y)\le(2\log u+8)/u\le u^{-1/2}$ (valid for $u\ge
+2^{12}$), and $u^{-1/2}\le(\Aexp/x)^{1/2}\le2/\log x$ as $x\ge\Aexp\log^2x/4$.
+
+\emph{The bound $F(x)\le2F(x_0)$ for the three $\logs$-functions.} Let
+$\mathrm{tw}(0)\defeq1$ and $\mathrm{tw}(j+1)\defeq2^{\mathrm{tw}(j)}$. Since
+$\log^{[i]}$ is increasing and $\log^{[j]}\mathrm{tw}(j)=1$, a real $z>1$ has
+$\logs z=j$ iff $\mathrm{tw}(j-1)<z\le\mathrm{tw}(j)$. Let $k_0\defeq\logs x_0\ge
+1$, let $x\ge x_0$, and write $\logs x=k_0+k$ with $k\ge0$. Then $x_0\le
+\mathrm{tw}(k_0)$ and $x>\mathrm{tw}(k_0+k-1)$. If $k=0$, then $F(x)\le F(x_0)$
+since $\eta$ is increasing. If $k=1$, then $2\logs x+4=2k_0+6\le2(2k_0+4)$ and
+$\eta(x)\ge\eta(x_0)$, so $F(x)\le2F(x_0)$. Let $k\ge2$. We claim
+$\eta(x)\ge2^k\eta(x_0)$. Note $\mathrm{tw}(k_0+1)=2^{\mathrm{tw}(k_0)}\ge2^{x_0}$,
+and $\mathrm{tw}(j+1)=2^{\mathrm{tw}(j)}\ge4\,\mathrm{tw}(j)$ whenever
+$\mathrm{tw}(j)\ge4$. Hence $x>\mathrm{tw}(k_0+k-1)\ge4^{k-2}2^{x_0}$, which gives
+the claim for $\eta(x)=x$ (as $4^{k-2}2^{x_0}\ge2^kx_0$ for $k\ge2$) and for
+$\eta(x)=x^{1/2}$ (as $2^{k-2}2^{x_0/2}\ge2^kx_0^{1/2}$). For
+$\eta=\log$: $\log x>\mathrm{tw}(k_0+k-2)$, which is at least $\mathrm{tw}(k_0)\ge
+x_0\ge4\log x_0$ if $k=2$, and at least $4^{k-3}2^{x_0}\ge2^k\log x_0$ if
+$k\ge3$. Using the claim and $2k_0+2k+4\le2^k(2k_0+4)$ (as $2^k\ge1+k$),
+$F(x)\le(2k_0+2k+4)/(2^k\eta(x_0))\le(2k_0+4)/\eta(x_0)=F(x_0)$.
+\end{proof}
+
+\begin{lemma}[tower facts]\label{s2:lemTower}
+For every valid $\HBtp$ run with $d_1\ge\Dstar$ (so $R\ge1$):
+\begin{enumerate}
+\item[(a)] $\lambda_r\ge d_{r+1}^{1/\Aexp}$ for $r\le R$; $d_{r+2}\le\lambda_r$
+for $r\le R-1$; $R-r\le2\logs d_r-1$, in particular
+\[
+R-r\le2\logs d_r+2\qquad(r\le R);
+\]
+and $\lambda_r\ge\lambda_{l-2}$ whenever $r\le l-2\le R$.
+\item[(b)] For $r\le R$: $M_r\le d_r^2$; $\lambda_r\le\Lambda_r\le2\lambda_r$;
+$\lambda_r^{100}\le s_r\le2\Lambda_r^{\sigma}$; $s_r\le P_r$; and $L_Y\le\log
+M_r\le2\lambda_r$ for every ancestor $Y$ of round $r$. For $3\le l\le R$:
+$M_l\le(\Aexp\log\lambda_{l-2})^{2\Aexp}\le\lambda_{l-2}^{1.6}$;
+$P_{l-2}\ge M_l^{13}$; and $P_{l-2}/2\ge M_l\log^4M_l$. For $2\le l\le R$:
+$M_{l-1}\ge2M_l$. For $r<R$: $P_r\ge2P_{r+1}$. Moreover
+$\sum_{l\le R}1/M_l\le2/\Dstar$ and $\sum_{l\le R}\psi(M_l)\le2.1\,\psi(\Dstar)$
+with $\psi(x)\defeq(6\log x+12)/x$. Finally, completing (K1) of
+Proposition~\ref{s2:propOV}, the number $\nu_l$ of ancestors of rounds at most
+$l-2$ satisfies $\nu_l\le2.74\,n/P_{l-2}$ for $3\le l\le R$.
+\item[(c)] For $r\le R$: $\tau_r\le257\,\Lambda_r^{\sigma+2}\le
+2^{\sigma+11}\lambda_r^{\sigma+2}$ and $\tau_r/P_r\le2^{\sigma+11}/\lambda_r$;
+and $\thGC_r(Z^0)\ge P_r\lambda_r^{-1/2}>\tau_r$ for every round-$r$ pre-part
+$Z$.
+\item[(d)] For $r\le l\le R$: $\lambda_r\ge2^{2\logs d_r+2}\ge2^{R-r}\ge
+2^{l-r}$.
+\item[(e)] Put
+\[
+\epsA\defeq\frac{31\,\eps}{\Cp\log\log\Dstar},
+\]
+a function of $\Dstar$ alone (it depends neither on the run nor on $n$). Then
+\[
+\sum_{l\le R}\frac{15.2\,\eps}{\log P_l}\le\epsA.
+\]
+Consequently $\sum_{l\le R}|D_l|\le\epsA n$ and $\sum_{l\le
+R}\sum_{Z\in\Std_l}|A_Z|\le\epsA n$.
+\end{enumerate}
+\deps{\ref{s2:propDegRec}, \ref{s2:lemLacunary}, \ref{s2:defHBtp}, \ref{s1:condG1}, \ref{s1:condG2}, \ref{s2:propStructure}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:defAncestors}}
+\end{lemma}
+
+\begin{proof}
+Every round $r\le R$ has $d_r\ge\Dstar$, so $\log\lambda_r\ge\log\log\Dstar$, and
+the items of \Gc{1} (Condition~\ref{s1:condG1}) hold at $\mu=\log\lambda_r$ for
+every $r\le R$; they also hold at $\mu=\log\log d$ for every $d\ge\Dstar$. Proposition~\ref{s2:propDegRec} applies at every round $r\le R$.
+
+(a) Proposition~\ref{s2:propDegRec} at round $r$ gives $d_{r+1}\le
+\lambda_r^{\Aexp}$. For $r\le R-1$ it also applies at round $r+1$, so
+$d_{r+2}\le\lambda_{r+1}^{\Aexp}$ with $\lambda_{r+1}=\log d_{r+1}\le\Aexp\log
+\lambda_r$; hence $d_{r+2}\le(\Aexp\log\lambda_r)^{\Aexp}\le\lambda_r$, because
+with $u\defeq\log\lambda_r$ we have $\Aexp\log(\Aexp u)\le0.8u\le u$ by \Gc{1}(c)
+at $u$; equivalently, $(\Aexp\log\lambda_r)^{\Aexp}\le\lambda_r$.
+
+Let $k\defeq\logs d_r$; $k\ge1$ as $d_r>1$. Suppose $R\ge r+2k$. We show
+$d_{r+2i}\le\log^{[i]}d_r$ for $0\le i\le k$ by induction: for $i<k$ we have
+$r+2i\le R-2$, so $d_{r+2i+2}\le\log d_{r+2i}\le\log(\log^{[i]}d_r)$, where
+$\log^{[i]}d_r>1$ as $i<\logs d_r$. Hence $d_{r+2k}\le\log^{[k]}d_r\le1<\Dstar$,
+contradicting $r+2k\le R$. Therefore $R-r\le2k-1\le2\logs d_r+2$. (The weaker
+form with ``$+2$'' is the one used in later sections.) Finally
+$d_{j+1}\le d_j$ for all $j\le R$ (Proposition~\ref{s2:propStructure}(iii)), so
+$\lambda$ is non-increasing in the round.
+
+(b) $M_r\le d_r^2$, $\Lambda_r\le2\lambda_r$ and $s_r\le P_r$ are in
+Proposition~\ref{s2:propDegRec}; $\Lambda_r\ge\lambda_r$ and
+$s_r\ge\lambda_r^{100}$ are in (the proof of)
+Proposition~\ref{s2:propStructure}(i); and $s_r\le\Lambda_r^\sigma+1\le
+2\Lambda_r^\sigma$. For an ancestor $Y$ of round $r$, $|V(Y)|\le|Y^0|\le M_r$
+by Lemma~\ref{s2:lemCap}(ii), so $L_Y\le\log M_r=\Lambda_r\le2\lambda_r$.
+
+Let $3\le l\le R$. By Proposition~\ref{s2:propDegRec} at rounds $l-1$ and
+$l-2$, $d_l\le\lambda_{l-1}^{\Aexp}$ and $\lambda_{l-1}\le\Aexp\log
+\lambda_{l-2}$; with $M_l\le d_l^2$ this gives
+$M_l\le(\Aexp\log\lambda_{l-2})^{2\Aexp}$. With $u\defeq\log\lambda_{l-2}$, \Gc{1}(c) at $u$ gives
+$2\Aexp\log(\Aexp u)=210\log(105u)\le1.6u$, so
+$M_l\le\lambda_{l-2}^{1.6}$. Hence $M_l^{13}\le\lambda_{l-2}^{20.8}\le
+\lambda_{l-2}^{103}\le P_{l-2}$. As $\Lambda_l\ge40$, $\log M_l=\Lambda_l\le
+2^{\Lambda_l/4}=M_l^{1/4}$, so $M_l\log^4M_l\le M_l^2\le M_l^{13}/2\le
+P_{l-2}/2$.
+
+For $2\le l\le R$: $M_{l-1}\ge d_{l-1}$ (as in
+Proposition~\ref{s2:propStructure}(i)), and $M_l\le d_l^2\le
+\lambda_{l-1}^{2\Aexp}=(\log d_{l-1})^{2\Aexp}$; with $y\defeq\log d_{l-1}$ and $v\defeq\log y\ge\log\log\Dstar$, \Gc{1}(a),(b) at $v$
+give $v\ge2^8$ and $y=2^v\ge2^{14}\Aexp v^3\ge1+2\Aexp v$, that is, $2^y\ge2y^{2\Aexp}$; so
+$M_{l-1}\ge2M_l$. For $r<R$:
+$P_{r+1}\le\lambda_{r+1}^{103}+1\le(\Aexp\log\lambda_r)^{103}+1\le\lambda_r+1\le
+\lambda_r^{103}/2\le P_r/2$, because
+$(\Aexp\log\lambda_r)^{103}\le(\Aexp\log\lambda_r)^{\Aexp}\le\lambda_r$ (the
+first inequality as $\Aexp\log\lambda_r\ge\Aexp\ge1$, since $\lambda_r\ge2$; the
+second from the proof of (a)) and $\lambda_r\ge2$.
+
+By $M_{l-1}\ge2M_l$ and Lemma~\ref{s2:lemLacunary}(i) applied to $X_l\defeq
+1/M_l$, $\sum_{l\le R}1/M_l\le2/M_R\le2/d_R\le2/\Dstar$. The function $\psi$ is
+decreasing on $[1,\infty)$, because $\psi'(x)=(6/\ln2-6\log x-12)/x^2$ and
+$6/\ln2<12$; and for $2\le l\le R$,
+\[
+\psi(M_{l-1})\le\psi(2M_l)=\frac{6\log M_l+18}{2M_l}
+=\psi(M_l)\Bigl(\frac12+\frac3{6\log M_l+12}\Bigr)\le0.512\,\psi(M_l),
+\]
+as $\log M_l\ge40$. Hence $\sum_{l\le R}\psi(M_l)\le\psi(M_R)/(1-0.512)\le
+2.05\,\psi(M_R)\le2.1\,\psi(\Dstar)$, since $M_R\ge d_R\ge\Dstar$.
+
+Finally, by (K1) of Proposition~\ref{s2:propOV},
+$\nu_l\le1.37\,n\sum_{r\le l-2}1/P_r$, and $P_r\ge2P_{r+1}$ for $r<l-2\le R$;
+Lemma~\ref{s2:lemLacunary}(i) applied to $X_r\defeq1/P_r$ ($r\le l-2$) gives
+$\sum_{r\le l-2}1/P_r\le2/P_{l-2}$, so $\nu_l\le2.74\,n/P_{l-2}$.
+
+(c) $\tau_r=\lceil128\,s_r\Lambda_r^2\rceil\le128\cdot2\Lambda_r^\sigma
+\Lambda_r^2+1\le257\,\Lambda_r^{\sigma+2}\le257\cdot2^{\sigma+2}
+\lambda_r^{\sigma+2}<2^{\sigma+11}\lambda_r^{\sigma+2}$, as $257\cdot4<2^{11}$.
+Since $\Cp=\sigma+3$, $P_r\ge\lambda_r^{\sigma+3}$ and
+$\tau_r/P_r\le2^{\sigma+11}/\lambda_r$. For a round-$r$ pre-part $Z$,
+$\thGC_r(Z^0)\ge|Z^0|\lambda_r^{-1/2}\ge P_r\lambda_r^{-1/2}\ge
+\lambda_r^{102.5}$, while $\tau_r<2^{111}\lambda_r^{102}$; and
+$\lambda_r^{1/2}>2^{111}$ because $\log\lambda_r\ge2^8>222$ by \Gc{1}(a).
+
+(d) Put $\mu\defeq\log\lambda_r$; so $\mu\ge2^8$ by \Gc{1}(a). As $d_r=2^{\lambda_r}$ and
+$\lambda_r=2^\mu$ with $\lambda_r,\mu>1$, $\logs d_r=2+\logs\mu$. By the fact
+$\logs z\le1+\log z$ ($z\ge4$) shown in the proof of
+Lemma~\ref{s2:lemLacunary}(iv), $2\logs d_r+2=6+2\logs\mu\le8+2\log\mu\le\mu$,
+the last step by \Gc{1}(d) at $\mu$.
+So $\lambda_r=2^\mu\ge2^{2\logs d_r+2}$, which is at least $2^{R-r}$ by (a) and
+at least $2^{l-r}$ for $l\le R$.
+
+(e) We have $\log P_l\ge\Cp\log\lambda_l$. The function
+$F(x)\defeq1/(\Cp\log x)$ is non-increasing and satisfies
+$F(2^{x/\Aexp})\le F(x)/2$ for $x\ge\log\Dstar$
+(Lemma~\ref{s2:lemLacunary}(iv)). By Lemma~\ref{s2:lemLacunary}(ii),
+\[
+\sum_{l\le R}\frac1{\log P_l}\le\sum_{l\le R}F(\lambda_l)\le2F(\log\Dstar)=
+\frac2{\Cp\log\log\Dstar},
+\]
+so $\sum_{l\le R}15.2\,\eps/\log P_l\le30.4\,\eps/(\Cp\log\log\Dstar)\le
+\epsA$. By (K2) of Proposition~\ref{s2:propOV},
+$\sum_l|D_l|\le\sum_l7.6\,\eps n/\log P_l\le\epsA n$ and
+$\sum_l\sum_{Z\in\Std_l}|A_Z|\le\sum_l15.2\,\eps n/\log P_l\le\epsA n$.
+\end{proof}
+
+\subsection{Rule (GC), ORIGIN\texorpdfstring{$^\tau$}{-tau}, and parentless mass}
+
+\begin{lemma}[rule GC]\label{s2:lemGC}
+For every valid $\HBtp$ run and every round $r\le R$:
+\begin{enumerate}
+\item[(i)] the pre-parts, their leaf graphs, $\Dups_r$, $D_r$, $\home_r$ and
+the guest sets $S_Z$ are defined in (R1)--(R4) before and independently of
+condition (GC); (GC) only decides whether a pre-part satisfying (L1) and (L2)
+is light or standalone;
+\item[(ii)] for every light part $Y$ of round $r$ and every guest $x\in S_Y$,
+$e_{X^0_Y}(x,Y)<\thGC_r(Y^0)$, where $Y$ denotes the vertex set
+$Y^0\setminus S_Y$;
+\item[(iii)] GC-parts are standalone; for a GC-part $Y$, every edge of $G'_r$
+with both ends in $Y^0$ is assigned at round $r$ (the edges of $X^0_Y$, those
+between a guest and $Y^0\setminus S_Y$ included, by (R5)(1)), so no edge of
+$G_{r+1}$ has both ends in $V(Y)=Y^0$; and every guest $x\in S_Y$ lies in
+$D_r\subseteq\Dups_r$;
+\item[(iv)] $\thGC_r(Z^0)>\tau_r$ for every round-$r$ pre-part $Z$.
+\end{enumerate}
+\deps{\ref{s2:defHBtp}, \ref{s2:lemTower}, \ref{s2:lemEL}, \ref{s2:defAncestors}}
+\end{lemma}
+
+\begin{proof}
+(i) is the order of definitions in (R3)--(R4): (GC) is evaluated only after
+the pre-parts, $D_r$, $\home_r$ and the sets $S_Z$ are fixed, and none of
+these uses the outcome of (GC).
+
+(ii) A light pre-part satisfies (GC): no $x\in S_Y$ has $\thGC_r(Y^0)$ or more
+neighbours in $Y^0\setminus S_Y$ in $X^0_Y$.
+
+(iii) A GC-part fails (GC) and is therefore standalone by (R4). By (R5)(1) all
+edges of $X^0_Y$ are assigned to $Y$. By Lemma~\ref{s2:lemEL}, applied to the
+ancestor $Y$ (with $V(Y)=Y^0$), no edge of $G_{r+1}$ has both ends in $Y^0$;
+equivalently, every edge of $G'_r$ inside $Y^0$ is assigned at round $r$. A
+guest $x\in S_Y$ lies in $D_r$ by definition, hence in at least two pre-parts,
+which are two leaves of the two-level recursion; so $x\in\Dups_r$.
+
+(iv) is Lemma~\ref{s2:lemTower}(c).
+\end{proof}
+
+\begin{proposition}[ORIGIN$^\tau$]\label{s2:propOrigin}
+Fix a valid $\HBtp$ run, a round $r\le R$, a round-$r$ pre-part $Y$ and a
+vertex $u\in Y^0\setminus\Dups_r$.
+\begin{enumerate}
+\item[(a)] $u$ lies in a unique $s=0$ piece $\piece$ and in a unique leaf of the
+two-level recursion, namely $Y$ (so $Y^0\subseteq V(\piece)$). Every edge $ux$
+of $G_{r+1}$ is of exactly one of the following two types:
+\begin{itemize}
+\item[($\beta$)] $x\notin Y^0$, and $ux$ was deleted by the $\tau$-run of
+$\piece$ (so $x\in V(\piece)$);
+\item[($\alpha$)] $Y$ is light, $x\in S_Y$, and $ux\in E(X^0_Y)$ (a
+\emph{guest--core edge}: it is not deleted and not assigned at round $r$, and
+passes down).
+\end{itemize}
+A standalone $Y$ (GC-parts included) has no edges of type ($\alpha$). Since
+$E(G_l)\subseteq E(G_{r+1})$ for $l>r$, the same classification applies to the
+edges $ux$ of $G_l$.
+\item[(b)] For every vertex $h$ and every round $l>r$,
+\[
+\#\bigl\{u\in Y^0\setminus\Dups_r:\ hu\in E(G_l)\text{ is of type }(\beta)
+\bigr\}\le\tau_r-1.
+\]
+\item[(c)] $\sum_Y|Y^0\cap\Dups_r|\le16\,\eps n/\log P_r$, the sum over all
+round-$r$ pre-parts $Y$.
+\end{enumerate}
+An edge of type ($\alpha$) has its core end $u$ outside $\Dups_r$ (it is not
+true that ($\alpha$)-edges occur only at vertices of $\Dups_r$); a guest $x$
+of a light $Y$ is the guest end of fewer than $\thGC_r(Y^0)$ edges of type
+($\alpha$) (Lemma~\ref{s2:lemGC}(ii)); and there is no third type.
+\deps{\ref{s2:lemThinCut}, \ref{s2:lemSEP}, \ref{s2:lemCap}, \ref{s2:propOV}, \ref{s2:lemEL}, \ref{s2:defHBtp}, \ref{s2:lemGC}, \ref{s2:lemOVgeneric}, \ref{s2:propStructure}}
+\end{proposition}
+
+\begin{proof}
+(a) As $u\notin\Dups_r$, $u$ lies in exactly one leaf of the two-level
+recursion, and $u\in Y^0$, so that leaf is $Y$. If $u$ lay in two $s=0$ pieces,
+it would lie in a leaf below each of them (Lemma~\ref{s2:lemSEP}(0)), i.e.\ in
+two leaves; so $u$ lies in a unique piece $\piece$, and $Y$ is a leaf of the
+$\tau$-run of $\piece$ (by Lemma~\ref{s2:lemCap}(ii) this is a
+Lemma~14$^\tau$ run, although only its split structure is used below). By
+Lemma~\ref{s2:lemSEP}(i),(ii) applied to the two-level recursion, every edge of
+$G'_r$ at $u$ is either an edge of the leaf $Y$, i.e.\ of $X^0_Y$, or deleted
+at some split on the path from the root to $Y$. The splits of the first level
+delete nothing (Lemma~\ref{s2:lemOVgeneric}, instance $c=1$), so deleted edges
+at $u$ are deleted by the $\tau$-run of $\piece$ and are edges of $\piece$. A
+deleted edge $ux$ has $x\notin Y^0$: at the split where it is deleted, $u$ and
+$x$ go to different children, each to only one, so they do not lie in a common
+leaf. Hence every edge $ux$ of $G'_r$ with $x\in Y^0$ is an edge of $X^0_Y$.
+
+Now let $ux\in E(G_{r+1})$, an edge of $G'_r$ not assigned at round $r$. Since
+$u\notin D_r$ (as $D_r\subseteq\Dups_r$), $Y$ is the only pre-part containing
+$u$, and $u\notin S_Y$.
+
+\emph{Case $ux$ deleted.} Then $x\notin Y^0$ and $x\in V(\piece)$; this is type
+($\beta$). (Such an edge is indeed never assigned: a light part or standalone
+pre-part containing both ends would contain $u$, hence would be the light part
+of $Y$ or the pre-part $Y$ itself, neither of which contains $x\notin Y^0$.)
+
+\emph{Case $ux\in E(X^0_Y)$.} If $Y$ is standalone, $ux$ is assigned to $Y$ by
+(R5)(1), a contradiction. So $Y$ is light. If $x\notin S_Y$, then $ux\in
+E(X_Y)$ is assigned by (R5)(1), a contradiction. So $x\in S_Y$: type
+($\alpha$). (Such an edge is indeed passed down: the only light part that could
+contain $u$ is $Y$, which does not contain $x$, and the only pre-part
+containing $u$ is the light pre-part $Y$, so steps (2) and (3) of (R5) do not
+apply.)
+
+The types are exclusive ($x\notin Y^0$ in ($\beta$), $x\in S_Y\subseteq Y^0$ in
+($\alpha$)). For standalone $Y$, Lemma~\ref{s2:lemEL} also shows directly that
+no edge of $G_{r+1}$ has both ends in $V(Y)=Y^0$. By
+Proposition~\ref{s2:propStructure}(iii) (or directly from (R1) and (R5)),
+$E(G_l)\subseteq E(G_{r+1})$ for $l>r$.
+
+(b) Let $h$ be a vertex and $l>r$. By (a), each $u$ counted has $hu$ deleted by
+the $\tau$-run of the unique piece $\piece$ containing $u$, and this piece is
+the piece whose $\tau$-run has $Y$ as a leaf; so all counted edges are deleted
+edges of one $\tau$-run, and each is of the form $hu$ with $u\in
+Y^0\setminus\Dups_r$. A vertex lying in two leaves of the $\tau$-run of
+$\piece$ lies in two leaves of the two-level recursion, so
+$Y^0\setminus\Dups_r\subseteq Y^0\setminus\Dup$, where $\Dup$ is taken in the
+$\tau$-run of $\piece$. Lemma~\ref{s2:lemThinCut}, applied to this $\tau$-run
+(all of whose splits are $\tau$-rule splits at threshold $\tau_r$) and its
+leaf $Y$, bounds the number of such edges by $\lceil\tau_r\rceil-1=\tau_r-1$
+($\tau_r$ is an integer by (R2)), and by $0$ if $h\in Y^0$. Distinct $u$ give
+distinct edges $hu$.
+
+(c) is (K3) of Proposition~\ref{s2:propOV}.
+
+The final paragraph of the statement: an ($\alpha$)-edge is an edge $ux$ with
+$u\in Y^0\setminus\Dups_r$ by the setting of (a); the ($\alpha$)-edges at a
+guest $x$ with core ends in $Y\setminus\Dups_r$ are edges of $X^0_Y$ between
+$x$ and $Y=Y^0\setminus S_Y$, and there are fewer than $\thGC_r(Y^0)$ of them
+by Lemma~\ref{s2:lemGC}(ii).
+\end{proof}
+
+\begin{proposition}[fresh and parentless mass]\label{s2:propParentless}
+For every valid $\HBtp$ run with $d_1\ge\Dstar$:
+\begin{enumerate}
+\item[(i)] If $x$ lies in a round-$r$ pre-part, then $H\defeq\home_r(x)$ is an
+ancestor of round $r$ containing $x$: $x\in H^0\setminus S_H=V(H)$ if $H$ is
+light, and $x\in H^0=V(H)$ otherwise. Hence, for $Z\in\Std_l$ and $x\in U_Z$,
+$x\in F_Z$ iff $j_0(x)\ge l-1$. A vertex is a port of at most one part per
+round, so it is a fresh port only at rounds $j_0(x)$ and $j_0(x)+1$,
+and\namedlabel{s2:K4}{(K4)}
+\begin{equation*}
+\sum_{l\le R}\ \sum_{Z\in\Std_l}|F_Z|\le2n.\tag*{(K4)}
+\end{equation*}
+\item[(ii)] (admissible parents) If $Y$ is a light part of round $r\le l-2$ and
+$Z$ is a light part of round $l\le R$, then
+\[
+|Y|\ge P_r/2\ge P_{l-2}/2\ge M_l\log^4M_l\ge|Z|\,L_Z^4.
+\]
+\item[(iii)] Let $\Bad$ be \emph{any} set of light parts. Call a pair $(v,Z)$,
+with $Z$ a light part of some round $l$ and $v\in Z$, \emph{parentless with
+respect to $\Bad$} if no light part outside $\Bad$ of a round at most $l-2$
+contains $v$. Then the number of such pairs is at most
+\[
+2n+\sum_{Y\in\Bad}|Y|\,\bigl(R-r(Y)\bigr).
+\]
+More precisely, a vertex $v$ is in parentless pairs only at its light parts of
+rounds $j_1(v)$ and $j_1(v)+1$, and at the later rounds at which the light part
+of round $j_1(v)$ containing $v$ lies in $\Bad$.
+\end{enumerate}
+\deps{\ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s2:lemCap}, \ref{s2:defAncestors}, \ref{s2:defHBtp}}
+\end{proposition}
+
+\begin{proof}
+(i) By definition $H=\home_r(x)$ is a pre-part containing $x$. If $H$ is light,
+then $x\notin S_H$, because $S_H$ consists of vertices whose home is not $H$;
+so $x\in H^0\setminus S_H=V(H)$, and the light part $H$ is an ancestor of round
+$r$. If $H$ is standalone, it is an ancestor with $V(H)=H^0\ni x$.
+
+Let $Z\in\Std_l$ and $x\in U_Z\subseteq Z^0$, so $j_0(x)\le l$. If $l\le2$,
+then $x\in F_Z$ by definition and $j_0(x)\ge1\ge l-1$. Let $l\ge3$. If
+$j_0(x)\le l-2$, then $\home_{j_0(x)}(x)$ is an ancestor of round $j_0(x)\le
+l-2$ containing $x$, so $\anc_l(x)\ne\emptyset$ and $x\notin F_Z$. Conversely,
+if $\anc_l(x)\ne\emptyset$, then $x\in V(Y)\subseteq Y^0$ for a pre-part $Y$ of
+a round at most $l-2$, so $j_0(x)\le l-2$. Hence $x\in F_Z$ iff $j_0(x)\ge
+l-1$.
+
+The port sets $U_Z$ of distinct $Z\in\Std_l$ are disjoint
+(Proposition~\ref{s2:propStructure}(iv)), so $x$ is a port of at most one part
+per round. If $x$ is a fresh port at round $l$ then $j_0(x)\le l$ (it lies in
+$Z^0$) and $j_0(x)\ge l-1$, so $l\in\{j_0(x),j_0(x)+1\}$. Summing over $x$
+gives $\sum_l\sum_Z|F_Z|\le2n$.
+
+(ii) $|Y|\ge P_r/2$ by Proposition~\ref{s2:propStructure}(iv). As $\lambda$ is
+non-increasing in the round (Lemma~\ref{s2:lemTower}(a)) and $r\le l-2$,
+$P_r\ge P_{l-2}$. As $l\ge r+2\ge3$, $P_{l-2}/2\ge M_l\log^4M_l$ by
+Lemma~\ref{s2:lemTower}(b). Finally $|Z|\le|Z^0|\le M_l$ by
+Lemma~\ref{s2:lemCap}(ii), and $L_Z=\log|Z|\le\log M_l$.
+
+(iii) Fix a vertex $v$ that lies in some light part, and let $j_1\defeq
+j_1(v)$ and $Y_1(v)$ be the light part of round $j_1$ containing $v$. By
+Proposition~\ref{s2:propStructure}(iv), $v$ lies in at most one light part per
+round, so the pairs $(v,Z)$ correspond to distinct rounds $l\ge j_1$. If $l\ge
+j_1+2$ and $Y_1(v)\notin\Bad$, then $Y_1(v)$ is a light part outside $\Bad$ of
+round $j_1\le l-2$ containing $v$, so $(v,Z)$ is not parentless. Hence the
+parentless pairs of $v$ are at the rounds $j_1$ and $j_1+1$ (at most two
+pairs), and, if $Y_1(v)\in\Bad$, at rounds $l$ with $j_1+2\le l\le R$ (at most
+$R-j_1$ pairs). Summing over $v$, the number of parentless pairs is at most
+\[
+2n+\sum_{v:\,Y_1(v)\in\Bad}\bigl(R-r(Y_1(v))\bigr)\le2n+\sum_{Y\in\Bad}
+\sum_{v\in Y}\bigl(R-r(Y)\bigr)=2n+\sum_{Y\in\Bad}|Y|\bigl(R-r(Y)\bigr),
+\]
+since $v\in Y_1(v)$.
+
+Part (iii) holds for every set $\Bad$. Its argument uses only that the light
+part of round $j_1(v)$ containing $v$ is a light part outside $\Bad$; so, when
+it is applied, every reason for which a light part is not used as a parent must
+place that part in $\Bad$. In the later application this means that $\Bad$
+consists of the light parts that are demoted \emph{or} parent-bad, not only the
+demoted ones.
+\end{proof}
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular}{p{4.6cm}p{2.6cm}p{3.4cm}p{3.2cm}}
+\hline
+quantity & plain $\HBs$ & $\HBtp$ (used here) & where proved\\
+\hline
+$\sum|Z^0|$ over round-$r$ pre-parts & $1.28\,n$ & $1.37\,n$ ($1.21\,n$ on
+the composite tree) & Prop.~\ref{s2:propOV}, (K1)\\
+duplication at nodes of size $\ge P$ & $3.5\,\eps S/\log P$ &
+$5.5\,\eps S/\log P$ & Lemma~\ref{s2:lem14tau}(b)\\
+ancestors of rounds $\le l-2$ ($\nu_l$) & $2.6\,n/P_{l-2}$ &
+$2.74\,n/P_{l-2}$ & Lemma~\ref{s2:lemTower}(b)\\
+$\dup_r$ (and $|D_r|$) & $4.5\,\eps n/\log P_r$ & $7.6\,\eps n/\log P_r$ &
+Prop.~\ref{s2:propOV}, (K2)\\
+$\sum_{Z\in\Std_r}|A_Z|$ & $9\,\eps n/\log P_r$ & $15.2\,\eps n/\log P_r$ &
+Prop.~\ref{s2:propOV}, (K2)\\
+mass of pre-parts failing (L1) & $18\,\eps n/\log P_r$ &
+$30.4\,\eps n/\log P_r$ & Prop.~\ref{s2:propOV}, (K3)\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Overlap constants of plain $\HBs$ and of $\HBtp$; only the
+right-hand column is used in this paper.}\label{s2:tabTauConstants}
+\end{table}
+
+\begin{remark}[constants of $\HBtp$ versus plain $\HBs$]\label{s2:remTauConstants}
+Plain $\HBs$ is the procedure of Definition~\ref{s2:defHBtp} in which the
+second level of (R3) is the recursion of \cite[Lemma~14]{BM} at $s=s_l$ (no
+$\tau$-rules) and (GC) is omitted; $\HBt$ has the $\tau$-rules but no (GC). The
+overlap constants change because the separator of a $\tau$-split may exceed
+the separator $N$ of \cite{BM} by $|\Hout|+|\Hin|$, which raises the charge in
+Lemma~\ref{s2:lemOVgeneric} from $c=1$ to $c=1.6$ at the second level.
+Table~\ref{s2:tabTauConstants} lists the values; only the right-hand column is
+used in this paper. The left-hand column is recorded for comparison only;
+it is neither used nor proved here.
+\deps{\ref{s2:propOV}, \ref{s2:lem14tau}, \ref{s2:lemTower}, \ref{s2:defHBtp}, \ref{s2:lemOVgeneric}}
+\end{remark}
+

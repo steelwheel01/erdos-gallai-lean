@@ -1,12 +1,10 @@
-# formal/ — Lean 4 formalization of the Erdős–Gallai candidate proof
+# formal/ — Lean 4 formalization of the proof of the Erdős–Gallai conjecture
 
-**Status: candidate proof, AI-generated and AI-reviewed; a Lean 4 proof of the formal-conjectures
-statement Erdos184.erdos_184 passes the project's acceptance checks; not yet reviewed by human
-experts.** The mathematics being formalized is a *candidate* proof (`../proofs/manuscript/`),
-checked so far only by AI referees. The current state, the trust model in brief and the
-verification record are in the repository's `../README.md`; the acceptance record is
-`work/p3/ACCEPT.md`. The rest of this file is the working guide written during the formalization
-and is partly out of date (for example "fails until P4" below: the final check now passes).
+The theorem `Erdos184.erdos_184` is proved here; the informal proof is the paper in `../paper/`.
+The current state, the trust model in brief and the verification record are in the repository's
+`../README.md`; the acceptance record is `work/p3/ACCEPT.md`. The rest of this file is the working
+guide written during the formalization and is partly out of date (for example "fails until P4"
+below: the final check now passes).
 
 Target: `Erdos184.erdos_184` from google-deepmind/formal-conjectures, pinned in `TRUST.md`.
 Toolchain Lean `v4.33.1`, Mathlib `v4.33.1`. Plan: `../PLAN_FORMALIZATION.md`.

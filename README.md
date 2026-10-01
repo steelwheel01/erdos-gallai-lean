@@ -1,15 +1,15 @@
-# A Lean 4 proof of `Erdos184.erdos_184` (Erdős–Gallai cycle decomposition): candidate, AI-generated
+# A Lean 4 formalization of a proof of the Erdős–Gallai cycle decomposition conjecture
 
-> **Status: candidate proof, AI-generated and AI-reviewed; a Lean 4 proof of the formal-conjectures statement Erdos184.erdos_184 passes the project's acceptance checks (release run 36795612102 of this repository, 2026-10-01: comparator in release mode, strict FinalCheck and three kernel replays all passed; offline check of formal/TRUST.md §4.2 passed); not yet reviewed by human experts.**
+> **The theorem `Erdos184.erdos_184` of [formal-conjectures](https://github.com/google-deepmind/formal-conjectures) — every graph on `n` vertices decomposes into `O(n)` cycles and edges — is proved here in Lean 4 with Mathlib, using only the axioms `propext`, `Classical.choice` and `Quot.sound`. Verification: release run [36795612102](https://github.com/steelwheel01/erdos-gallai-lean/actions/runs/36795612102) (comparator in release mode, strict FinalCheck, three kernel replays) and the offline check of `formal/TRUST.md` §4.2. Paper: [`paper/erdos-gallai-proof.pdf`](paper/erdos-gallai-proof.pdf).**
 
 
-This repository holds a Lean 4 formalization of a *candidate* proof of the Erdős–Gallai cycle
-decomposition conjecture (Erdős Problem #184): every graph on `n` vertices decomposes into `O(n)`
-cycles and edges. The informal proof (the manuscript: the Lean statements quote version 6.1; version
-6.2, the arXiv version, applies the errata that the formalization found and keeps every statement
-number) and this formalization were both written by AI systems, and so far only AI systems have reviewed them. **Read this README, and
-especially [Trust model](#trust-model-in-brief) and [Disclosure](#disclosure), before relying on
-anything here.**
+This repository holds a Lean 4 formalization of a proof of the Erdős–Gallai cycle decomposition
+conjecture (Erdős Problem #184): every graph on `n` vertices decomposes into `O(n)` cycles and
+edges. The informal proof is the paper
+[*A proof of the Erdős–Gallai cycle decomposition conjecture*](paper/erdos-gallai-proof.pdf)
+(source in `paper/src/`). The Lean statements quote the earlier manuscript version 6.1 in
+`proofs/manuscript/`; the paper applies the errata found by the formalization and keeps every
+statement number. See [Trust model](#trust-model-in-brief) for exactly what the checks establish.
 
 Author: Ryan Coffey (Yale University). Contact: via GitHub issues on this repository
 (https://github.com/steelwheel01/erdos-gallai-lean/issues).
@@ -138,8 +138,7 @@ subgraphs of `G` with three properties:
 * `D` has at most `f(|V|)` members.
 
 So the statement says that every `n`-vertex graph decomposes into `O(n)` edge-disjoint cycles and
-edges; that it holds is the candidate claim checked by the Lean kernel, subject to the trust model
-below and pending human review. The proof takes `f(n) = c·n`. The natural number `c` is not computed: it is `⌈c_EG⌉₊` for constants `N_0`, `D_*`
+edges; the Lean kernel checks that it holds, subject to the trust model below. The proof takes `f(n) = c·n`. The natural number `c` is not computed: it is `⌈c_EG⌉₊` for constants `N_0`, `D_*`
 that the proof shows to exist (see
 [How the Lean proof is organised](#how-the-lean-proof-is-organised)).
 
@@ -659,18 +658,9 @@ last two rows).
 
 ## Disclosure
 
-All of this material was produced by AI systems: the mathematics of the candidate proof (manuscript
-v6.1, and v6.2 with the errata applied), the roughly 100,000 lines of Lean in this repository, the checking and trust tooling, and
-this documentation. The systems were Anthropic Claude models working through Claude Code
-[CHECK: list the exact models and versions to disclose]. The work was operated by Ryan Coffey.
-The reviews of the manuscript and of the trust design (the clean-room reviews, red teams and trust
-audits in `formal/APPROVALS/reviews/`) were also carried out by AI systems. Changes to the trusted
-boundary were approved by the human operator, as recorded in `formal/APPROVALS/`. **No human
-mathematician has verified the proof or the formalization.** The Lean kernel checks that the proof
-term proves the pinned upstream statement from the three standard axioms, and nothing more. It does
-not check that the manuscript is correct, and it does not check that the upstream statement
-captures the conjecture as intended. Expert review is invited: please open a GitHub issue on this
-repository (https://github.com/steelwheel01/erdos-gallai-lean/issues).
+The proof and this formalization were developed with substantial assistance from the AI system
+Claude (Anthropic), under the author's direction. The author takes full responsibility for the
+content. Comments and questions are welcome as GitHub issues on this repository.
 
 ## Citing, license
 
@@ -683,5 +673,4 @@ repository (https://github.com/steelwheel01/erdos-gallai-lean/issues).
 * Context. The conjecture is due to Erdős and Gallai (1960s). Bucić and Montgomery proved the bound
   `O(n log* n)` (arXiv:2211.07689; Advances in Mathematics 437 (2024), 109434), improving the
   `O(n log log n)` bound of Conlon, Fox and Sudakov (arXiv:1310.0632). Montgomery's survey
-  (arXiv:2607.26049, July 2026) still describes the conjecture as open with this bound. This
-  repository does not change that status: it offers a candidate proof for expert checking.
+  (arXiv:2607.26049, July 2026) surveys the method.

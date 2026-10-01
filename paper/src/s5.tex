@@ -1,0 +1,400 @@
+%% ======================================================================
+%% Section s5: Light parts: Theorem U machinery and K-RED
+%% (part of the proof of the main theorem)
+%% ======================================================================
+\section{Light parts: Theorem U machinery and K-RED}\label{s5:sec}
+
+This section treats the light parts of the hierarchy $\HBtp$. Each light part runs the four-phase P-vortex of Lemma~\ref{s4:lemPV} on its own edges. The paths that the vortex cannot close inside the part (the \emph{arcs}, whose two ends are rooted in light parts two or more rounds back) are chained over one quotient multigraph whose nodes are all admissible parents of all earlier rounds. The connectors run through lent colour classes of the parents, inside random vertex sets (\emph{zones}) that are pairwise disjoint over all parents of all rounds. Lemma K-RED, the last lemma of this section, collects the result: all edges outside the standalone pre-parts and outside the externally lent edges decompose into $(\Dstar/2+\cKRED+\epsK(\Dstar))n+\cVX\,\mathrm{dem}+\cPV\,\mathrm{lp}$ objects, where $\mathrm{dem}$ and $\mathrm{lp}$ are stage-1 quantities whose weighted sum has expectation at most $\epsU(\Dstar)n$.
+
+\paragraph{Setting of this section.} Throughout, $G$ is a graph on $n\ge\Nzero$ vertices with $d_1\ge\Dstar$; $\Dstar$ satisfies \Gc{1}--\Gc{4} (Condition~\ref{s1:condGamma}); a valid $\HBtp$ run on $G$ is fixed (Definition~\ref{s2:defHBtp}); and the stage-1 lending data of Definition~\ref{s3:defCOL} are drawn. Every lemma below is stated for every outcome of the stage-1 data that it does not name; probabilities are taken only over the random labels named in each statement. For a light part $Y$ we write $r=r(Y)$ for its round, $L_Y=\log_2|Y|$, $H_Y=X_Y$, and we use $J_Y=\lfloor\log_2(L_Y/8)\rfloor$ and $\kown=4J_Y+1\le L_Y$ from Definition~\ref{s3:defCOL}(iii). We shall use repeatedly the following consequences of Section~\ref{s2:sec}: for a light part $Y$ of round $r$,
+\begin{equation}\label{s5:eqLY}
+|Y|\ge P_r/2\ge\lambda_r^{103}/2,\qquad L_Y\ge 103\log_2\lambda_r-1\ge 102\log_2\lambda_r,\qquad R-r\le 2\logs d_r+2\le\log_2\lambda_r ,
+\end{equation}
+by Proposition~\ref{s2:propStructure}(iv), $P_r=\lceil\lambda_r^{\Cp}\rceil$ with $\Cp=103$, and Lemma~\ref{s2:lemTower}(a),(d). In particular $R-r\le L_Y/102$. Moreover, for every vertex $v$,
+\begin{equation}\label{s5:eqZp}
+\sum_{Y\ni v}L_Y^{-2}\ <\ \tfrac12 ,
+\end{equation}
+the sum over all light parts $Y$ containing $v$. Indeed, by Proposition~\ref{s2:propStructure}(iv), $v$ lies in at most one light part per round; let $Y_r$ denote the light part of round $r$ containing $v$, if there is one. By \eqref{s5:eqLY}, $L_{Y_r}^{-2}\le(102\log_2\lambda_r)^{-2}$. For $r<R$, Lemma~\ref{s2:lemTower}(a) gives $\lambda_r\ge d_{r+1}^{1/\Aexp}=2^{\lambda_{r+1}/\Aexp}$, hence
+\[
+\log_2\lambda_r\ \ge\ \lambda_{r+1}/\Aexp\ =\ 2^{\log_2\lambda_{r+1}}/\Aexp\ \ge\ 2\log_2\lambda_{r+1},
+\]
+because $x\defeq\log_2\lambda_{r+1}\ge\log_2\log_2\Dstar$, so that \Gc{1}(a),(b) (Condition~\ref{s1:condG1}) at $x$ give $x\ge2^8$ and $2^{x}\ge2^{14}\Aexp x^3\ge 2\Aexp x$. Hence $\log_2\lambda_r\ge 2^{R-r}\log_2\lambda_R\ge 2^{R-r}\cdot 2^8$, by \Gc{1}(a) at $\log_2\lambda_R$, and
+\[
+\sum_{Y\ni v}L_Y^{-2}\ \le\ \sum_{r\le R}(102\log_2\lambda_r)^{-2}\ \le\ (102\cdot 2^8)^{-2}\sum_{k\ge 0}4^{-k}\ \le\ \tfrac43\,(102\cdot 2^8)^{-2}\ <\ \tfrac12 .
+\]
+
+\subsection{Zones}
+
+\begin{definition}[vertex choice, sublabels and zones; stage 1b]\label{s5:defZones}
+For a light part $Y$ of round $r$ (Definition~\ref{s2:defAncestors}) put $\zp_Y\defeq L_Y^{-2}$ and $\Tslot_Y\defeq\lceil L_Y^2\rceil$ (as in Definition~\ref{s3:defCOL}). Independently for every vertex $v$ of $G$, and independently of all other stage-1 data (the colourings and the JS labels of Definition~\ref{s3:defCOL}, and any further stage-1 labels), draw
+\[
+\mathrm{choice}(v)\in\{\mathrm{none}\}\cup\{Y:\ Y\text{ a light part with }v\in Y\text{ and }r(Y)\le R-2\},
+\]
+with $\Prob(\mathrm{choice}(v)=Y)=\zp_Y$ for each such $Y$ and $\mathrm{choice}(v)=\mathrm{none}$ with the remaining probability (which is at least $1/2$, since $\sum_Y\zp_Y\le\sum_{Y\ni v}L_Y^{-2}<1/2$ by \eqref{s5:eqZp}, the first sum over the light parts $Y$ available to $\mathrm{choice}(v)$). If $\mathrm{choice}(v)=Y$, the vertex $v$ also draws, independently and uniformly, a \emph{sublabel}
+\[
+(l,c,\uslot)\qquad\text{with}\qquad r(Y)+2\le l\le R,\quad c\in[4],\quad \uslot\in[\Tslot_Y].
+\]
+The sublabels available to $Y$ are exactly the indices of the family $\IU$ of $Y$ in Definition~\ref{s3:defCOL}(ii). For such an index put
+\[
+\Zone_{Y,l,c,\uslot}\defeq\{v\in Y:\ \mathrm{choice}(v)=Y\text{ and the sublabel of $v$ is }(l,c,\uslot)\}.
+\]
+For a round $l$ and a vertex $v$ we say that $v$ \emph{carries a round-$l$ zone} if $\mathrm{choice}(v)\ne\mathrm{none}$ and the sublabel of $v$ has first coordinate $l$; the \emph{phase} of that zone is then the second coordinate $c$. Equivalently, $v$ carries a round-$l$ zone of phase $c$ iff $v\in\Zone_{Y,l,c,\uslot}$ for some light part $Y$ and some $\uslot$. A \emph{round-$l$ phase-$c$ zone} is any set $\Zone_{Y,l,c,\uslot}$.
+\deps{\ref{s2:defAncestors}, \ref{s3:defCOL}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:condG1}}
+\end{definition}
+
+\begin{lemma}[zones]\label{s5:lemZones}
+\begin{enumerate}
+\item[(i)] For every vertex $v$, $\sum_{Y}\zp_Y\le 1/2$, the sum over all light parts $Y\ni v$.
+\item[(ii)] For every light part $Y$ of round $r\le R-2$ and every sublabel $(l,c,\uslot)$ of $Y$, the set $\Zone_{Y,l,c,\uslot}$ is exactly a $\rho_Y$-random subset of $Y$ (each vertex of $Y$ independently, product measure), where
+\[
+\rho_Y\defeq\frac{\zp_Y}{(R-r-1)\cdot 4\cdot\Tslot_Y}\ \ge\ \frac{1}{12L_Y^5}.
+\]
+\item[(iii)] All zones $\Zone_{Y,l,c,\uslot}$, over all light parts $Y$ and all sublabels $(l,c,\uslot)$ of $Y$, are pairwise disjoint.
+\item[(iv)] The family of all zones is independent of the colourings (i)--(iii) and of the JS labels (iv) of Definition~\ref{s3:defCOL}.
+\end{enumerate}
+\deps{\ref{s5:defZones}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:condG1}, \ref{s3:defCOL}}
+\end{lemma}
+
+\begin{proof}
+(i) Since $\zp_Y=L_Y^{-2}$, this is \eqref{s5:eqZp}, which is proved in the setting paragraph of this section. In particular the distribution of $\mathrm{choice}(v)$ in Definition~\ref{s5:defZones} is well defined, and $\Prob(\mathrm{choice}(v)=\mathrm{none})\ge 1/2$.
+
+(ii) Let $Y$ have round $r\le R-2$ and fix a sublabel $(l,c,\uslot)$ of $Y$. The number of sublabels of $Y$ is $(R-r-1)\cdot4\cdot\Tslot_Y$, since $l$ ranges over the $R-r-1\ge 1$ values $r+2,\dots,R$. For $v\in Y$,
+\begin{align*}
+\Prob\bigl(v\in\Zone_{Y,l,c,\uslot}\bigr)&=\Prob(\mathrm{choice}(v)=Y)\cdot\Prob\bigl(\text{sublabel }(l,c,\uslot)\,\big|\,\mathrm{choice}(v)=Y\bigr)\\
+&=\frac{\zp_Y}{(R-r-1)\cdot4\cdot\Tslot_Y}=\rho_Y .
+\end{align*}
+The event $\{v\in\Zone_{Y,l,c,\uslot}\}$ is a function of the pair $(\mathrm{choice}(v),\text{sublabel of }v)$, and these pairs are independent over $v$. So $\Zone_{Y,l,c,\uslot}$ contains each vertex of $Y$ independently with probability exactly $\rho_Y$. For the lower bound, \eqref{s5:eqLY} gives $R-r-1\le L_Y/102$, and $\Tslot_Y=\lceil L_Y^2\rceil\le 2L_Y^2$. Hence
+\[
+\rho_Y\ \ge\ \frac{L_Y^{-2}}{(L_Y/102)\cdot4\cdot 2L_Y^2}\ =\ \frac{102}{8L_Y^5}\ \ge\ \frac{1}{12L_Y^5}.
+\]
+
+(iii) Each vertex $v$ has a single value $\mathrm{choice}(v)$ and, if it is not $\mathrm{none}$, a single sublabel. So $v$ lies in at most one set $\Zone_{Y,l,c,\uslot}$, namely the one with $Y=\mathrm{choice}(v)$ and $(l,c,\uslot)$ its sublabel. Distinct zones are therefore disjoint.
+
+(iv) The zones are functions of the variables $\mathrm{choice}(v)$ and of the sublabels, which by Definition~\ref{s5:defZones} are drawn independently of the colourings and of the JS labels.
+\end{proof}
+
+\subsection{Stage-2 statuses of light parts and their probabilities}
+
+\begin{definition}[stage-2 statuses of light parts]\label{s5:defStages}
+Fix an outcome of the stage-1 data (the colourings and labels of Definition~\ref{s3:defCOL} and the choices and sublabels of Definition~\ref{s5:defZones}). Let $Y$ be a light part of round $r$. Then $H_Y=X_Y$ is a $(2^{-6},s_r/2)$-expander on $Y$ (Definition~\ref{s2:defAncestors} and Proposition~\ref{s2:propStructure}(i)). Put $\vm_Y\defeq\lceil L_Y^6\rceil$ and $\vb_Y\defeq\lceil 2^7L_Y^2\vm_Y\rceil$. Since $s_r\ge\lambda_r^{100}$ and $L_Y\le 2\lambda_r$ (Lemma~\ref{s2:lemTower}(b)), we have $2\vm_Y\le 2^8\lambda_r^6+2\le s_r/2$. So Lemma~\ref{s3:lemHB}, applied to $X_Y$ with $\eps'=2^{-6}$ and $m=\vm_Y$ (then $b=\lceil 2^7L_Y^2\vm_Y\rceil=\vb_Y$), provides sets $\Aw_Y(w)\subseteq N_{X_Y}(w)$, $w\in Y$, with $|\Aw_Y(w)|=\vm_Y$ such that every vertex lies in at most $\vb_Y$ of them. We fix one such family by a fixed rule; it depends only on the run. Let $\vM_Y$ denote the own colour class $\vM$ of $Y$ (Definition~\ref{s3:defCOL}(iii)).
+\begin{itemize}
+\item \textup{(E1)} holds for $Y$ if for every round $l$ with $r\le l\le R$ and every $w\in Y$:
+\[
+\#\{u\in\Aw_Y(w):\ wu\in\vM_Y\ \text{and $u$ carries no round-$l$ zone}\}\ \ge\ L_Y^5/8 .
+\]
+Only the instance $l=r$ is used later in this section; the instances $l>r$ (the child rounds of $Y$) are included so that one event serves every round, and they are paid for in the failure bound below.
+\item $Y$ is \emph{demoted} if (E1) fails for $Y$ or a COL(a) event fails for $Y$, that is, if one of $\Own_Y$, $\Lend_Y$ is not a $(2^{-6},s_r/8)$-expander on $Y$, or some lent class of $Y$ is not a $(2^{-6},s_{\mathrm{lent}})$-expander on~$Y$ with $s_{\mathrm{lent}}\defeq s_r/(16\klend(Y))$, or some own class of $Y$ is not a $(2^{-6},s_{\mathrm{own}})$-expander on $Y$ with $s_{\mathrm{own}}\defeq s_r/(16\kown)$ (Lemma~\ref{s3:lemCOL}(a) with $\eps_Y=2^{-6}$, $s_Y=s_r/2$).
+\item $Y$ is \emph{parent-bad} if for some $(l,c,\uslot)$ with $r+2\le l\le R$, $c\in[4]$, $\uslot\in[\Tslot_Y]$, the class $\LU_{Y,l,c,\uslot}$ is not $(2^{12}L_Y^4,\,t_Y)$-path connected through $\Zone_{Y,l,c,\uslot}$ (in the multiset sense of Cited result~\ref{s1:citDef7}), where $t_Y=\lceil\lambda_r^{1.6}\rceil$ is the U-multiplicity parameter of Definition~\ref{s3:defCOL}. If $r\ge R-1$, the family $\IU$ of $Y$ is empty (Definition~\ref{s3:defCOL}(ii)), so $Y$ has no sublabels and no zones and is never parent-bad; Lemma~\ref{s5:lemZones}(ii) is then vacuous, and Lemma~\ref{s5:lemE1}(c) for $Y$ reduces to (b).
+\item A \emph{good parent} is a light part that is neither demoted nor parent-bad. Put
+\[
+\Bad\defeq\{\text{demoted light parts}\}\cup\{\text{parent-bad light parts}\}.
+\]
+\item For a non-demoted light part $Z$ of round $l$ put
+\[
+\Rt(Z)\defeq Z\cap\bigcup\{Y:\ Y\text{ a good parent of round }\le l-2\},\qquad \Pl(Z)\defeq Z\setminus\Rt(Z),
+\]
+and give every $v\in\Rt(Z)$ the fixed parent $\parU(v)$, the good parent of the smallest round $\le l-2$ that contains $v$. (It is unique: $v$ lies in at most one light part per round, Proposition~\ref{s2:propStructure}(iv).) Since $v$ lies in at most one light part of round $l$, $\parU(v)$ depends only on $v$ and on the round $l$ of the part in which it is used.
+\item $\mathrm{dem}\defeq\sum_{Y\text{ demoted}}|Y|$ and $\mathrm{lp}\defeq\sum_{Y\in\Bad}|Y|\,(R-r(Y))$.
+\end{itemize}
+A pair $(v,Z)$ with $Z$ a light part of round $l$ and $v\in\Pl(Z)$ is exactly a pair that is parentless with respect to the set $\Bad$ in the sense of Proposition~\ref{s2:propParentless}(iii): no light part outside $\Bad$ of a round $\le l-2$ contains $v$. Hence, by Proposition~\ref{s2:propParentless}(iii),
+\begin{equation}\label{s5:eqPl}
+\sum_{Z}|\Pl(Z)|\ \le\ 2n+\mathrm{lp},
+\end{equation}
+the sum over all non-demoted light parts $Z$ of all rounds. The statuses (E1), demoted, parent-bad, good parent, the set $\Bad$, the sets $\Rt(Z)$, $\Pl(Z)$, the map $\parU$, and the numbers $\mathrm{dem}$, $\mathrm{lp}$ are deterministic functions of the stage-1 outcome: (E1) depends only on the colouring of $Y$ and on the choices and sublabels, COL(a) only on the colouring of $Y$, and parent-bad only on the colouring of $Y$ and the zones of $Y$. None of them depends on any edge set formed later (remainders, junk, lent edges used by consumers) or on any later random choice.
+\deps{\ref{s5:defZones}, \ref{s3:defCOL}, \ref{s3:lemHB}, \ref{s2:propParentless}, \ref{s2:defAncestors}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:citDef7}}
+\end{definition}
+
+In \eqref{s5:eqPl}, note that a vertex $v$ can be parentless only in its light parts at rounds $j_1(v)$ and $j_1(v)+1$, and at those later rounds at which its light part of round $j_1(v)$ lies in $\Bad$, i.e.\ is demoted \emph{or} parent-bad. Both kinds of bad parts are counted in $\mathrm{lp}$.
+
+\begin{lemma}[bad probabilities]\label{s5:lemE1}
+Let $Y$ be a light part of round $r$. Over the stage-1 randomness:
+\begin{enumerate}
+\item[(a)] $\Prob(\text{(E1) fails for }Y)\le 3L_Y|Y|\exp(-L_Y^5/32)$;
+\item[(b)] $\Prob(Y\text{ is demoted})\le|Y|^{-2}/2$;
+\item[(c)] $\Prob(Y\in\Bad)\le|Y|^{-2}$.
+\end{enumerate}
+\deps{\ref{s3:lemCOL}, \ref{s3:lemHB}, \ref{s5:lemZones}, \ref{s5:defStages}, \ref{s1:citChernoffGen}, \ref{s3:defCOL}, \ref{s3:lemL15p}, \ref{s3:lemCOLJV}, \ref{s2:propStructure}, \ref{s2:lemTower}, \ref{s1:condG1}}
+\end{lemma}
+
+\begin{proof}
+(a) Fix a round $l$ with $r\le l\le R$ and a vertex $w\in Y$. For $u\in\Aw_Y(w)$ let $\chi_u$ be the indicator of the event that $wu\in\vM_Y$ and $u$ carries no round-$l$ zone. The sets $\Aw_Y(w)$ are fixed (Definition~\ref{s5:defStages}), so the only randomness in $\chi_u$ is the colour of the edge $wu$ and the pair (choice, sublabel) of the vertex $u$. The edges $wu$, $u\in\Aw_Y(w)$, are distinct, colours of distinct edges are independent (Definition~\ref{s3:defCOL}), the pairs (choice, sublabel) of distinct vertices are independent, and the two families are independent of each other (Lemma~\ref{s5:lemZones}(iv)). Hence the $\chi_u$, $u\in\Aw_Y(w)$, are independent. By the uniform split and the uniform own colouring of Definition~\ref{s3:defCOL}(i),(iii), $\Prob(wu\in\vM_Y)=\frac12\cdot\frac1{\kown}\ge\frac{1}{2L_Y}$, because $\kown=4J_Y+1\le L_Y$. By Lemma~\ref{s5:lemZones}(i), $\Prob(u\text{ carries a round-$l$ zone})\le\Prob(\mathrm{choice}(u)\ne\mathrm{none})\le 1/2$. Hence $\Prob(\chi_u=1)\ge 1/(4L_Y)$, and the count $\mathrm{cnt}_{w,l}\defeq\sum_{u\in\Aw_Y(w)}\chi_u$ is a sum of $\vm_Y$ independent indicators with mean $\mu\ge\vm_Y/(4L_Y)\ge L_Y^5/4$. By the Chernoff lower tail for sums of independent indicators (Cited result~\ref{s1:citChernoffGen}) with $\delta=1/2$,
+\[
+\Prob\bigl(\mathrm{cnt}_{w,l}<L_Y^5/8\bigr)\ \le\ \Prob\bigl(\mathrm{cnt}_{w,l}<\mu/2\bigr)\ \le\ \exp(-\mu/8)\ \le\ \exp(-L_Y^5/32).
+\]
+The number of rounds $l$ with $r\le l\le R$ is $R-r+1\le 2\logs d_r+3\le L_Y/102+1\le 3L_Y$ by \eqref{s5:eqLY}. A union bound over these rounds and over the $|Y|$ vertices $w$ gives~(a).
+
+(b) COL(a) is the conclusion of three applications of Lemma~15$^+$ (Lemma~\ref{s3:lemL15p}) in the proof of Lemma~\ref{s3:lemCOL}: with $k=2$ to $X_Y$ (giving $\Own_Y$, $\Lend_Y$); with $k=\klend(Y)$ to $\Lend_Y$ (the lent classes); with $k=\kown$ to $\Own_Y$ (the own classes). The hypotheses $s\ge 40kL$ of these applications are row~3 of Table~\ref{s3:tabCOLJV} (Lemma~\ref{s3:lemCOLJV}). If $r\ge R-1$, then $\klend(Y)=0$ and $\Lend_Y$ has no classes (Definition~\ref{s3:defCOL}(ii)), so only the applications with $k=2$ and $k=\kown$ occur. The second and third colourings are uniform given the split (Definition~\ref{s3:defCOL}(ii),(iii)), so Lemma~15$^+$ applies to them conditionally on the split, on the event that $\Lend_Y$ (respectively $\Own_Y$) is a $(2^{-6},s_r/8)$-expander; if that event fails, COL(a) has already failed in the first application. In each application each colour class fails with probability at most $2|Y|^{-5}$. Summing over the $2+\klend(Y)+\kown$ classes,
+\[
+\Prob(\text{COL(a) fails for }Y)\ \le\ 2\bigl(2+\klend(Y)+\kown\bigr)|Y|^{-5}\ \le\ 6|Y|^{-4},
+\]
+since $\klend(Y)\le\lambda_r^{3.3}\le|Y|$ if $r\le R-2$ (Lemma~\ref{s3:lemCOLJV}(i) and \eqref{s5:eqLY}), $\klend(Y)=0$ if $r\ge R-1$, and $\kown\le L_Y\le|Y|$. By (a) and $|Y|=2^{L_Y}$, $\Prob(\text{(E1) fails})\le 3L_Y2^{L_Y}e^{-L_Y^5/32}\le 2^{-4L_Y}=|Y|^{-4}$, because $\ln(3L_Y)+5L_Y\ln2\le L_Y^5/32$ for $L_Y\ge 10$ (and $L_Y\ge 102\cdot 2^8$ by \eqref{s5:eqLY} and \Gc{1}(a)). Hence $\Prob(Y\text{ demoted})\le 7|Y|^{-4}\le|Y|^{-2}/2$.
+
+(c) By Lemma~\ref{s5:lemZones}(ii),(iv), for every sublabel $(l,c,\uslot)$ of $Y$ the set $V_{l,c,\uslot}\defeq\Zone_{Y,l,c,\uslot}\subseteq V(Y)$ contains each vertex of $Y$ independently with probability $\rho_Y\ge 1/(12L_Y^5)$, independently of the colouring of $Y$. (The zones of $Y$ are dependent across indices, since they are disjoint; Lemma~\ref{s3:lemCOL}(c) allows this.) So Lemma~\ref{s3:lemCOL}(c), applied with this family, gives $\Prob(Y\text{ parent-bad})\le|Y|^{-2}/2$. With (b), $\Prob(Y\in\Bad)\le\Prob(Y\text{ demoted})+\Prob(Y\text{ parent-bad})\le|Y|^{-2}$.
+\end{proof}
+
+\begin{lemma}[expected demotion and lost-parent mass]\label{s5:lemExpect}
+Over the stage-1 randomness,
+\[
+\Ex\bigl[\cVX\,\mathrm{dem}+\cPV\,\mathrm{lp}\bigr]\ \le\ \epsU(\Dstar)\,n,\qquad\text{where}\qquad \epsU(\Dstar)\defeq 2462\,(\log_2\Dstar)^{-205}.
+\]
+Moreover $\epsU(\Dstar)\to0$ as $\Dstar\to\infty$.
+\deps{\ref{s5:lemE1}, \ref{s5:defStages}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:lemLacunary}, \ref{s1:condG1}, \ref{s2:propStructure}}
+\end{lemma}
+
+\begin{proof}
+By linearity and Definition~\ref{s5:defStages},
+\[
+\Ex\bigl[\cVX\,\mathrm{dem}+\cPV\,\mathrm{lp}\bigr]=\sum_{Y}|Y|\Bigl(80\,\Prob(Y\text{ demoted})+369\,(R-r(Y))\,\Prob(Y\in\Bad)\Bigr),
+\]
+the sum over all light parts $Y$. By Lemma~\ref{s5:lemE1}(b),(c), both probabilities are at most $|Y|^{-2}$; by \eqref{s5:eqLY}, $R-r\le 2\logs d_r+2\le\log_2\lambda_r$. Hence the term of $Y$ is at most
+\[
+|Y|^{-1}\bigl(80+369\,(2\logs d_r+2)\bigr)\ \le\ |Y|^{-1}\,449\log_2\lambda_r\ \le\ 898\,\lambda_r^{-103}\log_2\lambda_r ,
+\]
+using $|Y|\ge\lambda_r^{103}/2$. Light parts of round $r$ are ancestors of round $r$, and there are at most $1.37n/P_r\le 1.37n\lambda_r^{-103}$ of them (Proposition~\ref{s2:propOV}, (K1), with the $\HBtp$ constant). Therefore round $r$ contributes at most $1.37\cdot898\,n\,\lambda_r^{-206}\log_2\lambda_r\le 1231\,n\,\lambda_r^{-205}$. Let $F(x)\defeq x^{-205}$ on $[\log_2\Dstar,\infty)$. It is non-increasing, and $F(2^{x/\Aexp})=2^{-205x/\Aexp}\le x^{-205}/2=F(x)/2$ for $x\ge\log_2\Dstar$. Indeed, put $\mu\defeq\log_2x\ge\log_2\log_2\Dstar$; then \Gc{1}(a),(b) (Condition~\ref{s1:condG1}) at $\mu$ give $\mu\ge2^8$ and $x=2^\mu\ge2^{14}\Aexp\mu^3$, so $x/\Aexp\ge2^{14}\mu^3\ge\mu+1=\log_2x+1$ and $2^{-205x/\Aexp}\le2^{-205}x^{-205}\le x^{-205}/2$. (This is also the case $a=205$ of Lemma~\ref{s2:lemLacunary}(iv).) By Lemma~\ref{s2:lemLacunary}(ii), $\sum_{r\le R}F(\lambda_r)\le 2F(\log_2\Dstar)$. So the total is at most $2\cdot1231\,n\,(\log_2\Dstar)^{-205}=\epsU(\Dstar)n$. Finally, $\epsU(\Dstar)=2462\,(\log_2\Dstar)^{-205}\to0$ as $\Dstar\to\infty$.
+\end{proof}
+
+\paragraph{How Lemma~\ref{s5:lemExpect} is used.} It is an expectation bound over stage~1 only. It is used through a single Markov bound, with multiplier $3$, on one combined weighted stage-1 functional that contains $\cVX\,\mathrm{dem}+\cPV\,\mathrm{lp}$ as a summand (not through separate Markov bounds for $\mathrm{dem}$ and $\mathrm{lp}$: with multiplier $2$ each, the two failure probabilities could add up to $1$, and no outcome would be guaranteed). All statements below hold for every stage-1 outcome; the bounds on $\mathrm{dem}$ and $\mathrm{lp}$ enter only through that functional.
+
+\subsection{The child side}
+
+\begin{lemma}[child side]\label{s5:lemChild}
+Fix a stage-1 outcome and a non-demoted light part $Z$ of round $l$. Apply Lemma~\ref{s4:lemPV} to the vertex set $Z$ with the following data:
+\begin{itemize}
+\item $O\defeq H_Z=X_Z$, and the sets $\Aw(w)\defeq\Aw_Z(w)$ of Definition~\ref{s5:defStages} (so $\vm=\lceil L_Z^6\rceil$, $\vb=\lceil2^7L_Z^2\vm\rceil$);
+\item as own classes, the classes $\vR_{j,c}$ ($0\le j<J_Z$, $c\in[4]$) and $\vM=\vM_Z$ of the colouring of $\Own_Z$ in Definition~\ref{s3:defCOL}(iii);
+\item $\Rt\defeq\Rt(Z)$ and $\Pl\defeq\Pl(Z)$ (Definition~\ref{s5:defStages});
+\item $\extph(v)\defeq c$ if $v$ carries a round-$l$ zone and $c$ is its phase, and $\extph(v)\defeq *$ if $v$ carries no round-$l$ zone.
+\end{itemize}
+Then all hypotheses of Lemma~\ref{s4:lemPV} hold, including \textup{(E1$'$)}. Let $\mathcal{G}_Z$ be its good event $G_{\mathrm{PV}}$ for these data. It is an event over the stage-3 labels of $Z$ (the levels $\vlev$ on $\Pl(Z)$ and the labels $\vkap$ on $Z$); it is determined by the stage-1 outcome and these labels; and its conditional probability given the stage-1 outcome is at least $1/2-o(1)\ge1/3$. On $\mathcal{G}_Z$ the following holds for \emph{every} edge set $H_0(Z)$ with $\Own_Z\subseteq H_0(Z)\subseteq E_l(Z)$: there is a partition $H_0(Z)=H^{\mathrm{obj}}(Z)\sqcup H^{\mathrm{arc}}(Z)$ such that
+\begin{enumerate}
+\item[(a)] $H^{\mathrm{obj}}(Z)$ decomposes into at most $\cPV|\Pl(Z)|$ objects;
+\item[(b)] $H^{\mathrm{arc}}(Z)$ is the edge set of a family of pairwise edge-disjoint paths (the \emph{arcs} of $Z$), each with at least one edge and both ends in $\Rt(Z)$, and each carrying a phase $c\in[4]$, such that every vertex of a phase-$c$ arc, ends included, lies in no round-$l$ phase-$c$ zone;
+\item[(c)] $Z$ has at most $14(J_Z+1)|Z|$ arcs, and every vertex $x$ is an end of at most $\deg_{H_0(Z)}(x)\le|Z|-1$ arcs of $Z$;
+\item[(d)] if $\Rt(Z)=\emptyset$, in particular if $l\le2$, then $Z$ has no arcs.
+\end{enumerate}
+\deps{\ref{s4:lemPV}, \ref{s5:defStages}, \ref{s5:lemZones}, \ref{s3:lemCOL}, \ref{s2:propStructure}, \ref{s3:defCOL}, \ref{s1:condG3}}
+\end{lemma}
+
+\begin{proof}
+\emph{Hypotheses.} Put $N\defeq|Z|$ and $L\defeq L_Z=\log_2N$.
+\begin{itemize}
+\item $N\ge P_l/2\ge\Nzero$, by Proposition~\ref{s2:propStructure}(iv) and \Gc{3} (Condition~\ref{s1:condG3}).
+\item $O=X_Z$ is a spanning $(2^{-6},s_l/2)$-expander on $Z$ (Proposition~\ref{s2:propStructure}(i)), and $2\vm\le s_l/2$ (Definition~\ref{s5:defStages}). The sets $\Aw_Z(w)$ are Lemma-HB sets of $O$ with $\vm=\lceil L^6\rceil$ and $\vb=\lceil 2^7L^2\vm\rceil$, as Lemma~\ref{s4:lemPV} requires.
+\item $Z$ is not demoted, so COL(a) holds for $Z$: every own class is a spanning $(2^{-6},s')$-expander on $Z$ with $s'\defeq s_l/(16\kown)$ (Lemma~\ref{s3:lemCOL}(a)). By Lemma~\ref{s3:lemCOL}(e), $s'\ge 2^{145}L^{41}$ and $2\lceil L^6\rceil\le s'$. The index range of the own classes is $0\le j<J_Z=\lfloor\log_2(L/8)\rfloor$, $c\in[4]$, which is the range $0\le j<\vJ$ of Lemma~\ref{s4:lemPV}. The own classes are fixed in stage~1, before the stage-3 labels of $Z$ are drawn.
+\item $\Rt(Z)\sqcup\Pl(Z)=Z$ by definition.
+\item $\extph$ is a well-defined map $Z\to[4]\cup\{*\}$, because every vertex carries at most one zone (Lemma~\ref{s5:lemZones}(iii)).
+\item \textup{(E1$'$)}. For $u\in Z$ we have $\extph(u)=*$ iff $u$ carries no round-$l$ zone. Since $Z$ is not demoted, (E1) holds for $Z$; its instance at the round $l=r(Z)$ of $Z$ states that for every $w\in Z$, in particular for every $w\in\Pl(Z)$,
+\[
+\#\{u\in\Aw_Z(w):\ wu\in\vM_Z,\ \extph(u)=*\}\ \ge\ L^5/8 ,
+\]
+which is \textup{(E1$'$)}.
+\end{itemize}
+
+\emph{The good event.} By Lemma~\ref{s4:lemPV}, $G_{\mathrm{PV}}$ depends only on the own classes, on $\Rt$, on $\extph$ and on the stage-3 labels of $Z$. The own classes are stage-1 data; $\Rt(Z)$ is a deterministic function of stage~1 (Definition~\ref{s5:defStages}); $\extph$ is a function of the choices and sublabels (stage~1). So $\mathcal G_Z$ is determined by the stage-1 outcome and the stage-3 labels of $Z$. Its probability is at least $1/2-o(1)$ by Lemma~\ref{s4:lemPV}, and the $o(1)$ term is at most $1/100$ by \Gc{3}, so the probability is at least $1/3$. In particular $\mathcal G_Z$ does not depend on $H_0(Z)$.
+
+\emph{Conclusion.} Let $H_0(Z)$ satisfy $\Own_Z\subseteq H_0(Z)\subseteq E_l(Z)$. Every edge of $E_l(Z)$ has both ends in $Z$ (Proposition~\ref{s2:propStructure}(iii)), and $\Own_Z$ is the union of the own classes. So $H_0\defeq H_0(Z)$ is an edge set inside $Z$ containing all own classes, and on $G_{\mathrm{PV}}$ Lemma~\ref{s4:lemPV} gives $H_0(Z)=H^{\mathrm{obj}}\sqcup H^{\mathrm{arc}}$ with its properties (a)--(d). By Lemma~\ref{s4:lemPV}(b), every arc is a path with at least one edge and has two distinct ends. Now:
+\begin{itemize}
+\item (a) is Lemma~\ref{s4:lemPV}(a), since $369=\cPV$.
+\item (b): by Lemma~\ref{s4:lemPV}(b) the arcs are pairwise edge-disjoint paths with both ends in $\Rt$, each with a phase $c\in[4]$, and every vertex $x$ of a phase-$c$ arc has $\extph(x)\ne c$. If $x$ lay in a round-$l$ phase-$c$ zone $\Zone_{Y,l,c,\uslot}$, then $x$ would carry a round-$l$ zone of phase $c$, i.e.\ $\extph(x)=c$. So $x$ lies in no round-$l$ phase-$c$ zone.
+\item (c): Lemma~\ref{s4:lemPV}(c) bounds the number of arcs by $4(\vJ+1)N\le14(\vJ+1)N=14(J_Z+1)|Z|$ (the weaker constant $14$ is kept so that the constants of this section are unchanged) and the number of arcs ending at a vertex $x$ by $\deg_{H_0}(x)=\deg_{H_0(Z)}(x)\le N-1=|Z|-1$.
+\item (d): Lemma~\ref{s4:lemPV}(d) gives no arcs when $\Rt=\emptyset$. If $l\le2$ there is no round $\le l-2$, so $\Rt(Z)=\emptyset$.
+\end{itemize}
+Since $\mathcal G_Z$ does not depend on $H_0(Z)$, on $\mathcal G_Z$ the conclusion holds simultaneously for all admissible $H_0(Z)$; in particular it holds for whatever set $H_0(Z)$ the later processing order of this section produces. The stage-3 labels of distinct parts are independent, so outcomes in the events $\mathcal G_Z$ can be fixed part by part; no union bound over parts is used.
+\end{proof}
+
+\subsection{The parent side: chaining over U-bundles}
+
+For a round $l\ge3$ put $\bar J_l\defeq\max\{J_Z:\ Z\text{ a light part of round }l\}$ (and $\bar J_l\defeq0$ if there is none), and let $\nu_l$ be the number of ancestors of rounds $\le l-2$, as in Proposition~\ref{s2:propOV}.
+
+\begin{lemma}[parent side: multi-parent chaining over U-bundles]\label{s5:lemParent}
+Fix a stage-1 outcome and, for every non-demoted light part $Z$, a stage-3 outcome in the event $\mathcal G_Z$ of Lemma~\ref{s5:lemChild}. Fix a round $l$ with $3\le l\le R$ and, for every non-demoted light part $Z$ of round $l$, an edge set $H_0(Z)$ with $\Own_Z\subseteq H_0(Z)\subseteq E_l(Z)$; the arcs of $Z$ are those given by Lemma~\ref{s5:lemChild} for this $H_0(Z)$. For $c\in[4]$ the \emph{U-bundle} $\Bdl_{l,c}$ is the set of all phase-$c$ arcs of all non-demoted light parts of round $l$; $E(\Bdl_{l,c})$ denotes the union of their edge sets. Then for every $c\in[4]$ there is a set $\LentU_{l,c}$ of edges, disjoint from $E(\Bdl_{l,c})$, such that $E(\Bdl_{l,c})\cup\LentU_{l,c}$ decomposes into cycles and single edges, where:
+\begin{enumerate}
+\item[(i)] $\LentU_{l,c}\subseteq\bigcup_Y\bigcup_{\uslot\in[\Tslot_Y]}\LU_{Y,l,c,\uslot}$, the union over the good parents $Y$ of rounds $\le l-2$; $\LentU_{l,c}$ is the union of the edge sets of pairwise edge-disjoint \emph{connectors}, one per transition: a connector for a transition at the good parent $Y$ with slot $\uslot$ is a path in $\LU_{Y,l,c,\uslot}$ of length at most $2^{12}L_Y^4$ that joins the two vertices of the transition and has all its interior vertices in $\Zone_{Y,l,c,\uslot}$;
+\item[(ii)] the number of objects, summed over $c\in[4]$, is at most
+\[
+4\cdot14\,(\bar J_l+1)\,M_l(M_l+1)\,\nu_l\;+\;\mathrm{cap}_l,\qquad \mathrm{cap}_l\le\frac{14\,(\bar J_l+1)\,n}{(102\log_2\lambda_{l-2})^2},
+\]
+where $\mathrm{cap}_l$ is the number of \emph{visit-capping pieces}; and
+\[
+\sum_{l=3}^{R}\Bigl(4\cdot14\,(\bar J_l+1)M_l(M_l+1)\nu_l+\mathrm{cap}_l\Bigr)\ \le\ \epsChain(\Dstar)\,n,
+\]
+where
+\[
+\epsChain(\Dstar)\defeq\frac{614}{\Dstar}+\frac{\log_2\bigl(2\Aexp\log_2(\Aexp\log_2\log_2\Dstar)\bigr)}{371\,(\log_2\log_2\Dstar)^2};
+\]
+\item[(iii)] no other edge is used: every object consists of edges of $E(\Bdl_{l,c})\cup\LentU_{l,c}$, and every such edge lies in exactly one object.
+\end{enumerate}
+The sets $\LentU_{l,c}$ for distinct pairs $(l,c)$ are pairwise disjoint, and the objects and $\LentU_{l,c}$ depend only on the stage-1 outcome and on the bundle $\Bdl_{l,c}$. Moreover $\epsChain(\Dstar)\to0$ as $\Dstar\to\infty$.
+\deps{\ref{s5:lemChild}, \ref{s5:defStages}, \ref{s5:lemZones}, \ref{s3:defCOL}, \ref{s3:lemCOLJV}, \ref{s3:lemMonotone}, \ref{s1:citEuler}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s2:propStructure}, \ref{s1:condG1}, \ref{s1:citDef7}}
+\end{lemma}
+
+\begin{proof}
+Fix $l$ and $c$; the letter $Z$ ranges over the non-demoted light parts of round $l$ and $Y$ over the good parents of rounds $\le l-2$.
+
+\emph{Step 0: facts used.}
+\begin{itemize}
+\item[(F-a)] $|Z|\le M_l$, since $Z\subseteq Z^0$ and $|Z^0|\le M_l$ (Proposition~\ref{s2:propStructure}(ii)). Hence $L_Z\le\log_2M_l$, and $J_Z+1\le\log_2L_Z-2\le\log_2\log_2M_l$.
+\item[(F-b)] \emph{(Not used.)} If $Y$ has round $r\le l-2$ then $L_Y\ge L_Z$. Indeed $|Y|\ge P_r/2$ (Proposition~\ref{s2:propStructure}(iv)), $P_r\ge P_{l-2}$ (as $P_{r'}\ge2P_{r'+1}$) and $P_{l-2}/2\ge M_l\log^4M_l$ (both by Lemma~\ref{s2:lemTower}(b)), so $|Y|\ge M_l\ge|Z|$. ((F-b) is not used in this proof: the multiplicity bound of Step~5 is $M_l-1$, which does not involve $L_Z$. It is recorded for completeness.)
+\item[(F-c)] Light parts of round $l$ are pairwise vertex-disjoint (Proposition~\ref{s2:propStructure}(iv)), and the edge sets $E_l(Z)$, $E_r(Y)$ of distinct light parts are pairwise disjoint (Proposition~\ref{s2:propStructure}(iii)).
+\item[(F-d)] By Lemma~\ref{s5:lemChild}(b),(c), every arc of $Z$ is a path with at least one edge, hence with two distinct ends; both ends lie in $\Rt(Z)$; the arcs of $Z$ are pairwise edge-disjoint; $Z$ has at most $14(J_Z+1)|Z|\le \mathrm{ncl}_l\defeq14(\bar J_l+1)M_l$ arcs; every vertex $v$ is an end of at most $\deg_{H_0(Z)}(v)\le|Z|-1\le M_l-1$ arcs of $Z$ (the last step by (F-a)); every vertex of an arc of $Z$ lies in $Z$ (its edges lie in $H_0(Z)\subseteq E_l(Z)$, Proposition~\ref{s2:propStructure}(iii)); and every vertex of a phase-$c$ arc lies in no round-$l$ phase-$c$ zone.
+\end{itemize}
+For an end $v$ of an arc of $Z$ we have $v\in\Rt(Z)$, so $\parU(v)$ is defined; it is a good parent of round $\le l-2$ containing $v$ (Definition~\ref{s5:defStages}).
+
+\emph{Step 1: classes.} For each $Z$ list its phase-$c$ arcs in a fixed order as $a_{Z,1},\dots,a_{Z,\mathrm{na}(Z)}$, with $\mathrm{na}(Z)\le \mathrm{ncl}_l$. For $1\le i\le \mathrm{ncl}_l$ the \emph{class} $i$ is $\mathcal A_i\defeq\{a_{Z,i}:\ \mathrm{na}(Z)\ge i\}$. Each class contains at most one arc of each $Z$, so by (F-c) the arcs of one class are pairwise vertex-disjoint. Every arc of $\Bdl_{l,c}$ lies in exactly one class.
+
+\emph{Step 2: the quotient multigraphs.} For each class $i$ let $\UQ_{l,c,i}$ be the multigraph (loops allowed) whose vertices are the good parents of rounds $\le l-2$, with one edge $e_a$ joining $\parU(v)$ and $\parU(v')$ for each arc $a\in\mathcal A_i$ with ends $v,v'$ (a loop if $\parU(v)=\parU(v')$). Good parents are ancestors of rounds $\le l-2$, so $\UQ_{l,c,i}$ has at most $\nu_l$ vertices, and $\nu_l\le2.74n/P_{l-2}$ (Lemma~\ref{s2:lemTower}(b), which completes (K1) of Proposition~\ref{s2:propOV}).
+
+\emph{Step 3: $T$-join and Euler trails.} Let $\mathrm{Odd}_i$ be the set of vertices of odd degree in $\UQ_{l,c,i}$ (a loop adds $2$ to the degree). Every component contains an even number of them. Fix a spanning forest $\mathcal F_i$ of $\UQ_{l,c,i}$ (it contains no loop). By Cited result~\ref{s1:citEuler}, applied to a spanning tree of each component, there is a set $\mathcal T_i\subseteq E(\mathcal F_i)$ in which every vertex has odd degree iff it lies in $\mathrm{Odd}_i$. Then all degrees of $\UQ_{l,c,i}-\mathcal T_i$ are even, and $|\mathcal T_i|\le|E(\mathcal F_i)|\le\nu_l-1$. For every arc $a$ with $e_a\in\mathcal T_i$, output each edge of $a$ as a single edge; $a$ is a path in $Z$ and so has at most $|Z|-1\le M_l-1$ edges. Every component of $\UQ_{l,c,i}-\mathcal T_i$ that has an edge is connected with all degrees even, so it has a closed Euler trail (Cited result~\ref{s1:citEuler}; the statement is valid for multigraphs with loops). This gives at most $\nu_l$ closed trails for class $i$, which together use every edge of $\UQ_{l,c,i}-\mathcal T_i$ exactly once.
+
+We record a closed trail $\mathcal W$ as a cyclic sequence $(a_1,\dots,a_k)$, $k\ge1$ (in this proof $j$ indexes positions along a trail), of distinct arcs of one class, each with an orientation: $a_j$ is traversed from its end $v_j^-$ to its end $v_j^+$, and $\parU(v_j^+)=\parU(v_{j+1}^-)$ for all $j$ (indices modulo $k$). The \emph{transition} at position $j$ is the pair $(v_j^+,v_{j+1}^-)$, and its \emph{node} is $\parU(v_j^+)$.
+
+\begin{claim}[transitions]
+In every closed trail of this kind, every transition consists of two distinct vertices of its node $Y$.
+\end{claim}
+\begin{proof}
+Both vertices have parent $Y$, so both lie in $Y$. If $k\ge2$, then $a_j\ne a_{j+1}$ are distinct arcs of one class, which are vertex-disjoint (Step~1), so $v_j^+\ne v_{j+1}^-$. If $k=1$, the transition is $(v_1^+,v_1^-)$, the two ends of one arc, which are distinct by (F-d).
+\end{proof}
+
+\emph{Step 4: visit capping.} For a closed trail $\mathcal W$ and a node $Y$ let $\mathrm{vis}_Y(\mathcal W)$ be the number of transitions of $\mathcal W$ at $Y$. If $\mathrm{vis}_Y(\mathcal W)>\Tslot_Y$, \emph{split} $\mathcal W$ at $Y$ as follows. Write $\mathrm{vis}\defeq\mathrm{vis}_Y(\mathcal W)$. Rotate the cyclic sequence so that its last transition (position $k$) is at $Y$, and let $j_1<\dots<j_{\mathrm{vis}}=k$ be the positions of the transitions at $Y$. They cut $\mathcal W$ into $\mathrm{vis}$ consecutive segments $(a_1,\dots,a_{j_1})$, $(a_{j_1+1},\dots,a_{j_2})$, \dots, $(a_{j_{\mathrm{vis}-1}+1},\dots,a_{j_{\mathrm{vis}}})$; each segment begins with an arc whose first end has parent $Y$ and ends with an arc whose last end has parent $Y$. Group consecutive segments into $\lceil\mathrm{vis}/\Tslot_Y\rceil$ blocks of at most $\Tslot_Y$ segments. A block $(a_p,\dots,a_q)$ is again a closed trail of the same kind: its transitions are the transitions of $\mathcal W$ at positions $p,\dots,q-1$ together with the new transition $(v_q^+,v_p^-)$ at $Y$. By the argument of the transition claim, $v_q^+\ne v_p^-$ (two distinct arcs of one class, or the two ends of one arc). The block has as many transitions at $Y$ as it has segments, hence at most $\Tslot_Y$; and each transition of $\mathcal W$ at a node $Y'\ne Y$ lies in exactly one block. So a split at $Y$ replaces $\mathcal W$ by $\lceil\mathrm{vis}/\Tslot_Y\rceil\le1+\mathrm{vis}/\Tslot_Y$ closed trails, partitions the arcs of $\mathcal W$ among them, leaves every transition at every other node unchanged, and does not increase $\mathrm{vis}_{Y'}$ of any trail for $Y'\ne Y$.
+
+Process the nodes $Y$ one after another in a fixed order and split every current trail at the current node. Since the number of $Y$-transitions of a trail never increases through splits at other nodes, at the end every trail $\mathcal W$ satisfies $\mathrm{vis}_Y(\mathcal W)\le\Tslot_Y$ for every $Y$. When $Y$ is processed, the number of new trails is at most $\sum_{\mathcal W}\mathrm{vis}_Y(\mathcal W)/\Tslot_Y$, summed over the trails present at that time; and $\sum_{\mathcal W}\mathrm{vis}_Y(\mathcal W)$, the total number of transitions at $Y$ in class $i$ of phase $c$, is not changed by any split. Call it $\mathrm{tr}_{c,i,Y}$ (for the fixed $l$).
+
+A closed trail with $k$ arcs has exactly $k$ transitions, and splits preserve the total number of arcs. Hence, summing over all nodes $Y$, phases $c\in[4]$ and classes $i$, the total number of transitions $\sum_{Y,c,i}\mathrm{tr}_{c,i,Y}$ is at most the number of arcs of all non-demoted light parts of round $l$, which by (F-d), (F-a) and (F-c) is at most $\sum_Z14(J_Z+1)|Z|\le14(\bar J_l+1)\,n$ (the parts $Z$ are pairwise disjoint, so $\sum_Z|Z|\le n$). Every node $Y$ has round $r\le l-2$, so $\Tslot_Y\ge L_Y^2\ge(102\log_2\lambda_r)^2\ge(102\log_2\lambda_{l-2})^2$, by \eqref{s5:eqLY} and $\lambda_r\ge\lambda_{l-2}$ (Lemma~\ref{s2:lemTower}(a)). Therefore the number of visit-capping pieces over all $c$ and $i$ is
+\[
+\mathrm{cap}_l\ \le\ \sum_{Y,c,i}\frac{\mathrm{tr}_{c,i,Y}}{\Tslot_Y}\ \le\ \frac{14(\bar J_l+1)\,n}{(102\log_2\lambda_{l-2})^2}.
+\]
+
+\emph{Step 5: slots and pair multisets.} For every final trail $\mathcal W$ and every node $Y$, give the transitions of $\mathcal W$ at $Y$ pairwise distinct slots $\uslot\in[\Tslot_Y]$, by a fixed rule; this is possible because $\mathrm{vis}_Y(\mathcal W)\le\Tslot_Y$. For each good parent $Y$ of round $\le l-2$ and each $\uslot\in[\Tslot_Y]$ let $\mathfrak P_{Y,\uslot}$ be the multiset of the transitions at $Y$ with slot $\uslot$, over all final trails of all classes $i$ (for the fixed $l,c$), each regarded as an unordered pair. By the transition claim its elements are pairs of distinct vertices of $Y=V(\LU_{Y,l,c,\uslot})$; the same pair may occur several times, so $\mathfrak P_{Y,\uslot}$ is a multiset as in Cited result~\ref{s1:citDef7}. A vertex $v$ occurs in a pair at $Y$ only if $\parU(v)=Y$. We bound the number of its occurrences.
+\begin{itemize}
+\item \emph{Each arc end lies in at most one transition.} In a closed trail $(a_1,\dots,a_k)$ of the kind recorded in Step~3, the transitions are the $k$ pairs $(v_j^+,v_{j+1}^-)$ (indices modulo $k$); so the end $v_j^+$ of $a_j$ lies in the transition at position $j$ only, and the end $v_j^-$ in the transition at position $j-1$ only (for $k=1$ both ends lie in the single transition $(v_1^+,v_1^-)$, once each). Thus every end of every arc of a trail lies in exactly one transition of that trail. This applies to every final trail, including the blocks created in Step~4: a block $(a_p,\dots,a_q)$ is a closed trail of the same kind, and its transitions are exactly the pairs $(v_j^+,v_{j+1}^-)$, $p\le j<q$, together with $(v_q^+,v_p^-)$; the new transition carries the two ends $v_q^+$ and $v_p^-$, whose transitions at positions $q$ and $p-1$ of $\mathcal W$ are not transitions of the block. The final trails partition the arcs that are not output in Step~3, and the arcs output in Step~3 lie on no trail. Hence every arc end lies in at most one transition over all final trails of all classes.
+\item \emph{Counting.} By the transition claim, $v$ is at most one of the two vertices of any pair, and each occurrence of $v$ in a pair is an arc end at $v$ (the end $v_j^+$ of $a_j$ or the end $v_{j+1}^-$ of $a_{j+1}$). By the first bullet, distinct occurrences are distinct arc ends, and an arc has at most one end equal to $v$, since its two ends are distinct (F-d). So the number of pairs of $\bigcup_{\uslot}\mathfrak P_{Y,\uslot}$ containing $v$, counted with multiplicity, is at most the number of arcs of $\Bdl_{l,c}$ having $v$ as an end. By (F-d) and (F-c), all of them are arcs of the unique round-$l$ light part $Z(v)$ containing $v$, and there are at most $|Z(v)|-1\le M_l-1$ of them.
+\item \emph{Comparison with $t_Y$.} Let $r=r(Y)\le l-2$. By Lemma~\ref{s2:lemTower}(b) (row~12 of Table~\ref{s3:tabCOLJV}) and Lemma~\ref{s2:lemTower}(a), $M_l\le\lambda_{l-2}^{1.6}\le\lambda_r^{1.6}\le\lceil\lambda_r^{1.6}\rceil=t_Y$ (Definition~\ref{s3:defCOL}).
+\end{itemize}
+So $v$ lies in at most $M_l-1<t_Y$ pairs of $\bigcup_{\uslot}\mathfrak P_{Y,\uslot}$, and in particular of each $\mathfrak P_{Y,\uslot}$.
+
+\emph{Step 6: routing.} Let $Y$ be a good parent of round $r\le l-2$ and $\uslot\in[\Tslot_Y]$. Then $(l,c,\uslot)$ is an index of $\IU$ for $Y$, since $r+2\le l\le R$. As $Y$ is not parent-bad, $\LU_{Y,l,c,\uslot}$ is $(2^{12}L_Y^4,t_Y)$-path connected through $\Zone_{Y,l,c,\uslot}$ (Definition~\ref{s5:defStages}). This property depends only on the pair $(\LU_{Y,l,c,\uslot},\Zone_{Y,l,c,\uslot})$, which is fixed by the stage-1 outcome, so it may be applied to the multiset $\mathfrak P_{Y,\uslot}$, which is formed afterwards (Lemma~\ref{s3:lemMonotone}(iii)). By Step~5 every vertex lies in at most $M_l-1\le t_Y$ of its pairs. Hence there are pairwise edge-disjoint paths $\mathcal C_\pi\subseteq\LU_{Y,l,c,\uslot}$, one for each element $\pi$ of $\mathfrak P_{Y,\uslot}$ (counted with multiplicity), such that $\mathcal C_\pi$ joins the two vertices of $\pi$, has length at most $2^{12}L_Y^4$, and has all its interior vertices in $\Zone_{Y,l,c,\uslot}$. These paths are the connectors. Define $\LentU_{l,c}$ as the union of the edge sets of all connectors, over all $Y$ and $\uslot$. This proves the inclusion in (i) and the property of the connectors in (i).
+
+\emph{Step 7: the cycles.} Let $\mathcal W=(a_1,\dots,a_k)$ be a final trail, and let $\mathcal C_j$ be the connector of its transition $(v_j^+,v_{j+1}^-)$, which lies at the node $Y_j$ and has slot $\uslot_j$. Let $C(\mathcal W)$ be the closed walk that traverses $a_1$ from $v_1^-$ to $v_1^+$, then $\mathcal C_1$ from $v_1^+$ to $v_2^-$, then $a_2$, then $\mathcal C_2$, and so on, and returns to $v_1^-$ along $\mathcal C_k$.
+
+\begin{claim}[cycles]
+$C(\mathcal W)$ is a cycle of $G$ of length at least $3$.
+\end{claim}
+\begin{proof}
+(1) The arcs $a_1,\dots,a_k$ are paths with pairwise disjoint vertex sets, since they are distinct arcs of one class (Step~1). (2) The interior vertices of $\mathcal C_j$ lie in $\Zone_{Y_j,l,c,\uslot_j}$, which is a round-$l$ phase-$c$ zone; every vertex of every arc of $\Bdl_{l,c}$ lies in no such zone (F-d). So no interior vertex of a connector lies on an arc of $\mathcal W$. (3) For $j\ne j'$ the interiors of $\mathcal C_j$ and $\mathcal C_{j'}$ are disjoint: if $Y_j\ne Y_{j'}$, zones of distinct light parts are disjoint; if $Y_j=Y_{j'}$, then $\uslot_j\ne\uslot_{j'}$ (Step~5), and the two zones are again disjoint (Lemma~\ref{s5:lemZones}(iii) in both cases). (4) Each $\mathcal C_j$ is a path from $v_j^+$ to $v_{j+1}^-$, and these two vertices are distinct (transition claim), so $\mathcal C_j$ has at least one edge. By (1)--(4), $C(\mathcal W)$ visits each of its vertices once before closing, so it is a cycle with at least two edges. Suppose it had exactly two. Then $k=1$, $a_1$ is the single edge $v_1^-v_1^+$ and $\mathcal C_1$ is the single edge $v_1^+v_1^-$. As $G$ is simple, these are the same edge. But $a_1\subseteq E_l(Z)$ for a round-$l$ light part $Z$, while $\mathcal C_1\subseteq E(H_{Y_1})\subseteq E_{r}(Y_1)$ with $r=r(Y_1)\le l-2$, and these edge sets are disjoint (F-c). This is a contradiction, so the length is at least $3$.
+\end{proof}
+
+\emph{Step 8: exact cover.} The objects for $(l,c)$ are the single edges of Step~3 and the cycles $C(\mathcal W)$ of Step~7.
+\begin{itemize}
+\item \emph{Arc edges.} Arcs of one $Z$ are pairwise edge-disjoint (F-d), and arcs of distinct $Z$ lie in the disjoint sets $E_l(Z)$ (F-c). Each arc lies in exactly one class; there it is either an edge $e_a\in\mathcal T_i$, and then its edges are output as single edges, or it lies on exactly one Euler trail and, after the splits (which partition the arcs of a trail), on exactly one final trail $\mathcal W$, and then its edges lie on $C(\mathcal W)$ only.
+\item \emph{Connector edges.} For fixed $(Y,\uslot)$ the connectors are pairwise edge-disjoint (Step~6). Connectors of distinct $(Y,\uslot)$ lie in distinct classes $\LU_{Y,l,c,\uslot}$: for a fixed $Y$ these are distinct colour classes of one colouring, and for distinct $Y$ they lie in the disjoint sets $E(H_Y)\subseteq E_{r(Y)}(Y)$ (F-c). Each connector belongs to exactly one transition and hence to exactly one cycle $C(\mathcal W)$.
+\item \emph{Arc edges versus connector edges.} Arc edges lie in sets $E_l(Z)$ and connector edges in sets $E_r(Y)$ with $r\le l-2$; these are disjoint (F-c). So $\LentU_{l,c}\cap E(\Bdl_{l,c})=\emptyset$.
+\end{itemize}
+Hence the objects partition $E(\Bdl_{l,c})\cup\LentU_{l,c}$, and no other edge is used; this is (iii). For distinct pairs $(l,c)\ne(l',c')$ the sets $\LentU_{l,c}$ and $\LentU_{l',c'}$ are disjoint: within one good parent $Y$ they lie in distinct colour classes of one colouring (the index $(l,c,\uslot)$ differs), and for distinct parents $Y\ne Y'$ they lie in the disjoint sets $E(H_Y)\subseteq E_{r(Y)}(Y)$ and $E(H_{Y'})\subseteq E_{r(Y')}(Y')$ (F-c). Every choice made above is a fixed rule applied to the stage-1 outcome and to $\Bdl_{l,c}$.
+
+\emph{Step 9: counting.} For a fixed class $i$, Step~3 outputs at most $(\nu_l-1)(M_l-1)$ single edges and at most $\nu_l$ closed trails, together at most $\nu_lM_l$ objects before capping. There are at most $\mathrm{ncl}_l=14(\bar J_l+1)M_l$ classes and $4$ phases. With the capping pieces of Step~4, the number of objects summed over $c$ is at most
+\[
+4\cdot14(\bar J_l+1)M_l\cdot\nu_lM_l+\mathrm{cap}_l\ \le\ 4\cdot14(\bar J_l+1)M_l(M_l+1)\nu_l+\mathrm{cap}_l ,
+\]
+which is (ii) for the round $l$. For the sum over $l$, first let $3\le l\le R$. By (F-a), $\bar J_l+1\le\log_2\log_2M_l\le M_l$; moreover $M_l+1\le2M_l$, $\nu_l\le2.74n/P_{l-2}$ (Step~2), and $P_{l-2}\ge M_l^{13}$ (Lemma~\ref{s2:lemTower}(b)). So
+\[
+4\cdot14(\bar J_l+1)M_l(M_l+1)\nu_l\ \le\ 56\cdot2\cdot2.74\,n\,M_l^{3}/M_l^{13}\ \le\ 307\,n/M_l ,
+\]
+and $\sum_l307n/M_l\le614n/\Dstar$ because $\sum_l1/M_l\le2/\Dstar$ (Lemma~\ref{s2:lemTower}(b)).
+
+Next, the capping pieces. By Step~4 and (F-a), $\bar J_l+1\le\log_2\log_2M_l$. Moreover $M_l\le(\Aexp\log\lambda_{l-2})^{2\Aexp}$ (Lemma~\ref{s2:lemTower}(b)), so that $\log_2M_l\le2\Aexp\log_2(\Aexp\log_2\lambda_{l-2})$. With
+\[
+\eta(x)\defeq\frac{\log_2\bigl(2\Aexp\log_2(\Aexp\log_2x)\bigr)}{(\log_2x)^2}\qquad(x\ge\log_2\Dstar),
+\]
+this gives $\mathrm{cap}_l\le\frac{14}{102^2}\,n\,\eta(\lambda_{l-2})\le\frac{n}{743}\,\eta(\lambda_{l-2})$. We claim that $\eta$ is non-increasing on $[\log_2\Dstar,\infty)$ and that $\eta(2^{x/\Aexp})\le\eta(x)/2$ there. Write $x_1\defeq\log_2x\ge\log_2\log_2\Dstar$, so that $x_1\ge2^8$ by \Gc{1}(a) at $x_1$, $x_2\defeq\log_2(\Aexp x_1)\ge14$ and $x_3\defeq\log_2(2\Aexp x_2)\ge11$, so that $\eta=x_3/x_1^2$. Then
+\[
+\frac{d}{dx_1}\ln\eta\ =\ \frac{1}{x_3\,x_2\,x_1\,(\ln2)^2}-\frac2{x_1}\ <\ 0 .
+\]
+Further, $\log_2(\Aexp\log_2 2^{x/\Aexp})=\log_2x=x_1$, so $\eta(2^{x/\Aexp})=\Aexp^2\log_2(2\Aexp x_1)/x^2$, while $\eta(x)/2=x_3/(2x_1^2)$ with $x_3\ge1$. Since $x=2^{x_1}$ and $2\Aexp^2x_1^2\log_2(2\Aexp x_1)\le4\Aexp^3x_1^3\le(2^{14}\Aexp x_1^3)^2\le2^{2x_1}$ (by $\log_2z\le z$ and \Gc{1}(b) at $x_1$), we get $\eta(2^{x/\Aexp})\le\eta(x)/2$. As $\lambda_{r'}\ge2^{\lambda_{r'+1}/\Aexp}$ (Lemma~\ref{s2:lemTower}(a)), $\eta(\lambda_{r'})\le\eta(2^{\lambda_{r'+1}/\Aexp})\le\eta(\lambda_{r'+1})/2$ for $r'<R$. Hence $\sum_{l=3}^R\eta(\lambda_{l-2})=\sum_{r'=1}^{R-2}\eta(\lambda_{r'})\le2\eta(\lambda_{R-2})\le2\eta(\log_2\Dstar)$, because $\lambda_{R-2}\ge\log_2\Dstar$. Altogether
+\[
+\sum_{l=3}^R\mathrm{cap}_l\ \le\ \frac{2}{743}\,\eta(\log_2\Dstar)\,n\ \le\ \frac{\log_2\bigl(2\Aexp\log_2(\Aexp\log_2\log_2\Dstar)\bigr)}{371\,(\log_2\log_2\Dstar)^2}\,n .
+\]
+Adding the two sums gives $\epsChain(\Dstar)n$, which is (ii). Finally $\eta(\log_2\Dstar)\to0$ and $614/\Dstar\to0$ as $\Dstar\to\infty$, so $\epsChain(\Dstar)\to0$.
+\end{proof}
+
+\subsection{Demoted parts and Lemma K-RED}
+
+\begin{lemma}[fallback for demoted light parts]\label{s5:lemDemoted}
+Fix a stage-1 outcome and let $Y$ be a demoted light part of round $r$. Then $Y$ is not a good parent; in particular no class $\LU_{Y,\cdot}$ of $Y$ is used in Lemma~\ref{s5:lemParent}. Let $\mathcal G^{\mathrm{VX}}_Y$ be the good event of Theorem~\ref{s4:thmVXp} for $O\defeq X_Y$, an event over the VX$^+$ labels of $Y$ (stage~3) that depends only on $X_Y$ and these labels and has probability at least $1-\eta_{\mathrm{VX}}(|Y|)\ge1/2$. On $\mathcal G^{\mathrm{VX}}_Y$, for every edge set $E$ with $E(X_Y)\subseteq E\subseteq E_r(Y)$, the set $E$ decomposes into at most $\cVX|Y|$ objects.
+\deps{\ref{s4:thmVXp}, \ref{s2:propStructure}, \ref{s3:lemCOLJV}, \ref{s2:lemTower}, \ref{s1:condG1}, \ref{s1:condG3}, \ref{s5:defStages}, \ref{s5:lemParent}}
+\end{lemma}
+
+\begin{proof}
+A demoted part lies in $\Bad$, so it is not a good parent (Definition~\ref{s5:defStages}), and Lemma~\ref{s5:lemParent}(i) uses only classes of good parents. Put $N\defeq|Y|$ and $L\defeq L_Y$. By Proposition~\ref{s2:propStructure}(i),(iv), $X_Y$ is a spanning $(2^{-6},s_r/2)$-expander on $Y$ and $N\ge P_r/2\ge\Nzero$ (\Gc{3}). The threshold of Theorem~\ref{s4:thmVXp} at $\eps=2^{-6}$ is $s_r/2\ge2^{151}L^{38}\log_2L$; this is row~8(c) of Table~\ref{s3:tabCOLJV} (Lemma~\ref{s3:lemCOLJV}), and it holds in every round $r\le R$, including $r\ge R-1$. Explicitly, $s_r\ge\lambda_r^{100}$ (Proposition~\ref{s2:propStructure}(i)) and $L\le2\lambda_r$ (Lemma~\ref{s2:lemTower}(b), valid for every ancestor of every round $r\le R$) give $2^{152}L^{38}\log_2L\le2^{190}\lambda_r^{38}\cdot2\lambda_r=2^{191}\lambda_r^{39}\le\lambda_r^{100}\le s_r$, since $\log_2\lambda_r\ge2^8$ (\Gc{1}(a)). Theorem~\ref{s4:thmVXp} provides random labels and a good event depending only on $O=X_Y$, of probability at least $1-\eta_{\mathrm{VX}}(N)\ge1/2$, since $N\ge\Nzero$ by \Gc{3}. On this event its conclusion holds simultaneously for every graph on the vertex set $Y$ that contains $O$. Every edge of $E_r(Y)$ has both ends in $Y$ (Proposition~\ref{s2:propStructure}(iii)), so for $E(X_Y)\subseteq E\subseteq E_r(Y)$ the graph $(Y,E)$ contains $O$, and Theorem~\ref{s4:thmVXp} gives $\f(E)\le80N=\cVX|Y|$.
+\end{proof}
+
+Put $\Kstd\defeq\bigsqcup_{l}\bigsqcup_{Z\in\Std_l}E_l(Z)$. Here $\Std_l$ is the deterministic family of Definition~\ref{s2:defHBtp} (it contains the GC-parts and the pre-parts failing (L1), and it does \emph{not} contain the random demotions of Definition~\ref{s5:defStages}); so $\Kstd$ is a function of the run alone, and every demoted light part is still a light part.
+
+\begin{lemma}[Lemma K-RED]\label{s5:lemKRED}
+Fix the valid run, a stage-1 outcome, and stage-3 outcomes in the good events of all light parts: the event $\mathcal G_Z$ of Lemma~\ref{s5:lemChild} for every non-demoted light part $Z$, and the event $\mathcal G^{\mathrm{VX}}_Z$ of Lemma~\ref{s5:lemDemoted} for every demoted light part $Z$. Let $(\Lentext(Y))_Y$ be \emph{any} family, indexed by the light parts $Y$, such that for every light part $Y$
+\[
+\Lentext(Y)\ \subseteq\ \Bigl(\bigcup_{l,j}\LJS_{Y,l,j}\Bigr)\cup\Bigl(\bigcup_l\LJV_{Y,l}\Bigr),\qquad\text{and}\qquad \Lentext(Y)=\emptyset\ \text{ if $Y$ is demoted.}
+\]
+Process the rounds $l=R,R-1,\dots,1$ (children before parents). At round $l$:
+\begin{enumerate}
+\item[(1)] for every non-demoted light part $Z$ of round $l$, let $\LentU(Z)\defeq E(H_Z)\cap\bigcup_{l'\ge l+2,\ c\in[4]}\LentU_{l',c}$ be the set of U-lent edges of $Z$ used by Lemma~\ref{s5:lemParent} at the rounds already processed, put
+\[
+H_0(Z)\defeq E_l(Z)\setminus\bigl(\LentU(Z)\cup\Lentext(Z)\bigr),
+\]
+and decompose $H_0(Z)$ by Lemma~\ref{s5:lemChild} into $H^{\mathrm{obj}}(Z)$ (as objects) and arcs;
+\item[(2)] for every demoted light part $Z$ of round $l$, decompose $E_l(Z)$ by Lemma~\ref{s5:lemDemoted};
+\item[(3)] if $l\ge3$, apply Lemma~\ref{s5:lemParent} to the bundles $\Bdl_{l,c}$, $c\in[4]$, formed from the arcs of step~(1).
+\end{enumerate}
+Output the long cycles $\bigcup_l\Cyc_l$ and the edges of $E_0$ (as single edges) directly. Then the objects produced form a decomposition of
+\[
+E(G)\setminus\Kstd\setminus\bigcup_Y\Lentext(Y)
+\]
+into at most
+\[
+\bigl(\Dstar/2+\cKRED+\epsK(\Dstar)\bigr)\,n\;+\;\cVX\,\mathrm{dem}\;+\;\cPV\,\mathrm{lp}
+\]
+objects, where $\epsK(\Dstar)\defeq\epsChain(\Dstar)$. Itemized: long cycles and $E_0$, at most $n+\Dstar n/2$; child vortices, at most $\cPV\sum_Z|\Pl(Z)|\le\cPV(2n+\mathrm{lp})$; U-chaining, at most $\epsChain(\Dstar)n$; demoted parts, at most $\cVX\,\mathrm{dem}$. The exact sum of these items is at most $(\Dstar/2+\cKREDexact+\epsK(\Dstar))n+\cVX\,\mathrm{dem}+\cPV\,\mathrm{lp}$; the constant $\cKRED$ is kept for the cost line. No edge of $\Kstd$ and no edge of any $\Lentext(Y)$ is used. Moreover, the objects produced at round $l$ depend only on the stage-1 and stage-3 outcomes, on the sets $\Lentext(Z)$ of the light parts $Z$ of round $l$, and on what was produced at the rounds $>l$.
+\deps{\ref{s5:lemChild}, \ref{s5:lemParent}, \ref{s5:lemDemoted}, \ref{s2:propStructure}, \ref{s2:propParentless}, \ref{s2:lemEL}, \ref{s3:defCOL}, \ref{s5:defStages}}
+\end{lemma}
+
+\begin{proof}
+\emph{The edge partition.} By Proposition~\ref{s2:propStructure}(iii),
+\[
+E(G)\ =\ \bigsqcup_l\Cyc_l\ \sqcup\ E_0\ \sqcup\ \bigsqcup_{Y\text{ light}}E_{r(Y)}(Y)\ \sqcup\ \Kstd ,
+\]
+where $\Cyc_l$ is read as an edge set. For every light $Y$, $\Lentext(Y)\subseteq\Lend_Y\subseteq E(H_Y)\subseteq E_{r(Y)}(Y)$ (Definition~\ref{s3:defCOL} and Proposition~\ref{s2:propStructure}(iii)). Hence the set to be decomposed is
+\[
+\mathcal D\ \defeq\ \bigsqcup_l\Cyc_l\ \sqcup\ E_0\ \sqcup\ \bigsqcup_{Y\text{ light}}\bigl(E_{r(Y)}(Y)\setminus\Lentext(Y)\bigr).
+\]
+The edges of a light part $Y$ of round $r$ have both ends in $Y$ (Proposition~\ref{s2:propStructure}(iii)). The two kinds of edges combined by Lemma~\ref{s5:lemParent} are separated also by Lemma~\ref{s2:lemEL}: an arc edge of a round-$l$ part lies in $E(G_l)$, so it does not have both ends in any parent $Y$ of round $\le l-2$, whereas every connector edge of $Y$ has both ends in $Y$. The construction below applies Lemma~\ref{s5:lemDemoted} and Lemma~\ref{s5:lemChild} only to edge sets of light parts, and Lemma~\ref{s5:lemParent} only to arc edges and U-lent edges of light parts; it never applies anything to an edge set $E_l(Z)$ with $Z\in\Std_l$.
+
+\emph{The construction is well defined.} At round $l$, the set $\LentU(Z)$ of a round-$l$ light part $Z$ consists of edges used by Lemma~\ref{s5:lemParent} at rounds $l'\ge l+2$, all of which were processed before round $l$; Lemma~\ref{s5:lemParent} at a round $l'$ uses classes only of good parents of rounds $\le l'-2$, so no later round adds edges of $Z$ to any $\LentU_{l',c}$. Thus $\LentU(Z)$ is final when $Z$ is processed. The hypotheses of Lemma~\ref{s5:lemChild} hold for $H_0(Z)$: $H_0(Z)\subseteq E_l(Z)$, and $\LentU(Z)\cup\Lentext(Z)\subseteq\Lend_Z$ (the U-lent classes and the JS- and JV-lent classes are colour classes of $\Lend_Z$, Definition~\ref{s3:defCOL}(ii)), which is disjoint from $\Own_Z$; so $\Own_Z\subseteq H_0(Z)$. The stage-3 outcome of $Z$ lies in $\mathcal G_Z$, which does not depend on $H_0(Z)$. The hypotheses of Lemma~\ref{s5:lemParent} at round $l$ are those of Lemma~\ref{s5:lemChild} for the round-$l$ parts. For a demoted $Z$ of round $l$, $\Lentext(Z)=\emptyset$ by assumption and no edge of $Z$ lies in any $\LentU_{l',c}$ (Lemma~\ref{s5:lemDemoted}), so all of $E_l(Z)$ is available, and $E(X_Z)\subseteq E_l(Z)$ (Proposition~\ref{s2:propStructure}(iii)); Lemma~\ref{s5:lemDemoted} applies with $E\defeq E_l(Z)$. The objects produced at round $l$ are functions of the stage-1 and stage-3 outcomes, of $\Lentext(Z)$ and $\LentU(Z)$ for the round-$l$ parts $Z$, and of the bundles $\Bdl_{l,c}$, which are formed from these; and $\LentU(Z)$ is determined by the rounds $>l$. This proves the last assertion.
+
+\emph{Every edge of $\mathcal D$ lies in exactly one object, and no other edge is used.}
+\begin{itemize}
+\item Long cycles and $E_0$ are output directly, once each.
+\item Let $Y$ be a demoted light part of round $r$. All of $E_r(Y)$ is covered by the objects of Lemma~\ref{s5:lemDemoted}, each edge once. No other object uses an edge of $E_r(Y)$: the objects of Lemmas~\ref{s5:lemChild} and~\ref{s5:lemDemoted} for another part $Z'$ use only edges of $E_{r(Z')}(Z')$; the objects of Lemma~\ref{s5:lemParent} use only arc edges of non-demoted parts and U-lent edges of good parents (Lemma~\ref{s5:lemParent}(i),(iii)).
+\item Let $Y$ be a non-demoted light part of round $r$. The U-lent classes are disjoint from the JS- and JV-lent classes, so $E_r(Y)\setminus\Lentext(Y)=\LentU(Y)\sqcup H_0(Y)$. An edge of $\LentU(Y)$ lies in $\LentU_{l,c}$ for exactly one pair $(l,c)$ (these sets are pairwise disjoint), with $l\ge r+2$, and is covered by exactly one object of Lemma~\ref{s5:lemParent} at $(l,c)$. An edge $e\in H_0(Y)$ lies either in $H^{\mathrm{obj}}(Y)$, and is covered by exactly one of its objects, or on exactly one arc of $Y$, of some phase $c$; that arc belongs to $\Bdl_{r,c}$ (and $r\ge3$, by Lemma~\ref{s5:lemChild}(d)), and $e$ is covered by exactly one object of Lemma~\ref{s5:lemParent} at $(r,c)$. No other object uses $e$: it is not in any $\LentU_{l',c'}$ (those edges were removed as $\LentU(Y)$), it is an arc edge only of $Y$'s own arcs, and objects of other parts use their own edges.
+\item Edges of $\Kstd$ and of the sets $\Lentext(Y)$ are used by no object: Lemma~\ref{s5:lemDemoted} is applied only to demoted light parts, which have $\Lentext=\emptyset$; Lemma~\ref{s5:lemChild} is applied to $H_0(Z)$, which excludes $\Lentext(Z)$; Lemma~\ref{s5:lemParent} uses arc edges (contained in the sets $H_0(Z)$) and U-lent edges (disjoint from JS- and JV-lent classes); and all these edges lie in the edge sets of light parts, which are disjoint from $\Kstd$. Zones are vertex sets and carry no edges.
+\end{itemize}
+Every object is a cycle of length at least $3$ or a single edge, by Lemmas~\ref{s5:lemChild}, \ref{s5:lemParent} and~\ref{s5:lemDemoted} and the definition of $\Cyc_l$.
+
+\emph{Cost.}
+\begin{itemize}
+\item Long cycles: at most $n$; single edges of $E_0$: $|E_0|<\Dstar n/2$ (Proposition~\ref{s2:propStructure}(iii)).
+\item Child vortices: by Lemma~\ref{s5:lemChild}(a), at most $\cPV\sum_Z|\Pl(Z)|$ over the non-demoted light parts $Z$. By \eqref{s5:eqPl}, which is Proposition~\ref{s2:propParentless}(iii) applied with the set $\Bad$ of Definition~\ref{s5:defStages} (demoted \emph{or} parent-bad parts), this is at most $\cPV(2n+\mathrm{lp})=738n+\cPV\,\mathrm{lp}$.
+\item U-chaining: by Lemma~\ref{s5:lemParent}(ii), at most $\epsChain(\Dstar)n$ over all rounds $l\ge3$ and phases $c$.
+\item Demoted parts: by Lemma~\ref{s5:lemDemoted}, at most $\cVX\sum_{Y\text{ demoted}}|Y|=\cVX\,\mathrm{dem}$.
+\end{itemize}
+The total is at most $(\Dstar/2+1+738+\epsChain(\Dstar))n+\cVX\,\mathrm{dem}+\cPV\,\mathrm{lp}=(\Dstar/2+\cKREDexact+\epsK(\Dstar))n+\cVX\,\mathrm{dem}+\cPV\,\mathrm{lp}$, which is at most the stated bound with $\cKRED$ in place of $\cKREDexact$.
+\end{proof}
+
+\paragraph{The for-all form and the lent edges.} Lemma~\ref{s5:lemKRED} holds for \emph{every} family $(\Lentext(Y))$ of the stated kind, and the objects of round $l$ depend on that family only through the sets $\Lentext(Z)$ of the round-$l$ parts. The lemma is applied later with $\Lentext(Y)$ equal to the set of JS-lent edges of $Y$ used on output cycles of junction chaining together with the JV-lent junction edges of $Y$ used by lifted cycles, at rounds $\ge r(Y)+2$; such a family is of the stated kind, and it is fixed before round $r(Y)$ is processed, which is all that the last assertion of the lemma requires. With the used U-lent edges this gives the full set of used lent edges of $Y$, all of which are excluded from $H_0(Y)$; in particular, used JV junction edges are removed from $H_0$ and are not covered twice. Unused lent edges of $Y$ stay in $H_0(Y)$ as junk, which Lemma~\ref{s5:lemChild} accepts because it holds for every $H_0(Y)$ between $\Own_Y$ and $E_{r(Y)}(Y)$.
+
+\begin{remark}[the constants $369$ and $745$]\label{s5:remConstants}
+(a) The constant $\cPV=369$ of Lemma~\ref{s4:lemPV} is an upper bound for $28\cdot8+64+16=304$. The proof of Lemma~\ref{s4:lemPV} shows that a vortex step $j$ costs at most $4|\vW_j|+12(2|\Pl\cap\vU_{j+1}|+2|\vW_j|)\le28|\Pl\cap\vU_j|$ objects (equation~\eqref{s4:eqPVstep}, using $\Pl\cap\vU_j=\vW_j\sqcup(\Pl\cap\vU_{j+1})$). The good event (G5) gives $\sum_j|\Pl\cap\vU_j|\le8|\Pl|$, so all steps together cost at most $28\cdot8|\Pl|=224|\Pl|$. The finish costs at most $64|\Pl|$ objects for the edges with both ends in $\Pl\cap\vU_{\vJ}$ (Fact~\ref{s1:factEG0}(b), applied to at most $64|\Pl|/L$ vertices) and at most $8|\Pl\cap\vU_{\vJ}|\le16|\Pl|$ stripped single edges (proof of Lemma~\ref{s4:lemPV}; the bound $8|\Pl\cap\vU_{\vJ}|\le8|\Pl|$ also holds, and the weaker factor $16$ suffices; nothing depends on it). So at most $304|\Pl|$ objects are output; the constant $369$ is not optimized, and it is the value used in the cost line.
+
+(b) The constant $\cKRED=745$ exceeds the exact accounting $\cKREDexact=739=1+2\cdot369$ of Lemma~\ref{s5:lemKRED} by $6$, so $745\ge1+2\cdot369+\epsK(\Dstar)$ whenever $\epsK(\Dstar)\le6$. This holds under \Gc{4} (Condition~\ref{s1:condG4}), whose left-hand side contains $\epsK$ as a summand. The bound of Lemma~\ref{s5:lemKRED} carries $\epsK$ separately in any case, so this slack is not needed; the value $745$ is the one used in the cost line.
+
+(c) The constants $369$ and $745$ depend on the hierarchy only through three facts: each vertex lies in at most one light part per round (Proposition~\ref{s2:propStructure}(iv); used in Lemma~\ref{s5:lemZones}(i), in the vertex-disjointness of the arcs of one class, and in \eqref{s5:eqPl}); the parentless count $\sum_Z|\Pl(Z)|\le2n+\mathrm{lp}$ (Proposition~\ref{s2:propParentless}(iii); used in \eqref{s5:eqPl}; the size comparison $|Y|\ge|Z|L_Z^4$ of Proposition~\ref{s2:propParentless}(ii) is not used here, cf.\ (F-b) in the proof of Lemma~\ref{s5:lemParent}); and the overlap counts, namely at most $1.37n/P_r$ ancestors of round $r$ (Proposition~\ref{s2:propOV}, (K1)) and $\nu_l\le2.74n/P_{l-2}$ (Lemma~\ref{s2:lemTower}(b)), which enter only the terms $\epsU(\Dstar)n$ and $\epsChain(\Dstar)n$. The value $369$ is combinatorics of the four-phase P-vortex and does not depend on colour probabilities; $80$ is the constant of Theorem~\ref{s4:thmVXp}; and neither constant depends on the Markov multiplier used to fix the stage-1 outcome.
+\deps{\ref{s4:lemPV}, \ref{s5:lemKRED}, \ref{s2:propStructure}, \ref{s2:propParentless}, \ref{s2:propOV}, \ref{s2:lemTower}, \ref{s4:thmVXp}, \ref{s1:condG4}, \ref{s1:factEG0}}
+\end{remark}

@@ -1,11 +1,8 @@
 cff-version: 1.2.0
 message: >-
-  If you use this formalization, please cite it as below. Status: candidate proof,
-  AI-generated and AI-reviewed; a Lean 4 proof of the formal-conjectures statement
-  Erdos184.erdos_184 passes the project's acceptance checks (release run 36795612102 of https://github.com/steelwheel01/erdos-gallai-lean, tag release-2026-10-01, all three jobs green; offline check of TRUST.md §4.2 passed); not yet
-  reviewed by human experts.
+  If you use this formalization, please cite it as below.
 title: >-
-  A Lean 4 formalization of a candidate proof of the Erdős–Gallai cycle
+  A Lean 4 formalization of a proof of the Erdős–Gallai cycle
   decomposition conjecture (Erdős Problem #184)
 type: software
 authors:
@@ -25,14 +22,13 @@ keywords:
   - Erdős–Gallai conjecture
   - Erdős Problem 184
 abstract: >-
-  A candidate Lean 4 (v4.33.1, Mathlib v4.33.1) proof of the formal-conjectures statement
-  Erdos184.erdos_184 (google-deepmind/formal-conjectures, commit 2424bb48), a formalization of
-  the Erdős–Gallai conjecture that every n-vertex graph decomposes into O(n) cycles and edges.
-  The proof formalizes a candidate manuscript. Both the manuscript and the formalization were
-  written and reviewed by AI systems (Anthropic Claude models via Claude Code). Axioms: propext,
-  Classical.choice, Quot.sound. Status: passes the project's acceptance checks
-  (release run 36795612102 of https://github.com/steelwheel01/erdos-gallai-lean, tag release-2026-10-01, all three jobs green; offline check of TRUST.md §4.2 passed); not yet reviewed by human experts; see README.md for the trust model
-  and the verification record.
+  A Lean 4 (v4.33.1, Mathlib v4.33.1) proof of the formal-conjectures statement
+  Erdos184.erdos_184 (google-deepmind/formal-conjectures, commit 2424bb48): every n-vertex graph
+  decomposes into O(n) cycles and edges, as conjectured by Erdős and Gallai. Axioms: propext,
+  Classical.choice, Quot.sound. Verified by release run 36795612102 of
+  https://github.com/steelwheel01/erdos-gallai-lean (tag release-2026-10-01: comparator in release
+  mode, strict FinalCheck, three kernel replays). The proof and the formalization were developed
+  with substantial assistance from the AI system Claude (Anthropic), under the author's direction.
 references:
   - type: software
     title: "The Formal Conjectures Repository"

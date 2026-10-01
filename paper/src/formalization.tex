@@ -1,0 +1,54 @@
+%% ======================================================================
+%% Section 8: Formal verification. Input by ms.tex after \input{s7}.
+%% Uses only the preamble of ms.tex; defines no macro, environment or
+%% counter. Labels use the prefix s8:.
+%% ======================================================================
+\section{Formal verification}\label{s8:sec}
+\begingroup\sloppy
+
+Theorem~\ref{s1:thmMain}, in the form $\f(n)=O(n)$, has been formalized and
+proved in the Lean~4 proof assistant \cite{Lean4} with its mathematical library
+Mathlib \cite{Mathlib}. The formal target is not a statement of our own: it is
+the theorem \texttt{Erdos184.\allowbreak erdos\_184} of the formal-conjectures
+repository \cite{FC} (file
+\nolinkurl{FormalConjectures/ErdosProblems/184.lean}, commit
+\texttt{2424bb48}). Up to typesetting it reads:
+\begin{quote}\small\ttfamily
+open scoped Classical in\\
+theorem erdos\_184 :\\
+\hspace*{1em}$\exists$ f : $\mathbb N\to\mathbb R$,\\
+\hspace*{2em}(f =O[atTop] fun n : $\mathbb N$ $\mapsto$ (n : $\mathbb R$)) $\wedge$\\
+\hspace*{2em}$\forall$ \symbol{123}V : Type*\symbol{125} [Fintype V] [DecidableEq V] (G : SimpleGraph V),\\
+\hspace*{2em}$\exists$ (D : Finset G.Subgraph),\\
+\hspace*{3em}($\forall$ H $\in$ D, IsCycleOrEdge H.coe) $\wedge$\\
+\hspace*{3em}IsDecomposition G D $\wedge$\\
+\hspace*{3em}(D.card : $\mathbb R$) $\le$ f (Fintype.card V)
+\end{quote}
+(in namespace \texttt{Erdos184}, under \texttt{open Filter SimpleGraph}).
+Here \texttt{IsCycleOrEdge H} means that the finite simple graph \texttt{H} is
+connected and $2$-regular, or has exactly one edge; \texttt{IsDecomposition G D}
+means that the edge sets of the members of \texttt{D} are pairwise disjoint with
+union $E(G)$. A connected $2$-regular finite simple graph is a cycle of length at
+least~$3$, so the statement says that some $f(n)=O(n)$ bounds, for every finite
+simple graph on $n$ vertices, the size of a partition of its edge set into cycles
+and single edges: this is the ``in particular'' part of
+Theorem~\ref{s1:thmMain} (take $f(n)=\cEG n$).
+
+The Lean proof of \texttt{Erdos184.\allowbreak erdos\_184} depends only on the
+standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}. No published result is assumed: the cited inputs of
+Section~\ref{s1:sec} that the proof uses are proved in Lean, except Hall's
+theorem (Cited result~\ref{s1:citHall}), which is taken from Mathlib. The proof
+has been checked by the Lean kernel and by the independent checker
+\emph{comparator} \cite{Comparator} in release mode, which verifies that the
+proved theorem has exactly the statement of formal-conjectures, that no axioms
+other than the three above are used, and that the proof is accepted on a kernel
+replay. The code is available at
+\url{https://github.com/steelwheel01/erdos-gallai-lean} \cite{EGRepo} (release
+tag \texttt{release-2026-10-01}, commit
+\texttt{a11bb45847101e0d1595089bc390c59f82ad1135}; verification run
+\texttt{36795612102} of its GitHub Actions release workflow). The formalization
+follows this paper section by section; a table matching every numbered
+statement of Sections~\ref{s1:sec}--\ref{s7:sec} with its Lean counterpart, where
+there is one, is given in the file \nolinkurl{CORRESPONDENCE.md} of that repository.
+\par\endgroup

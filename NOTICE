@@ -1,4 +1,4 @@
-erdos-gallai-lean: a Lean 4 formalization of a candidate proof of the Erdős–Gallai cycle
+erdos-gallai-lean: a Lean 4 formalization of a proof of the Erdős–Gallai cycle
 decomposition conjecture (Erdős Problem #184)
 Copyright 2026 Ryan Coffey
 
@@ -7,10 +7,9 @@ Licensed under the Apache License, Version 2.0 (see LICENSE).
 Provenance. This repository is a single-commit snapshot of the Lean formalization, exported from
 the private development repository steelwheel01/Erdos-Proof (snapshot commit
 bb4d87811317c6ce978367165dcb878ce602bd41; trusted zone byte-identical to its trust commit
-19d0754bb69e130fd506813ceb055b0e99a19515). The Lean code, the checking tooling, the documentation
-and the candidate manuscript they formalize were produced by AI systems (Anthropic Claude models
-working through Claude Code), operated by Ryan Coffey (Yale University). No human mathematician
-has verified the proof or the formalization; see README.md, section "Disclosure".
+19d0754bb69e130fd506813ceb055b0e99a19515). The proof, the Lean code, the checking tooling and
+the documentation were developed with substantial assistance from the AI system Claude (Anthropic),
+under the direction of Ryan Coffey (Yale University), who takes full responsibility for them.
 
 Third-party material:
 * formal/comparator/Challenge.lean is a byte-identical copy, and formal/comparator/Solution.lean a

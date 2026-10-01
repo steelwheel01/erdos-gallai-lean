@@ -1,0 +1,76 @@
+\providecommand{\bysame}{\leavevmode\hbox to3em{\hrulefill}\thinspace}
+\providecommand{\MR}{\relax\ifhmode\unskip\space\fi MR }
+% \MRhref is called by the amsart/book/proc definition of \MR.
+\providecommand{\MRhref}[2]{%
+  \href{http://www.ams.org/mathscinet-getitem?mr=#1}{#2}
+}
+\providecommand{\href}[2]{#2}
+\begin{thebibliography}{10}
+
+\bibitem{AH00}
+Ron Aharoni and Penny Haxell, \emph{Hall's theorem for hypergraphs}, Journal of
+  Graph Theory \textbf{35} (2000), no.~2, 83--88.
+
+\bibitem{BM}
+Matija Buci{\'c} and Richard Montgomery, \emph{Towards the
+  {E}rd{\H{o}}s--{G}allai cycle decomposition conjecture}, Advances in
+  Mathematics \textbf{437} (2024), 109434, arXiv:2211.07689. Extended abstract
+  in Proceedings of the 55th Annual ACM Symposium on Theory of Computing (STOC
+  2023), pp.~839--852.
+
+\bibitem{EGRepo}
+Ryan Coffey, \emph{erdos-gallai-lean: a {L}ean 4 proof of
+  \texttt{Erdos184.erdos\_184}},
+  \url{https://github.com/steelwheel01/erdos-gallai-lean}, Release tag
+  \texttt{release-2026-10-01}, commit a11bb45847101e0d1595089bc390c59f82ad1135;
+  Lean v4.33.1, Mathlib v4.33.1.
+
+\bibitem{CFS14}
+David Conlon, Jacob Fox, and Benny Sudakov, \emph{Cycle packing}, Random
+  Structures \& Algorithms \textbf{45} (2014), no.~4, 608--626,
+  arXiv:1310.0632.
+
+\bibitem{Lean4}
+Leonardo de~Moura and Sebastian Ullrich, \emph{The {L}ean 4 theorem prover and
+  programming language}, Automated Deduction -- CADE 28, Lecture Notes in
+  Computer Science, vol. 12699, Springer, 2021, pp.~625--635.
+
+\bibitem{EG66}
+Paul Erd{\H{o}}s, A.~W. Goodman, and Lajos P{\'o}sa, \emph{The representation
+  of a graph by set intersections}, Canadian Journal of Mathematics \textbf{18}
+  (1966), 106--112.
+
+\bibitem{Hal35}
+P.~Hall, \emph{On representatives of subsets}, Journal of the London
+  Mathematical Society \textbf{10} (1935), 26--30.
+
+\bibitem{Hax95}
+P.~E. Haxell, \emph{A condition for matchability in hypergraphs}, Graphs and
+  Combinatorics \textbf{11} (1995), 245--248.
+
+\bibitem{JLR00}
+Svante Janson, Tomasz {\L}uczak, and Andrzej Ruci{\'n}ski, \emph{Random
+  graphs}, Wiley-Interscience Series in Discrete Mathematics and Optimization,
+  Wiley-Interscience, New York, 2000.
+
+\bibitem{Comparator}
+{leanprover}, \emph{comparator},
+  \url{https://github.com/leanprover/comparator}.
+
+\bibitem{Lov68}
+L{\'a}szl{\'o} Lov{\'a}sz, \emph{On covering of graphs}, Theory of Graphs
+  (Proc. Colloq., Tihany, 1966), Academic Press, New York, 1968, pp.~231--236.
+
+\bibitem{FC}
+{The Formal Conjectures Authors}, \emph{{F}ormal {C}onjectures: {E}rd{\H{o}}s
+  {P}roblem 184, file \texttt{FormalConjectures/ErdosProblems/184.lean}},
+  \url{https://github.com/google-deepmind/formal-conjectures}, Commit
+  2424bb480c590237ffbb2cc831ae4cb8977e045a (2026-09-24); theorem
+  \texttt{Erdos184.erdos\_184}.
+
+\bibitem{Mathlib}
+{The mathlib Community}, \emph{The {L}ean mathematical library}, Proceedings of
+  the 9th ACM SIGPLAN International Conference on Certified Programs and Proofs
+  (CPP 2020), ACM, 2020, pp.~367--381.
+
+\end{thebibliography}

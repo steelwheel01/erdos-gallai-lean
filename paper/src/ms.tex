@@ -1,0 +1,255 @@
+\documentclass[11pt]{article}
+%% ======================================================================
+%% A proof of the Erdos--Gallai cycle decomposition conjecture.
+%% Main file: preamble, front matter and the inputs s1.tex ... s7.tex,
+%% formalization.tex (Section 8); bibliography refs.bib (amsplain).
+%% Packages: amsmath, amssymb, amsthm, geometry, hyperref only. Every macro
+%% is defined here with \newcommand; section files define no macros,
+%% environments or counters.
+%% ======================================================================
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\hypersetup{pdftitle={A proof of the Erd\H{o}s--Gallai cycle decomposition conjecture},pdfauthor={Ryan Coffey}}
+
+\numberwithin{equation}{section}
+
+%% ----------------------------------------------------------------------
+%% Theorem environments (one shared counter, numbered within sections)
+%% ----------------------------------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{citedresult}[theorem]{Cited result}
+\newtheorem{claim}{Claim}[theorem]
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{convention}[theorem]{Convention}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+%% ----------------------------------------------------------------------
+%% Labels with custom text, e.g. \namedlabel{s1:condG1}{\Gc{1}}
+%% ----------------------------------------------------------------------
+\makeatletter
+\newcommand{\namedlabel}[2]{\begingroup\protected@edef\@currentlabel{#2}\phantomsection\label{#1}\endgroup}
+\makeatother
+
+%% ----------------------------------------------------------------------
+%% Dependency lines and names
+%% ----------------------------------------------------------------------
+\newcommand{\deps}[1]{\par\smallskip\noindent{\small\textbf{Dependencies:} #1}\par\smallskip}
+\newcommand{\EG}{Erd\H{o}s--Gallai}
+\newcommand{\BMnames}{Buci\'c--Montgomery}
+
+%% ----------------------------------------------------------------------
+%% General mathematics
+%% ----------------------------------------------------------------------
+\newcommand{\f}{f}                      % f(G), f(F): least number of objects
+\newcommand{\defeq}{\mathrel{:=}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Ex}{\mathbb{E}}
+\newcommand{\ind}[1]{\mathbf{1}[#1]}
+\newcommand{\logs}{\log^{\star}}         % iterated logarithm (base 2)
+\newcommand{\Bin}{\mathrm{Bin}}
+\newcommand{\Nbr}{N}                     % N_G(U): neighbours outside U
+\newcommand{\Ball}[3]{B^{#1}_{#2}(#3)}   % \Ball{\ell}{G-F}{U,V}
+
+%% ----------------------------------------------------------------------
+%% Constants and their order (s1:defConstants, s1:condG1--G4)
+%% ----------------------------------------------------------------------
+\newcommand{\eps}{\varepsilon}          % eps := 2^{-5}
+\newcommand{\Dstar}{D_{*}}
+\newcommand{\Nzero}{N_{0}}
+\newcommand{\Cp}{C'}                     % C' := 103
+\newcommand{\Aexp}{A}                    % A := 105 (degree-recursion exponent)
+\newcommand{\Czero}{C_{0}}
+\newcommand{\cEG}{c_{\mathrm{EG}}}
+\newcommand{\epsOne}{\varepsilon_{1}}
+\newcommand{\epsTwo}{\varepsilon_{2}}
+\newcommand{\thetaQ}{\theta_{Q}}
+\newcommand{\epsA}{\varepsilon_{A}}
+\newcommand{\epsU}{\varepsilon_{U}}
+\newcommand{\epsK}{\varepsilon_{K}}
+\newcommand{\epsX}{\varepsilon_{X}}
+\newcommand{\epsCONC}{\varepsilon_{\mathrm{CONC}}}
+\newcommand{\epsChain}{\varepsilon_{\mathrm{ch}}}
+\newcommand{\epsD}{\varepsilon(\Dstar)}  % generic: depends on D_* only, ->0
+\newcommand{\Gc}[1]{\ensuremath{(\Gamma\mathrm{#1})}}   % galactic condition
+\newcommand{\Gstar}{\ensuremath{(\mathrm{G}^{*})}}
+\newcommand{\cOV}{c_{\mathrm{OV}}}       % log_2(4/3)
+%% numerical constants of the cost line
+\newcommand{\cVX}{80}
+\newcommand{\cTPV}{169}
+\newcommand{\cPV}{369}
+\newcommand{\cKRED}{745}
+\newcommand{\cKREDexact}{739}
+\newcommand{\cFresh}{338}
+\newcommand{\cTot}{1085}
+\newcommand{\cTotR}{1091}
+
+%% ----------------------------------------------------------------------
+%% The hierarchy (s2)
+%% ----------------------------------------------------------------------
+\newcommand{\HBs}{\mathrm{HB}^{*}}
+\newcommand{\HBt}{\mathrm{HB}^{*\tau}}
+\newcommand{\HBtp}{\mathrm{HB}^{*\tau{+}}}
+\newcommand{\tHB}{t^{\mathrm{HB}}}
+\newcommand{\Cyc}{\mathrm{Cyc}}
+\newcommand{\Std}{\mathrm{Std}}
+\newcommand{\home}{\mathrm{home}}
+\newcommand{\anc}{\mathrm{anc}}
+\newcommand{\Dup}{\mathrm{Dup}}
+\newcommand{\Dups}{\mathrm{Dup}^{*}}
+\newcommand{\dup}{\mathrm{dup}}
+\newcommand{\mult}{\mathrm{mult}}
+\newcommand{\piece}{\mathcal{Q}}          % pieces of the s=0 Lemma-14 run
+\newcommand{\Leaf}{\mathfrak{L}}          % a leaf of a Lemma-14^tau recursion
+\newcommand{\Hout}{H_{\mathrm{out}}}
+\newcommand{\Hin}{H_{\mathrm{in}}}
+\newcommand{\thGC}{\theta^{\mathrm{GC}}}
+\newcommand{\Rt}{\mathrm{Rt}}             % rooted vertices of a light child
+\newcommand{\Pl}{\mathrm{Pl}}             % parentless vertices of a light child
+\newcommand{\parU}{\mathrm{par}}          % the fixed parent of a rooted vertex
+\newcommand{\Kstd}{K^{\mathrm{std}}}      % union of standalone edge sets
+\newcommand{\Bad}{\mathrm{Bad}}            % demoted or parent-bad light parts
+
+%% ----------------------------------------------------------------------
+%% Colouring, lending, zones (s3, s5)
+%% ----------------------------------------------------------------------
+\newcommand{\Own}{\mathrm{Own}}
+\newcommand{\Lend}{\mathrm{Lend}}
+\newcommand{\Lent}{\mathrm{Lent}}
+\newcommand{\LentU}{\mathrm{Lent}^{\mathrm{U}}}
+\newcommand{\LentJS}{\mathrm{Lent}^{\mathrm{JS}}}
+\newcommand{\LentJV}{\mathrm{Lent}^{\mathrm{JV}}}
+\newcommand{\Lentext}{\mathrm{Lent}^{\mathrm{ext}}}
+\newcommand{\klend}{k_{\mathrm{lend}}}
+\newcommand{\kown}{k_{\mathrm{own}}}
+\newcommand{\IU}{\mathcal{I}_{\mathrm{U}}}
+\newcommand{\IJS}{\mathcal{I}_{\mathrm{JS}}}
+\newcommand{\IJV}{\mathcal{I}_{\mathrm{JV}}}
+\newcommand{\LU}{\mathcal{L}^{\mathrm{U}}}
+\newcommand{\LJS}{\mathcal{L}^{\mathrm{JS}}}
+\newcommand{\LJV}{\mathcal{L}^{\mathrm{JV}}}
+\newcommand{\KJS}{K^{\mathrm{JS}}}
+\newcommand{\tJS}{t^{\mathrm{JS}}}
+\newcommand{\KHUB}{K^{\mathrm{HUB}}}
+\newcommand{\lab}{\mathrm{lab}}
+\newcommand{\Zone}{\mathrm{Zone}}
+\newcommand{\uslot}{\varsigma}            % Theorem-U slot index
+\newcommand{\Tslot}{T^{\mathrm{sl}}}      % number of slots T^sl_Y
+\newcommand{\zp}{\varpi}                  % zone-choice probability varpi_Y
+\newcommand{\Bdl}{\mathrm{Bdl}}           % Theorem-U chaining bundle (l,c)
+\newcommand{\Aw}{\mathcal{A}}             % hub-avoiding sets A(w) of Lemma HB
+
+%% ----------------------------------------------------------------------
+%% Vortex-local notation (sans serif = local to one vortex run; s4)
+%% ----------------------------------------------------------------------
+\newcommand{\vJ}{\mathsf{J}}
+\newcommand{\vR}{\mathsf{R}}
+\newcommand{\vM}{\mathsf{M}}
+\newcommand{\vU}{\mathsf{U}}
+\newcommand{\vW}{\mathsf{W}}
+\newcommand{\vZ}{\mathsf{Z}}
+\newcommand{\vV}{\mathsf{V}}
+\newcommand{\vH}{\mathsf{H}}
+\newcommand{\vF}{\mathsf{F}}
+\newcommand{\vP}{\mathsf{P}}
+\newcommand{\vQ}{\mathsf{Q}}
+\newcommand{\vC}{\mathsf{C}}
+\newcommand{\vlev}{\mathsf{lv}}
+\newcommand{\vkap}{\mathsf{k}}
+\newcommand{\vm}{\mathsf{m}}
+\newcommand{\vb}{\mathsf{b}}
+\newcommand{\vt}{\mathsf{t}}
+\newcommand{\vPaths}{\mathcal{P}^{\mathsf{v}}}
+\newcommand{\vPathsQ}{\widetilde{\mathcal{P}}^{\mathsf{v}}}
+
+%% ----------------------------------------------------------------------
+%% Standalone parts, TPV interface, JS-LC, chaining (s6)
+%% ----------------------------------------------------------------------
+\newcommand{\Lost}{\mathrm{Lost}}
+\newcommand{\Ret}{\mathrm{Ret}}           % Ret_Z := A_Z u F_Z u Lost_Z
+\newcommand{\Qs}{Q^{*}}                   % Q*_Z := Q_Z \ Lost_Z
+\newcommand{\Erem}{E^{\mathrm{rem}}}
+\newcommand{\EV}{E^{\mathrm{V}}}
+\newcommand{\EQ}{E^{\mathrm{Q}}}
+\newcommand{\Bead}{\mathfrak{B}}          % deterministic bead graph B_{Y,l}
+\newcommand{\cagg}{c^{\mathrm{agg}}}
+\newcommand{\cpp}{c_{\mathrm{pp}}}
+\newcommand{\sco}{\mathrm{sc}}            % split cost sc_{Y,l}
+\newcommand{\clu}{\mathfrak{K}}           % a cluster
+\newcommand{\exc}{\mathrm{exc}}
+\newcommand{\dem}{\mathrm{dm}}            % HCC-P demands dm^-(u), dm^+(u)
+\newcommand{\pad}{\mathrm{pad}}           % HCC-P padding
+\newcommand{\MED}{\mathrm{MED}}
+\newcommand{\Jlost}{J^{\mathrm{lost}}}
+\newcommand{\Jhub}{J^{\mathrm{hub}}}
+\newcommand{\Jfr}{J^{\mathrm{fr}}}
+\newcommand{\Jpar}{J^{\mathrm{par}}}
+\newcommand{\Jp}[1]{\textup{(J#1)}}       % properties (J1)--(J3)
+\newcommand{\JC}[1]{\textup{(JC#1)}}      % J-consumer interface (JC1)--(JC3)
+
+%% ----------------------------------------------------------------------
+%% Junction-vertex quotient, ultra hubs, induction (s7)
+%% ----------------------------------------------------------------------
+\newcommand{\plab}{\mathrm{pl}}           % round-split pool label pl(v)
+\newcommand{\Pool}{\mathrm{Pool}}
+\newcommand{\Cand}{\mathrm{Cand}}
+\newcommand{\Hcd}{H^{\mathrm{cd}}}        % candidate threshold H^cd_l
+\newcommand{\thult}{\theta^{\mathrm{ult}}}
+\newcommand{\clive}{c^{\mathrm{live}}}
+\newcommand{\tCC}{t^{\mathrm{CC}}}
+\newcommand{\Used}{\mathrm{Used}}
+\newcommand{\Live}{\mathrm{Live}}
+\newcommand{\BP}{B^{\mathrm{P}}}
+\newcommand{\BH}{B^{\mathrm{H}}}
+\newcommand{\Dec}{\mathcal{D}}
+\newcommand{\Past}{\mathfrak{F}^{-}}
+\newcommand{\XU}{X_{\mathrm{U}}}
+\newcommand{\Xpool}{X_{\mathrm{pool}}}
+\newcommand{\XV}{X_{\mathrm{V}}}
+\newcommand{\Xp}{X'}
+\newcommand{\dett}{\mathrm{det}}
+\newcommand{\copies}{\mathrm{copies}}
+\newcommand{\payrd}{\mathrm{pay}^{\mathrm{rd}}}
+\newcommand{\Obj}{\mathcal{O}}            % objects output by the round-l J-consumer
+
+%% ----------------------------------------------------------------------
+%% Local helpers used in several sections
+%% ----------------------------------------------------------------------
+\newcommand{\UQ}{\mathcal{M}}             % Theorem-U chaining quotient multigraph
+\newcommand{\LayP}{\mathcal{X}}           % HCC-P: port set of layer j
+\newcommand{\pot}{\mathrm{pot}}           % MED / HCC-P potential
+\newcommand{\extph}{\varphi}              % P-vortex external phase map
+
+\title{A proof of the Erd\H{o}s--Gallai cycle decomposition conjecture}
+\author{Ryan Coffey\\
+\small Yale University}
+\date{1 October 2026}
+
+\begin{document}
+\input{s1}
+\input{s2}
+\input{s3}
+\input{s4}
+\input{s5}
+\input{s6}
+\input{s7}
+\input{formalization}
+
+\section*{Acknowledgements}
+The proof in this paper and its Lean formalization were developed with
+substantial assistance from the AI system Claude (Anthropic), under the
+author's direction. The author takes full responsibility for the content of
+this paper.
+
+\bibliographystyle{amsplain}
+\bibliography{refs}
+\end{document}
